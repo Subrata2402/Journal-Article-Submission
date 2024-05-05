@@ -1,0 +1,50 @@
+{
+  "homepage": "https://journal-submission.github.io/journal-submission",
+  "name": "article-submission",
+  "description": "A React app for submitting articles to a journal",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -b main -d dist",
+    "dev": "vite --host",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^41.2.0",
+    "@ckeditor/ckeditor5-react": "^6.2.0",
+    "@react-pdf-viewer/core": "^3.12.0",
+    "@react-pdf-viewer/default-layout": "^3.12.0",
+    "apexcharts": "^3.45.1",
+    "bootstrap": "^5.3.2",
+    "dotenv": "^16.4.2",
+    "gh-pages": "^6.1.1",
+    "html-react-parser": "^5.1.9",
+    "jszip": "^3.10.1",
+    "pdf-merger-js": "^5.1.1",
+    "pdfjs-dist": "^3.4.120",
+    "react": "^18.2.0",
+    "react-apexcharts": "^1.4.1",
+    "react-bootstrap": "^2.10.1",
+    "react-csv-reader": "^4.0.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.12.0",
+    "react-loader-spinner": "^6.1.6",
+    "react-router-dom": "^6.21.1",
+    "react-toastify": "^10.0.4",
+    "styled-components": "^6.1.6"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "vite": "^5.0.11"
+  }
+}

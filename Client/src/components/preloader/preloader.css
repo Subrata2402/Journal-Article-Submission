@@ -1,0 +1,80 @@
+.nav-title {
+    position: relative;
+    /* font-size: x-large; */
+    background-color: #eee;
+    filter: drop-shadow(0px 1px 2px rgb(3, 4, 7));
+    margin-bottom: 0.5rem;
+
+}
+
+.nav-title h3 {
+    font-size: 35px;
+    font-weight: bold;
+    text-shadow: 2px 2px #a6c7c5;
+}
+
+
+.nav-title .banner {
+    position: absolute;
+    top: 5%;
+    filter: drop-shadow(0 0 0.25rem rgb(11, 24, 214));
+    z-index: 999;
+}
+
+.nav-title .nav-img {
+    position: absolute;
+    top: 10%;
+    left: 0.3%;
+    z-index: 999;
+}
+
+.bx-shadow {
+    width: 230px;
+    height: 150px;
+    position: absolute;
+    z-index: 111;
+    filter: drop-shadow(0px .1rem .1px rgba(3, 4, 11, 0.549));
+}
+
+.clip-path {
+    position: absolute;
+    top: 5.1%;
+    background-color: #eee;
+    width: 10rem;
+    height: 5rem;
+    clip-path: polygon(50% 0%, 100% 0, 100% 0, 62% 100%, 0 100%, 0 0);
+    z-index: 11;
+}
+
+.preloader-section {
+    /* margin-left: 255px;
+    width: 65%; */
+    min-height: 57.4vh;
+    background-color: var(--light-grey);
+    border-radius: .25rem;
+    box-shadow: var(--bx-shadow);
+}
+
+.journal-title {
+    font-size: 1.85rem;
+}
+
+.journal-title~.bottom-rule {
+    margin-top: 0;
+}
+
+.journal-logo {
+    width: 75px;
+    height: 75px;
+    padding: .25rem;
+    margin: 0 auto;
+    border-radius: 50px;
+    border: 1px solid var(--navy-blue);
+    overflow: hidden;
+    box-shadow: var(--bx-shadow);
+    margin-bottom: .5rem;
+}
+
+.nav-bar {
+    height: 4rem;
+}
