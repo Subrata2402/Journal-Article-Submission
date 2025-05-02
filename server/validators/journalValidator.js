@@ -15,6 +15,7 @@ const journalValidator = {
         category: z.string({ required_error: "Category is required" }).trim()
             .min(3, 'Category should be at least 3 characters long')
             .max(50, 'Category should be at most 50 characters long'),
+        tags: z.array(z.string()).optional(),
     }),
 
     addEditor: z.object({

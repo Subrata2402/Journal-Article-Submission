@@ -4,7 +4,7 @@
   "description": "Advanced API for academic journal article submissions",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node index.js",
     "server": "nodemon server.js",
     "dev": "NODE_ENV=development nodemon server.js",
     "prod": "NODE_ENV=production node server.js",
