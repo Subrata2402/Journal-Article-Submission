@@ -1,0 +1,71 @@
+@use '../_variables';
+
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  &--fullpage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+  }
+  
+  &__circle {
+    border-radius: 50%;
+    border-style: solid;
+    border-color: var(--primary-color) transparent var(--primary-color) transparent;
+    animation: spinner-animation 1.2s linear infinite;
+  }
+  
+  &--small &__circle {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+  }
+  
+  &--medium &__circle {
+    width: 48px;
+    height: 48px;
+    border-width: 4px;
+  }
+  
+  &--large &__circle {
+    width: 64px;
+    height: 64px;
+    border-width: 5px;
+  }
+  
+  &--primary &__circle {
+    border-color: var(--primary-color) transparent var(--primary-color) transparent;
+  }
+  
+  &--secondary &__circle {
+    border-color: var(--secondary-button-bg) transparent var(--secondary-button-bg) transparent;
+  }
+  
+  &--white &__circle {
+    border-color: #ffffff transparent #ffffff transparent;
+  }
+  
+  &__text {
+    margin-top: var(--spacing-md);
+    color: #ffffff;
+    font-weight: 500;
+    font-size: var(--font-size-lg);
+  }
+}
+
+@keyframes spinner-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

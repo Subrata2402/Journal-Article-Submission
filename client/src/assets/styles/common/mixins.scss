@@ -1,0 +1,44 @@
+// Common SCSS mixins for use throughout the application
+
+// Responsive padding mixin
+@mixin responsive-padding {
+  padding: 1rem;
+  
+  @media (min-width: 576px) {
+    padding: 1.5rem;
+  }
+  
+  @media (min-width: 992px) {
+    padding: 2rem;
+  }
+}
+
+// Flex center mixin
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Box shadow mixin
+@mixin box-shadow($intensity: 'medium') {
+  @if $intensity == 'light' {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  } @else if $intensity == 'medium' {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  } @else if $intensity == 'heavy' {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Truncate text with ellipsis
+@mixin truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Transition mixin
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+  transition: $property $duration $timing;
+}

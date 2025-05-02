@@ -1,0 +1,112 @@
+@use './_variables' as *;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+// Base styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--body-bg);
+  color: var(--body-text);
+  transition: all var(--transition-normal);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  padding: var(--spacing-xl);
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+}
+
+// Common button styles
+button {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+button.primary-button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+}
+
+button.primary-button:hover {
+  background-color: var(--primary-color-dark);
+  transform: translateY(-2px);
+}
+
+button.secondary-button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--secondary-button-bg);
+  color: var(--secondary-button-text);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+}
+
+button.secondary-button:hover {
+  background-color: var(--secondary-button-hover-bg);
+  transform: translateY(-2px);
+}
+
+// Headers and text
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading-text);
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-color-dark);
+}
+
+page-header {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+  width: 100%;
+}
+
+.page-header h1 {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.page-header p {
+  font-size: var(--font-size-lg);
+  color: var(--body-text);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media screen {
+  @media (max-width: 768px) {
+    main {
+      padding: var(--spacing-lg);
+    }
+  }
+
+  @media (max-width: 480px) {
+    main {
+      padding: var(--spacing-md);
+    }
+  }
+  
+}

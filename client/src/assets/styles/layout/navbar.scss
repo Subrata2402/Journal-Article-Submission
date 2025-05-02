@@ -1,0 +1,507 @@
+@use '../variables' as *;
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--navbar-bg);
+  color: var(--navbar-text);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  
+  @media (max-width: 992px) {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+.navbar__left {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  
+  @media (max-width: 992px) {
+    width: 100%;
+  }
+  
+  .logo {
+    color: var(--navbar-text);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.5rem;
+    
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 1rem;
+    }
+  }
+  
+  .mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--navbar-text);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    
+    @media (max-width: 992px) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.navbar__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  
+  .nav-tabs {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: var(--spacing-md);
+    
+    .nav-item {
+      margin: 0;
+      padding: 0;
+    }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-sm) var(--spacing-md);
+      color: var(--navbar-text);
+      font-weight: 500;
+      border-radius: var(--border-radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      
+      svg {
+        font-size: var(--font-size-md);
+      }
+      
+      &:hover {
+        background-color: var(--button-hover-bg);
+        transform: translateY(-2px);
+      }
+      
+      &.active {
+        background-color: var(--primary-color-light);
+        color: var(--primary-color-dark);
+        
+        &:hover {
+          background-color: var(--primary-color-light);
+        }
+      }
+    }
+  }
+}
+
+.navbar__right {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+// Mobile menu styles
+.desktop-only {
+  @media (max-width: 992px) {
+    display: none;
+  }
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 60px; // Adjust based on your navbar height
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-color-overlay, rgba(0, 0, 0, 0.5));
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  
+  @media (max-width: 992px) {
+    display: block;
+    
+    &.open {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+  
+  &__content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 85%;
+    max-width: 350px;
+    height: 100%;
+    background-color: var(--navbar-bg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    
+    .open & {
+      transform: translateX(0);
+    }
+  }
+  
+  &__divider {
+    height: 1px;
+    width: 100%;
+    background-color: var(--border-color);
+    margin: var(--spacing-md) 0;
+  }
+  
+  &__themes {
+    h3 {
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-md);
+      color: var(--text-muted);
+    }
+    
+    .theme-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    
+    .theme-option {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      color: var(--text-color);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      
+      &:hover {
+        background-color: var(--button-hover-bg);
+      }
+      
+      &.active {
+        background-color: var(--primary-color-light);
+        color: var(--primary-color-dark);
+        border-color: var(--primary-color-light);
+      }
+      
+      svg {
+        font-size: var(--font-size-md);
+      }
+    }
+  }
+}
+
+.nav-tabs-mobile {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  
+  .nav-item {
+    margin: 0;
+  }
+  
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    color: var(--navbar-text);
+    font-weight: 500;
+    border-radius: var(--border-radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    
+    svg {
+      font-size: 1.25rem;
+    }
+    
+    &:hover {
+      background-color: var(--button-hover-bg);
+    }
+    
+    &.active {
+      background-color: var(--primary-color-light);
+      color: var(--primary-color-dark);
+    }
+  }
+}
+
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  
+  button {
+    height: 38px; /* Set a consistent height for all auth buttons */
+    display: flex;
+    align-items: center;
+  }
+}
+
+.auth-buttons-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+  
+  button {
+    width: 100%;
+    justify-content: center;
+    height: 42px; /* Slightly taller for mobile touch targets */
+  }
+}
+
+.theme-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.theme-toggle-btn {
+  background-color: transparent;
+  color: var(--navbar-text);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  font-size: var(--font-size-lg);
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--button-hover-bg);
+  transform: translateY(-2px);
+}
+
+.theme-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: var(--card-bg);
+  min-width: 150px;
+  box-shadow: var(--shadow-md);
+  z-index: 1100;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+.theme-dropdown-content.show {
+  display: block;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.theme-dropdown-content button {
+  color: var(--body-text);
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background-color: transparent;
+  gap: var(--spacing-sm);
+}
+
+.theme-dropdown-content button:hover {
+  background-color: var(--button-hover-bg);
+  transform: none;
+}
+
+.theme-dropdown-content button.active {
+  background-color: var(--primary-color-light);
+  font-weight: 500;
+}
+
+.login-btn {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: all var(--transition-fast);
+}
+
+.login-btn:hover {
+  background-color: var(--primary-color-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background-color: var(--primary-color-light);
+  color: var(--primary-color-dark);
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background-color: transparent;
+  color: var(--navbar-text);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--error-color);
+    color: white;
+    border-color: var(--error-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Icon styling for buttons and nav links
+.nav-icon,
+.button-icon {
+  font-size: 1.25rem;
+}
+
+// Icon-only display for screens <= 1500px
+@media (max-width: 1500px) {
+  .navbar__center {
+    .nav-tabs {
+      .nav-link {
+        padding: var(--spacing-sm);
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+        position: relative;
+        
+        .nav-text {
+          display: none;
+        }
+      }
+    }
+  }
+  
+  .auth-buttons {
+    button {
+      padding: var(--spacing-sm);
+      width: 40px;
+      height: 40px;
+      justify-content: center;
+      
+      .button-text {
+        display: none;
+      }
+    }
+  }
+  
+  // Custom tooltip on hover
+  .nav-link,
+  .auth-buttons button,
+  .theme-toggle-btn {
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--bg-color-overlay, rgba(0, 0, 0, 0.8));
+      color: white;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+  }
+  
+  // Position the tooltip for theme button
+  .theme-toggle-btn {
+    position: relative;
+    
+    &:hover::after {
+      bottom: -25px;
+    }
+  }
+}
+
+// Additional responsive adjustments
+@media (max-width: 768px) {
+  .navbar {
+    padding: var(--spacing-sm);
+  }
+  
+  // .navbar__left .logo {
+  //   max-width: 200px;
+  // }
+  
+  .login-btn,
+  .user-button,
+  .logout-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+}
+
+// @media (max-width: 480px) {
+//   .navbar__left .logo {
+//     max-width: 180px;
+//   }
+// }

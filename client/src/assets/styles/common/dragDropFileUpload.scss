@@ -1,0 +1,140 @@
+@import '../variables';
+@import './mixins';
+
+.drag-drop-upload {
+  flex: 1;
+  min-width: 300px;
+  min-height: 220px;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  background-color: var(--bg-secondary);
+  position: relative;
+  
+  &.drag-active {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color-light);
+  }
+  
+  .upload-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .upload-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+  
+  .upload-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .upload-instruction {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+  }
+  
+  .upload-separator {
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    position: relative;
+    text-align: center;
+    width: 80%;
+    
+    &:before,
+    &:after {
+      content: '';
+      position: absolute;
+      height: 1px;
+      width: 40%;
+      top: 50%;
+      background-color: var(--border-color);
+    }
+    
+    &:before {
+      left: 0;
+    }
+    
+    &:after {
+      right: 0;
+    }
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  .browse-file-btn {
+    padding: 0.5rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: 500;
+    
+    &:hover {
+      background-color: var(--primary-color-dark);
+    }
+  }
+  
+  .selected-file {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color-light);
+    border-radius: var(--border-radius-sm);
+    width: 100%;
+    max-width: 300px;
+    font-size: 0.9rem;
+    
+    svg {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+    }
+    
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  
+  .upload-error {
+    color: var(--error-color);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    text-align: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .drag-drop-upload {
+    min-height: 180px;
+    
+    .upload-icon {
+      font-size: 2rem;
+    }
+    
+    .upload-title {
+      font-size: 1rem;
+    }
+  }
+}

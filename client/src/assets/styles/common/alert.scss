@@ -1,0 +1,118 @@
+@use '../variables' as *;
+
+.alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  
+  &__content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+  
+  &__icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    
+    &--success {
+      color: #10b981;
+    }
+    
+    &--error {
+      color: #ef4444;
+    }
+    
+    &--warning {
+      color: #f59e0b;
+    }
+    
+    &--info {
+      color: #3b82f6;
+    }
+  }
+  
+  &__text {
+    flex-grow: 1;
+  }
+  
+  &__title {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-weight: 600;
+  }
+  
+  &__message {
+    margin: 0;
+    line-height: 1.5;
+  }
+  
+  &__close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.25rem;
+    transition: opacity var(--transition-fast);
+    display: flex;
+    align-items: center;
+    margin-left: var(--spacing-md);
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+  
+  // Alert variants
+  &--success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid #10b981;
+    color: #064e3b;
+  }
+  
+  &--error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #ef4444;
+    color: #7f1d1d;
+  }
+  
+  &--warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid #f59e0b;
+    color: #78350f;
+  }
+  
+  &--info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-left: 4px solid #3b82f6;
+    color: #1e3a8a;
+  }
+  
+  // Dark theme adjustments
+  [data-theme="dark"] & {
+    &--success {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #d1fae5;
+    }
+    
+    &--error {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #fee2e2;
+    }
+    
+    &--warning {
+      background-color: rgba(245, 158, 11, 0.15);
+      color: #fef3c7;
+    }
+    
+    &--info {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #dbeafe;
+    }
+  }
+}

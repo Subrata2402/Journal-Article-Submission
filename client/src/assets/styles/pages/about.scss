@@ -1,0 +1,315 @@
+@use '../variables' as *;
+
+.about-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  
+  .about-section {
+    margin-bottom: 4rem;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background-color: var(--background-tertiary);
+      
+      .section-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+      }
+      
+      h2 {
+        margin: 0;
+        color: var(--heading-text);
+        font-size: 1.75rem;
+        font-weight: 600;
+      }
+    }
+    
+    .section-content {
+      padding: 2rem;
+      
+      p {
+        color: var(--text-color);
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+  
+  .journal-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    
+    .category {
+      background-color: var(--background-primary);
+      padding: 1.5rem;
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-xs);
+      
+      .category-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        margin-bottom: 1.25rem;
+        font-size: 1.75rem;
+        color: white;
+        
+        &.science {
+          background-color: var(--science-color, #4465b1);
+        }
+        
+        &.medicine {
+          background-color: var(--medicine-color, #2b8383);
+        }
+        
+        &.psychology {
+          background-color: var(--psychology-color, #7351c4);
+        }
+      }
+      
+      h3 {
+        color: var(--heading-text);
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+      }
+      
+      p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+    
+    .team-member {
+      text-align: center;
+      
+      .member-image {
+        width: 12rem;
+        height: 12rem;
+        border-radius: 50%;
+        margin: 0 auto 1.25rem;
+        overflow: hidden;
+        
+        &.placeholder {
+          background-color: var(--background-tertiary);
+          position: relative;
+          
+          &::after {
+            content: "👤";
+            position: absolute;
+            font-size: 5rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.5;
+          }
+        }
+      }
+      
+      h3 {
+        color: var(--heading-text);
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+      
+      .member-title {
+        color: var(--primary-color);
+        font-weight: 500;
+        margin-bottom: 1rem;
+      }
+      
+      .member-bio {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+    }
+  }
+  
+  .process-list {
+    counter-reset: process;
+    list-style-type: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    
+    li {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      background-color: var(--background-primary);
+      padding: 1.5rem;
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-xs);
+      position: relative;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      &:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        left: 1.5rem;
+        bottom: -1.5rem;
+        height: 1.5rem;
+        border-left: 2px dashed var(--border-color);
+      }
+      
+      .process-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        font-size: 1.25rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        margin-right: 1.5rem;
+      }
+      
+      .process-details {
+        h3 {
+          color: var(--heading-text);
+          font-size: 1.2rem;
+          margin: 0 0 0.5rem;
+          font-weight: 600;
+        }
+        
+        p {
+          color: var(--text-secondary);
+          font-size: 0.95rem;
+          line-height: 1.6;
+          margin: 0;
+        }
+      }
+    }
+  }
+  
+  .contact-section {
+    .contact-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      
+      .contact-item {
+        background-color: var(--background-primary);
+        padding: 1rem 1.5rem;
+        border-radius: var(--border-radius-md);
+        color: var(--text-color);
+        
+        strong {
+          color: var(--heading-text);
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .journal-categories,
+    .team-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .about-section {
+      .section-header {
+        padding: 1.25rem;
+        
+        .section-icon {
+          font-size: 1.5rem;
+        }
+        
+        h2 {
+          font-size: 1.35rem;
+        }
+      }
+      
+      .section-content {
+        padding: 1.25rem;
+      }
+    }
+    
+    .team-member {
+      .member-image {
+        width: 10rem;
+        height: 10rem;
+      }
+    }
+    
+    .process-list {
+      li {
+        .process-number {
+          width: 2.5rem;
+          height: 2.5rem;
+          font-size: 1rem;
+          margin-right: 1rem;
+        }
+        
+        &:not(:last-child)::after {
+          left: 1.25rem;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .about-page {
+    padding: 0 var(--spacing-xs);
+    
+    .about-section {
+      .section-header {
+        padding: 1rem;
+        
+        h2 {
+          font-size: 1.5rem;
+        }
+      }
+      
+      .section-content {
+        padding: 1rem;
+      }
+    }
+    
+    .journal-categories,
+    .team-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+}
