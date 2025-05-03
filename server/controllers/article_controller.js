@@ -39,6 +39,40 @@ const addArticle = async (req, res, next) => {
 }
 
 /**
+ * Deletes a journal article.
+ * */
+const deleteArticle = async (req, res, next) => {
+    try {
+        const articleId = req.params.articleId; // Extract article ID from request parameters
+
+        // Validate article ID
+        if (!articleId) {
+            throw new ApiError('Article ID is required', 400);
+        }
+
+        // Check if the article ID is a valid ObjectId
+        if (articleId.length !== 24) {
+            throw new ApiError('Invalid article ID', 400);
+        }
+
+        // Find and delete the article
+        const deletedArticle = await Article.findByIdAndDelete(articleId);
+
+        // Check if the article was found and deleted
+        if (!deletedArticle) {
+            throw new ApiError('Article not found', 404);
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Journal Article deleted successfully"
+        });
+    } catch (error) {
+        next(new ApiError(`Failed to delete article: ${error.message}`, 400));
+    }
+}
+
+/**
  * Retrieves details of a specific journal article.
  * */
 const articleDetails = async (req, res, next) => {
@@ -166,10 +200,24 @@ const articleList = async (req, res, next) => {
  */
 const updateArticle = async (req, res, next) => {
     try {
+        // Validate article ID
+        if (!req.params.articleId) {
+            throw new ApiError('Article ID is required', 400);
+        }
+        // Check if the article ID is a valid ObjectId
+        if (req.params.articleId.length !== 24) {
+            throw new ApiError('Invalid article ID', 400);
+        }
         // Check if the article exists
-        const article = await Article.findById(req.body.articleId);
+        const article = await Article.findById(req.params.articleId);
         if (!article) {
             throw new ApiError('Journal article not found', 404);
+        }
+
+        // Check if the journal exists
+        const journal = await Journal.findById(req.body.journalId);
+        if (!journal) {
+            throw new ApiError('Journal not found', 404);
         }
 
         // Check if the user is the author of the article
@@ -181,6 +229,10 @@ const updateArticle = async (req, res, next) => {
         article.title = req.body.title || article.title;
         article.abstract = req.body.abstract || article.abstract;
         article.keywords = req.body.keywords ? JSON.parse(req.body.keywords) : article.keywords;
+        article.menuScript = req.files.menuScript ? req.files.menuScript[0].filename : article.menuScript;
+        article.coverLetter = req.files.coverLetter ? req.files.coverLetter[0].filename : article.coverLetter;
+        article.supplementaryFile = req.files.supplementaryFile ? req.files.supplementaryFile[0].filename : article.supplementaryFile;
+        article.journalId = req.body.journalId || article.journalId;
         article.authors = req.body.authors ? JSON.parse(req.body.authors) : article.authors;
 
         // Save the updated article
@@ -497,6 +549,7 @@ const downloadZip = (req, res, next) => {
 
 module.exports = {
     addArticle,
+    deleteArticle,
     userArticleList,
     articleList,
     updateArticle,

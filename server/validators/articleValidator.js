@@ -60,9 +60,10 @@ const articleValidator = {
                     return false;
                 }
             }, 'Authors must be a valid JSON array'),
-        articleId: z.string({ required_error: "Article ID is required" }).trim()
-            .min(24, 'Invalid article ID')
-            .max(24, 'Invalid article ID')
+        journalId: z.string({ required_error: "Journal ID is required" }).trim()
+            .min(24, 'Invalid journal ID')
+            .max(24, 'Invalid journal ID'),
+
     }),
 
     addReview: z.object({

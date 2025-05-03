@@ -52,10 +52,51 @@ const submitArticle = async (articleData) => {
   }
 };
 
+/**
+ * Update an existing article
+ * @param {string} id - Article ID
+ * @param {FormData} articleData - Updated article data (FormData object)
+ * @returns {Promise<Object>} - Response data
+ */
+const updateArticle = async (id, articleData) => {
+  try {
+    const response = await httpService.put(
+      API_ENDPOINTS.ARTICLES.UPDATE(id),
+      articleData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating article with id ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Delete an article by ID
+ * @param {string} id - Article ID
+ * @returns {Promise<Object>} - Response data
+ */
+const deleteArticle = async (id) => {
+  try {
+    const response = await httpService.delete(`${API_ENDPOINTS.ARTICLES.DELETE(id)}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting article with id ${id}:`, error);
+    throw error;
+  }
+};
+
 const articleService = {
   getUserArticles,
   getArticleById,
-  submitArticle
+  submitArticle,
+  updateArticle,
+  deleteArticle
 };
 
 export default articleService;

@@ -9,7 +9,8 @@ import {
   IoLockClosedOutline,
   IoSchoolOutline,
   IoAtOutline,
-  IoPersonCircleOutline
+  IoPersonCircleOutline,
+  IoArrowBackOutline
 } from 'react-icons/io5';
 import FormField from '../components/forms/FormField';
 import DateField from '../components/forms/DateField';
@@ -140,6 +141,10 @@ const RegisterPage = () => {
   return (
     <div className="auth-page">
       <div className="form-container register-form">
+        <Link to="/" className="back-to-home">
+          <IoArrowBackOutline /> Back to Home
+        </Link>
+        
         <div className="form-heading">
           <h1>Create an Account</h1>
           <p>Sign up to start submitting articles to journals</p>

@@ -27,6 +27,8 @@ export const API_ENDPOINTS = {
     USER_ARTICLE_LIST: '/article/user-article-list',
     SUBMIT: '/article/add-article',
     DETAIL: (id) => `/article/article-details/${id}`,
+    DELETE: (id) => `/article/delete-article/${id}`,
+    UPDATE: (id) => `/article/update-article/${id}`,
   },
   AUTH: {
     LOGIN: '/auth/login',

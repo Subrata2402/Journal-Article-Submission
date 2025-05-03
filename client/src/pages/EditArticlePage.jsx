@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { 
   IoDocumentTextOutline, 
   IoNewspaperOutline,
@@ -9,6 +9,7 @@ import {
   IoCheckmarkCircleOutline,
   IoAddCircleOutline,
   IoCloseCircleOutline,
+  IoArrowBackOutline
 } from 'react-icons/io5';
 import FormField from '../components/forms/FormField';
 import TextArea from '../components/forms/TextArea';
@@ -19,20 +20,24 @@ import Spinner from '../components/common/Spinner';
 import useTheme from '../hooks/useTheme';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
+import articleService from '../services/articleService';
 import httpService from '../services/httpService';
 import { API_ENDPOINTS } from '../config/api';
 import toastUtil from '../utils/toastUtil';
 import '../assets/styles/pages/addArticle.scss';
 
-const AddArticlePage = () => {
+const EditArticlePage = () => {
+  const { articleId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { theme, handleThemeChange } = useTheme();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const themeMenuRef = React.useRef(null);
+  const [referrer, setReferrer] = useState('/articles'); // default referrer
   
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [journals, setJournals] = useState([]);
   const [loadingJournals, setLoadingJournals] = useState(true);
   const [formData, setFormData] = useState({
@@ -43,6 +48,12 @@ const AddArticlePage = () => {
   });
   const [errors, setErrors] = useState({});
   const [files, setFiles] = useState({
+    menuScript: null,
+    coverLetter: null,
+    supplementaryFile: null
+  });
+  // Keep track of existing file names to display them in the UI
+  const [existingFiles, setExistingFiles] = useState({
     menuScript: null,
     coverLetter: null,
     supplementaryFile: null
@@ -61,18 +72,59 @@ const AddArticlePage = () => {
   
   useEffect(() => {
     fetchJournals();
+    fetchArticleData();
     
-    // Get journalId from URL parameters if available
-    const params = new URLSearchParams(location.search);
-    const journalId = params.get('journalId');
-    
-    if (journalId) {
-      setFormData(prev => ({
-        ...prev,
-        journalId: journalId
-      }));
+    // Determine where the user came from
+    const { state } = location;
+    if (state && state.referrer) {
+      setReferrer(state.referrer);
+    } else if (document.referrer.includes('/articles/')) {
+      setReferrer(`/articles/${articleId}`);
+    } else {
+      setReferrer('/articles');
     }
-  }, [location.search]);
+  }, [articleId, location]);
+  
+  const fetchArticleData = async () => {
+    if (!articleId) return;
+    
+    setInitialLoading(true);
+    try {
+      const result = await articleService.getArticleById(articleId);
+      if (result.success) {
+        const article = result.data;
+        
+        // Populate form data
+        setFormData({
+          title: article.title || '',
+          abstract: article.abstract || '',
+          keywords: article.keywords ? article.keywords.join(', ') : '',
+          journalId: article.journalId?._id || ''
+        });
+        
+        // Set existing file names
+        setExistingFiles({
+          menuScript: article.menuScript || null,
+          coverLetter: article.coverLetter || null,
+          supplementaryFile: article.supplementaryFile || null
+        });
+        
+        // Set authors
+        if (article.authors && article.authors.length > 0) {
+          setAuthors(article.authors);
+        }
+      } else {
+        toastUtil.error('Failed to fetch article data');
+        navigate('/articles');
+      }
+    } catch (err) {
+      console.error('Error fetching article data:', err);
+      toastUtil.error('An error occurred while fetching article data. Please try again later.');
+      navigate('/articles');
+    } finally {
+      setInitialLoading(false);
+    }
+  };
   
   const fetchJournals = async () => {
     try {
@@ -248,38 +300,32 @@ const AddArticlePage = () => {
       newErrors.journalId = 'Please select a journal';
     }
     
-    // Validate files - manual validation since we removed the required attribute
-    if (!files.menuScript) {
+    // Validate files - When editing, files are not required if they are already uploaded
+    if (!files.menuScript && !existingFiles.menuScript) {
       newErrors.menuScript = 'Manuscript file is required';
-      // Focus on the add manuscript button if there's an error
-      document.querySelector('button[aria-label="Browse for Manuscript"]')?.focus();
     }
     
-    if (!files.coverLetter) {
+    if (!files.coverLetter && !existingFiles.coverLetter) {
       newErrors.coverLetter = 'Cover letter is required';
-      // Only focus if manuscript is valid but cover letter isn't
-      if (!newErrors.menuScript) {
-        document.querySelector('button[aria-label="Browse for Cover Letter"]')?.focus();
-      }
     }
     
     // Validate authors
     authors.forEach((author, index) => {
-      if (!author.firstName.trim()) {
+      if (!author.firstName?.trim()) {
         newErrors[`authors.${index}.firstName`] = 'First name is required';
       }
       
-      if (!author.lastName.trim()) {
+      if (!author.lastName?.trim()) {
         newErrors[`authors.${index}.lastName`] = 'Last name is required';
       }
       
-      if (!author.email.trim()) {
+      if (!author.email?.trim()) {
         newErrors[`authors.${index}.email`] = 'Email is required';
       } else if (!/\S+@\S+\.\S+/.test(author.email)) {
         newErrors[`authors.${index}.email`] = 'Email is invalid';
       }
       
-      if (!author.affiliation.trim()) {
+      if (!author.affiliation?.trim()) {
         newErrors[`authors.${index}.affiliation`] = 'Affiliation is required';
       }
     });
@@ -312,7 +358,7 @@ const AddArticlePage = () => {
       
       data.append('journalId', formData.journalId);
       
-      // Add files
+      // Add files - only if they are selected for update
       if (files.menuScript) {
         data.append('menuScript', files.menuScript, files.menuScript.name);
       }
@@ -329,27 +375,23 @@ const AddArticlePage = () => {
       data.append('authors', JSON.stringify(authors));
       
       // Make API request using FormData
-      const response = await httpService.post(API_ENDPOINTS.ARTICLES.SUBMIT, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const response = await articleService.updateArticle(articleId, data);
       
-      if (response.data.success) {
-        toastUtil.success('Article submitted successfully');
-        navigate('/articles');
+      if (response.success) {
+        toastUtil.success('Article updated successfully');
+        navigate(`/articles/${articleId}`);
       } else {
-        toastUtil.error(response.data.message || 'Failed to submit article');
+        toastUtil.error(response.message || 'Failed to update article');
       }
     } catch (error) {
-      console.error('Error submitting article:', error);
-      toastUtil.error(error.response?.data?.message || 'An error occurred while submitting the article');
+      console.error('Error updating article:', error);
+      toastUtil.error(error.response?.data?.message || 'An error occurred while updating the article');
     } finally {
       setLoading(false);
     }
   };
   
-  // Add a new useEffect for real-time keywords validation
+  // Add a useEffect for real-time keywords validation
   useEffect(() => {
     if (formData.keywords) {
       const keywordsArr = formData.keywords.split(',').filter(k => k.trim());
@@ -368,6 +410,10 @@ const AddArticlePage = () => {
     }
   }, [formData.keywords]);
   
+  const handleGoBack = () => {
+    navigate(referrer);
+  };
+  
   // If authentication is loading, show spinner
   if (authLoading) {
     return <Spinner fullPage />;
@@ -376,6 +422,32 @@ const AddArticlePage = () => {
   // If user is not authenticated, redirect to login
   if (!isAuthenticated && !authLoading) {
     return <Navigate to="/login" />;
+  }
+
+  if (initialLoading) {
+    return (
+      <div className="app">
+        <Navbar 
+          theme={theme}
+          handleThemeChange={handleThemeChange}
+          showThemeMenu={showThemeMenu}
+          toggleThemeMenu={toggleThemeMenu}
+          themeMenuRef={themeMenuRef}
+          isAuthenticated={isAuthenticated}
+        />
+        
+        <main className="main-content">
+          <div className="content-container">
+            <div className="loading-container">
+              <Spinner size="medium" />
+              <p>Loading article data...</p>
+            </div>
+          </div>
+        </main>
+        
+        <Footer />
+      </div>
+    );
   }
 
   return (
@@ -391,8 +463,13 @@ const AddArticlePage = () => {
       
       <main className="main-content">
         <header className="page-header">
-          <h1>Submit New Article</h1>
-          <p>Complete the form below to submit your article for review</p>
+          <div className="back-button-container">
+            <button className="back-to-home" onClick={handleGoBack}>
+              <IoArrowBackOutline /> Back to {referrer.includes('/articles/') ? 'Article' : 'Articles'}
+            </button>
+          </div>
+          <h1>Edit Article</h1>
+          <p>Update your article information below</p>
         </header>
         
         <div className="content-container">
@@ -476,7 +553,8 @@ const AddArticlePage = () => {
                     value={files.menuScript}
                     onChange={handleFileChange}
                     error={errors.menuScript}
-                    required={true}
+                    required={!existingFiles.menuScript}
+                    existingFile={existingFiles.menuScript}
                   />
                   
                   <DragDropFileUpload
@@ -486,7 +564,8 @@ const AddArticlePage = () => {
                     value={files.coverLetter}
                     onChange={handleFileChange}
                     error={errors.coverLetter}
-                    required={true}
+                    required={!existingFiles.coverLetter}
+                    existingFile={existingFiles.coverLetter}
                   />
                   
                   <DragDropFileUpload
@@ -497,6 +576,7 @@ const AddArticlePage = () => {
                     onChange={handleFileChange}
                     error={errors.supplementaryFile}
                     required={false}
+                    existingFile={existingFiles.supplementaryFile}
                   />
                 </div>
               </div>
@@ -537,7 +617,7 @@ const AddArticlePage = () => {
                       <FormField
                         label="First Name"
                         name={`firstName-${index}`}
-                        value={author.firstName}
+                        value={author.firstName || ''}
                         onChange={(e) => handleAuthorChange(index, 'firstName', e.target.value)}
                         placeholder="First Name"
                         error={errors[`authors.${index}.firstName`]}
@@ -547,7 +627,7 @@ const AddArticlePage = () => {
                       <FormField
                         label="Last Name"
                         name={`lastName-${index}`}
-                        value={author.lastName}
+                        value={author.lastName || ''}
                         onChange={(e) => handleAuthorChange(index, 'lastName', e.target.value)}
                         placeholder="Last Name"
                         error={errors[`authors.${index}.lastName`]}
@@ -560,7 +640,7 @@ const AddArticlePage = () => {
                         label="Email"
                         name={`email-${index}`}
                         type="email"
-                        value={author.email}
+                        value={author.email || ''}
                         onChange={(e) => handleAuthorChange(index, 'email', e.target.value)}
                         placeholder="Email Address"
                         error={errors[`authors.${index}.email`]}
@@ -571,7 +651,7 @@ const AddArticlePage = () => {
                       <FormField
                         label="Affiliation"
                         name={`affiliation-${index}`}
-                        value={author.affiliation}
+                        value={author.affiliation || ''}
                         onChange={(e) => handleAuthorChange(index, 'affiliation', e.target.value)}
                         placeholder="University or Institution"
                         error={errors[`authors.${index}.affiliation`]}
@@ -585,7 +665,7 @@ const AddArticlePage = () => {
                         <input
                           type="checkbox"
                           id={`firstAuthor-${index}`}
-                          checked={author.firstAuthor}
+                          checked={!!author.firstAuthor}
                           onChange={() => handleCheckboxChange(index, 'firstAuthor')}
                         />
                         <label htmlFor={`firstAuthor-${index}`}>First Author</label>
@@ -595,7 +675,7 @@ const AddArticlePage = () => {
                         <input
                           type="checkbox"
                           id={`correspondingAuthor-${index}`}
-                          checked={author.correspondingAuthor}
+                          checked={!!author.correspondingAuthor}
                           onChange={() => handleCheckboxChange(index, 'correspondingAuthor')}
                         />
                         <label htmlFor={`correspondingAuthor-${index}`}>Corresponding Author</label>
@@ -605,7 +685,7 @@ const AddArticlePage = () => {
                         <input
                           type="checkbox"
                           id={`otherAuthor-${index}`}
-                          checked={author.otherAuthor}
+                          checked={!!author.otherAuthor}
                           onChange={() => handleCheckboxChange(index, 'otherAuthor')}
                         />
                         <label htmlFor={`otherAuthor-${index}`}>Other Author</label>
@@ -619,7 +699,7 @@ const AddArticlePage = () => {
                 <button 
                   type="button" 
                   className="secondary-button" 
-                  onClick={() => navigate('/articles')}
+                  onClick={handleGoBack}
                   disabled={loading}
                 >
                   Cancel
@@ -633,12 +713,12 @@ const AddArticlePage = () => {
                   {loading ? (
                     <>
                       <Spinner size="small" />
-                      Submitting...
+                      Updating...
                     </>
                   ) : (
                     <>
                       <IoCheckmarkCircleOutline />
-                      Submit Article
+                      Update Article
                     </>
                   )}
                 </button>
@@ -653,4 +733,4 @@ const AddArticlePage = () => {
   );
 };
 
-export default AddArticlePage;
+export default EditArticlePage;

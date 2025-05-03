@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../common/Spinner';
-import { IoBookmarkOutline, IoCalendarOutline, IoPricetagOutline, IoNewspaperOutline, IoSearchOutline, IoFilterOutline, IoRefreshOutline } from 'react-icons/io5';
+import { IoBookmarkOutline, IoCalendarOutline, IoPricetagOutline, IoNewspaperOutline } from 'react-icons/io5';
 import '../../assets/styles/journal/journalList.scss';
 
 const JournalList = ({ journals, loading, error, pagination, formatDate, fetchJournals, handlePageChange }) => {

@@ -181,7 +181,9 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
           <button className="theme-toggle-btn" onClick={(e) => {
             e.stopPropagation(); // Prevent event from bubbling up
             toggleThemeMenu();
-          }}>
+          }}
+          title='Toggle Theme'
+          >
             {theme === 'light' ? (
               <FiSun />
             ) : theme === 'dark' ? (
@@ -189,24 +191,28 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
             ) : (
               <FiSettings />
             )}
+            <span className="theme-text">{theme.charAt(0).toUpperCase() + theme.slice(1)} Theme</span>
           </button>
           {showThemeMenu && (
             <div className="theme-dropdown-content show">
               <button 
                 onClick={() => handleThemeSelection('light')}
                 className={theme === 'light' ? 'active' : ''}
+                title='Light Theme'
               >
                 <FiSun /> Light
               </button>
               <button 
                 onClick={() => handleThemeSelection('dark')}
                 className={theme === 'dark' ? 'active' : ''}
+                title='Dark Theme'
               >
                 <FiMoon /> Dark
               </button>
               <button 
                 onClick={() => handleThemeSelection('system')}
                 className={theme === 'system' ? 'active' : ''}
+                title='System Theme'
               >
                 <FiSettings /> System
               </button>

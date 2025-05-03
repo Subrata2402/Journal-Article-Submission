@@ -19,10 +19,16 @@ router.post('/add-article',
     validate(articleSchema.addArticle),
     articleController.addArticle
 );
+router.put('/update-article/:articleId', 
+    authenticate, 
+    upload.fields(articleUploadFields), 
+    validate(articleSchema.updateArticle), 
+    articleController.updateArticle
+);
+router.delete('/delete-article/:articleId', authenticate, articleController.deleteArticle);
 router.get('/article-details/:articleId', authenticate, articleController.articleDetails);
 router.get('/user-article-list', authenticate, articleController.userArticleList);
 router.get('/article-list/:journalId', authenticate, verifyEditor, articleController.articleList);
-router.post('/update-article', authenticate, validate(articleSchema.updateArticle), articleController.updateArticle);
 router.get('/review-article-list', authenticate, verifyReviewer, articleController.reviewArticleList);
 router.post('/assign-reviewer', authenticate, verifyEditor, articleController.assignReviewer);
 router.post('/add-review', authenticate, verifyReviewer, validate(articleSchema.addReview), articleController.addReview);

@@ -11,6 +11,7 @@
   --heading-text: #1e293b;
   --card-bg: #ffffff;
   --primary-color: #0284c7;
+  --success-color: #22c55e;
   --primary-color-dark: #0369a1;
   --primary-color-light: rgba(2, 132, 199, 0.2);
   --secondary-button-bg: #f1f5f9;
@@ -59,6 +60,8 @@
   --border-radius-sm: 6px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
+  --border-radius-pill: 9999px;
+  --border-radius-circle: 50%;
   
   // Shadows
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -82,6 +85,7 @@
   --heading-text: #f8fafc;
   --card-bg: #1e1e1e;
   --primary-color: #0ea5e9;
+  --success-color: #22c55e;
   --primary-color-dark: #38bdf8;
   --primary-color-light: rgba(14, 165, 233, 0.2);
   --secondary-button-bg: #334155;
@@ -122,6 +126,7 @@
     --heading-text: #f8fafc;
     --card-bg: #1e1e1e;
     --primary-color: #0ea5e9;
+    --success-color: #22c55e;
     --primary-color-dark: #38bdf8;
     --primary-color-light: rgba(14, 165, 233, 0.2);
     --secondary-button-bg: #334155;
@@ -160,6 +165,7 @@
     --heading-text: #1e293b;
     --card-bg: #ffffff;
     --primary-color: #0284c7;
+    --success-color: #22c55e;
     --primary-color-dark: #0369a1;
     --primary-color-light: rgba(2, 132, 199, 0.2);
     --secondary-button-bg: #f1f5f9;

@@ -7,9 +7,11 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
 import ArticlesPage from './pages/ArticlesPage';
 import ArticleDetailsPage from './pages/ArticleDetailsPage';
 import AddArticlePage from './pages/AddArticlePage';
+import EditArticlePage from './pages/EditArticlePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AboutPage from './pages/AboutPage';
@@ -54,6 +56,14 @@ const App = () => {
             } 
           />
           <Route 
+            path="/edit-profile" 
+            element={
+              <ProtectedRoute>
+                <EditProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/articles" 
             element={
               <ProtectedRoute>
@@ -74,6 +84,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <AddArticlePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/edit-article/:articleId" 
+            element={
+              <ProtectedRoute>
+                <EditArticlePage />
               </ProtectedRoute>
             } 
           />

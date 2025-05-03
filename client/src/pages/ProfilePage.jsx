@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FiEdit, FiUser, FiMail, FiPhone, FiCalendar, FiMapPin, FiSettings } from 'react-icons/fi';
+import { IoArrowBackOutline } from 'react-icons/io5';
 import { useAuth } from '../contexts/AuthContext';
 import httpService from '../services/httpService';
 import { API_ENDPOINTS } from '../config/api';
@@ -8,6 +9,7 @@ import { PROFILE_PICTURES_PATH, DEFAULT_PROFILE_IMAGE } from '../config/constant
 import Spinner from '../components/common/Spinner';
 import toastUtil from '../utils/toastUtil';
 import '../assets/styles/pages/profile.scss';
+import { FaCircleCheck } from 'react-icons/fa6';
 
 const ProfilePage = () => {
   const [profileData, setProfileData] = useState(null);
@@ -82,6 +84,9 @@ const ProfilePage = () => {
   return (
     <div className="profile-page">
       <div className="profile-container">
+        <Link to="/" className="back-to-home">
+          <IoArrowBackOutline /> Back to Home
+        </Link>
         {loading ? (
           <div className="loading-container">
             <Spinner />
@@ -107,11 +112,12 @@ const ProfilePage = () => {
                 <div className="profile-cover-image"></div>
                 <div className="profile-avatar">
                   <img
-                    src={getProfilePictureUrl(profileData?.profilePicture)}
+                    // src={getProfilePictureUrl(profileData?.profilePicture)}
+                    src="profile-logo.png"
                     alt={`${profileData?.firstName}'s profile`}
                   />
                   {profileData?.email?.verified && (
-                    <span className="verified-badge" title="Email Verified">✓</span>
+                    <span className="verified-badge" title="Email Verified"><FaCircleCheck color='var(--success-color)' size={22} /></span>
                   )}
                 </div>
 

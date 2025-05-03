@@ -6,12 +6,10 @@ import {
   IoArrowBackOutline,
   IoDocumentTextOutline,
   IoMailOutline,
-  IoBusinessOutline,
-  IoCheckmarkCircleOutline,
-  IoCloseCircleOutline,
   IoTimeOutline,
   IoNewspaperOutline,
-  IoSchoolOutline
+  IoSchoolOutline,
+  IoPencilOutline
 } from 'react-icons/io5';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
@@ -22,6 +20,7 @@ import { Navigate } from 'react-router-dom';
 import articleService from '../services/articleService';
 import { formatDate } from '../utils/formatters';
 import '../assets/styles/article/articleDetails.scss';
+import { ARTICLE_COVER_LETTER_PATH, ARTICLE_MENUSCRIPT_PATH, ARTICLE_SUPPLEMENTARY_FILE_PATH } from '../config/constants';
 
 const ArticleDetailsPage = () => {
   const { articleId } = useParams();
@@ -73,11 +72,20 @@ const ArticleDetailsPage = () => {
   };
 
   // Handle file download
-  const handleFileDownload = (filename) => {
+  const handleFileDownload = (filename, fileType) => {
     if (!filename) return;
     
     // Construct file URL
-    const fileUrl = `${process.env.REACT_APP_API_URL || ''}/uploads/${filename}`;
+    let fileUrl;
+    if (fileType === 'menuscript') {
+      fileUrl = `${ARTICLE_MENUSCRIPT_PATH}/${filename}`;
+    } else if (fileType === 'coverLetter') {
+      fileUrl = `${ARTICLE_COVER_LETTER_PATH}/${filename}`;
+    } else if (fileType === 'supplementary') {
+      fileUrl = `${ARTICLE_SUPPLEMENTARY_FILE_PATH}/${filename}`;
+    } else {
+      return;
+    }
     
     // Open file in new tab
     window.open(fileUrl, '_blank');
@@ -85,6 +93,12 @@ const ArticleDetailsPage = () => {
 
   const goBack = () => {
     navigate('/articles');
+  };
+
+  const handleEditArticle = () => {
+    navigate(`/edit-article/${articleId}`, { 
+      state: { referrer: `/articles/${articleId}` } 
+    });
   };
 
   // If authentication is loading, show spinner
@@ -115,6 +129,12 @@ const ArticleDetailsPage = () => {
               <button className="back-button" onClick={goBack}>
                 <IoArrowBackOutline /> Back to Articles
               </button>
+              
+              {article && article.status !== 'approved' && (
+                <button className="edit-button" onClick={handleEditArticle}>
+                  <IoPencilOutline /> Edit Article
+                </button>
+              )}
             </div>
 
             {loading ? (
@@ -184,6 +204,7 @@ const ArticleDetailsPage = () => {
                               <strong>{author.firstName} {author.lastName}</strong>
                               {author.firstAuthor && <span className="author-badge primary">First Author</span>}
                               {author.correspondingAuthor && <span className="author-badge secondary">Corresponding Author</span>}
+                              {author.otherAuthor && <span className="author-badge tertiary">Other Author</span>}
                             </div>
                             <div className="author-details">
                               <div className="author-detail">
@@ -231,7 +252,7 @@ const ArticleDetailsPage = () => {
                             <span className="file-name">Manuscript</span>
                             <button 
                               className="download-button"
-                              onClick={() => handleFileDownload(article.menuScript)}
+                              onClick={() => handleFileDownload(article.menuScript, 'menuscript')}
                             >
                               Download
                             </button>
@@ -246,7 +267,7 @@ const ArticleDetailsPage = () => {
                             <span className="file-name">Cover Letter</span>
                             <button 
                               className="download-button"
-                              onClick={() => handleFileDownload(article.coverLetter)}
+                              onClick={() => handleFileDownload(article.coverLetter, 'coverLetter')}
                             >
                               Download
                             </button>
@@ -261,7 +282,7 @@ const ArticleDetailsPage = () => {
                             <span className="file-name">Supplementary Material</span>
                             <button 
                               className="download-button"
-                              onClick={() => handleFileDownload(article.supplementaryFile)}
+                              onClick={() => handleFileDownload(article.supplementaryFile, 'supplementary')}
                             >
                               Download
                             </button>

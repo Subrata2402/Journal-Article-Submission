@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoDocumentTextOutline, IoPencilOutline, IoTrashOutline, IoSearchOutline, IoFilterOutline, IoCalendarOutline } from 'react-icons/io5';
 import Spinner from '../common/Spinner';
+import ConfirmationModal from '../common/ConfirmationModal';
 import { formatDate } from '../../utils/formatters';
 import articleService from '../../services/articleService';
+import toastUtil from '../../utils/toastUtil';
 
 const UserArticleList = () => {
   const navigate = useNavigate();
@@ -18,6 +20,12 @@ const UserArticleList = () => {
     total: 0,
     totalPages: 0
   });
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    articleId: null,
+    articleTitle: ''
+  });
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Status badge colors
   const getStatusColor = (status) => {
@@ -87,13 +95,52 @@ const UserArticleList = () => {
   };
 
   const handleEditArticle = (articleId) => {
-    // To be implemented
-    console.log('Edit article:', articleId);
+    navigate(`/edit-article/${articleId}`, { 
+      state: { referrer: '/articles' } 
+    });
   };
 
-  const handleDeleteArticle = (articleId) => {
-    // To be implemented
-    console.log('Delete article:', articleId);
+  const handleDeleteArticle = (article) => {
+    setDeleteModal({
+      isOpen: true,
+      articleId: article._id,
+      articleTitle: article.title
+    });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({
+      isOpen: false,
+      articleId: null,
+      articleTitle: ''
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteModal.articleId || deleteLoading) return;
+    
+    setDeleteLoading(true);
+    
+    try {
+      const result = await articleService.deleteArticle(deleteModal.articleId);
+      
+      if (result.success) {
+        // Remove the article from the state
+        const updatedArticles = articles.filter(article => article._id !== deleteModal.articleId);
+        setArticles(updatedArticles);
+        
+        // Show success message
+        toastUtil.success(result.message || 'Article deleted successfully');
+      } else {
+        toastUtil.error(result.message || 'Failed to delete article');
+      }
+    } catch (error) {
+      toastUtil.error('An error occurred while deleting the article');
+      console.error('Delete article error:', error);
+    } finally {
+      setDeleteLoading(false);
+      closeDeleteModal();
+    }
   };
 
   return (
@@ -200,7 +247,7 @@ const UserArticleList = () => {
                           <button
                             className="action-button delete"
                             title="Delete Article"
-                            onClick={() => handleDeleteArticle(article._id)}
+                            onClick={() => handleDeleteArticle(article)}
                           >
                             <IoTrashOutline />
                           </button>
@@ -234,6 +281,18 @@ const UserArticleList = () => {
               </button>
             </div>
           )}
+          
+          {/* Delete Confirmation Modal */}
+          <ConfirmationModal
+            isOpen={deleteModal.isOpen}
+            onClose={closeDeleteModal}
+            onConfirm={confirmDelete}
+            title="Delete Article"
+            message={`Are you sure you want to delete "${deleteModal.articleTitle}"? This action cannot be undone.`}
+            confirmText={deleteLoading ? "Deleting..." : "Delete"}
+            cancelText="Cancel"
+            type="danger"
+          />
         </>
       )}
     </div>

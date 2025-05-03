@@ -299,6 +299,10 @@
   align-items: center;
   padding: 0;
   font-size: var(--font-size-lg);
+
+  .theme-text {
+    display: none;
+  }
 }
 
 .theme-toggle-btn:hover {
@@ -488,10 +492,6 @@
     padding: var(--spacing-sm);
   }
   
-  // .navbar__left .logo {
-  //   max-width: 200px;
-  // }
-  
   .login-btn,
   .user-button,
   .logout-btn {
@@ -499,9 +499,3 @@
     font-size: var(--font-size-sm);
   }
 }
-
-// @media (max-width: 480px) {
-//   .navbar__left .logo {
-//     max-width: 180px;
-//   }
-// }

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { IoCloudUploadOutline, IoDocumentOutline } from 'react-icons/io5';
 import '../../assets/styles/common/dragDropFileUpload.scss';
 
@@ -9,17 +9,21 @@ const DragDropFileUpload = ({
   value, 
   onChange, 
   error,
-  required = false
+  required = false,
+  existingFile = null
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef(null);
 
   // Handle drag events
-  const handleDrag = (e, isDragging) => {
+  const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isDragging !== undefined) {
-      setDragActive(isDragging);
+    
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
     }
   };
 
@@ -30,8 +34,14 @@ const DragDropFileUpload = ({
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      onChange({ target: { name, files: [file] } });
+      // Create synthetic event to pass to onChange handler
+      const event = {
+        target: {
+          name: name,
+          files: e.dataTransfer.files
+        }
+      };
+      onChange(event);
     }
   };
 
@@ -47,20 +57,36 @@ const DragDropFileUpload = ({
     inputRef.current && inputRef.current.click();
   };
 
+  // Get file name to display
+  const getDisplayFileName = () => {
+    if (value) {
+      return value.name;
+    } else if (existingFile) {
+      // Extract filename from path if it's a full path
+      const fileNameParts = existingFile.split('\\');
+      return fileNameParts[fileNameParts.length - 1];
+    }
+    return null;
+  };
+
+  const fileName = getDisplayFileName();
+
   return (
     <div 
       className={`drag-drop-upload ${dragActive ? 'drag-active' : ''}`}
-      onDragEnter={(e) => handleDrag(e, true)}
-      onDragLeave={(e) => handleDrag(e, false)}
-      onDragOver={(e) => handleDrag(e)}
-      onDrop={(e) => handleDrop(e)}
+      onDragEnter={handleDrag}
+      onDragLeave={handleDrag}
+      onDragOver={handleDrag}
+      onDrop={handleDrop}
     >
       <div className="upload-content">
         <div className="upload-icon">
           <IoCloudUploadOutline />
         </div>
         <p className="upload-title">{title}</p>
-        <p className="upload-instruction">Drag & Drop to Upload File</p>
+        <p className="upload-instruction">
+          {fileName ? "Change file" : "Drag & Drop to Upload File"}
+        </p>
         <p className="upload-separator">OR</p>
         <input
           type="file"
@@ -85,10 +111,16 @@ const DragDropFileUpload = ({
         >
           Browse File
         </button>
-        {value && (
+        {fileName && (
           <div className="selected-file">
             <IoDocumentOutline />
-            <span>{value.name}</span>
+            <span title={fileName}>{fileName}</span>
+          </div>
+        )}
+        {existingFile && !value && (
+          <div className="selected-file">
+            <IoDocumentOutline />
+            <span title={existingFile}>Current: {getDisplayFileName()}</span>
           </div>
         )}
         {error && <div className="upload-error" role="alert">{error}</div>}

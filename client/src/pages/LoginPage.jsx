@@ -97,6 +97,10 @@ const LoginPage = () => {
   return (
     <div className="auth-page">
       <div className="form-container">
+        <Link to="/" className="back-to-home">
+          <IoArrowBackOutline /> Back to Home
+        </Link>
+        
         <div className="form-heading">
           <h1>Welcome Back</h1>
           <p>Log in to your account to access the Article Submission System</p>
