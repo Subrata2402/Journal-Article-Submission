@@ -1,5 +1,8 @@
 import httpService from './httpService';
 import { API_ENDPOINTS } from '../config/api';
+import { secureLocalStorage } from '../utils/storageUtil';
+
+const PINNED_JOURNALS_KEY = 'pinnedJournals';
 
 const getJournalList = async (page = 1, limit = 10) => {
   try {
@@ -79,6 +82,36 @@ const getTags = async () => {
   }
 };
 
+// Pin journal functionality
+const getPinnedJournals = () => {
+  try {
+    return secureLocalStorage.getItem(PINNED_JOURNALS_KEY, true) || [];
+  } catch (error) {
+    console.error('Error getting pinned journals from secure storage:', error);
+    return [];
+  }
+};
+
+const isPinned = (journalId) => {
+  const pinnedJournals = getPinnedJournals();
+  return pinnedJournals.includes(journalId);
+};
+
+const togglePinJournal = (journalId) => {
+  try {
+    const pinnedJournals = getPinnedJournals();
+    const updatedPinnedJournals = pinnedJournals.includes(journalId)
+      ? pinnedJournals.filter(id => id !== journalId)
+      : [...pinnedJournals, journalId];
+    
+    secureLocalStorage.setItem(PINNED_JOURNALS_KEY, updatedPinnedJournals);
+    return updatedPinnedJournals;
+  } catch (error) {
+    console.error('Error toggling pinned journal in secure storage:', error);
+    return getPinnedJournals();
+  }
+};
+
 const journalService = {
   getJournalList,
   getJournalById,
@@ -86,7 +119,10 @@ const journalService = {
   updateJournal,
   deleteJournal,
   getCategories,
-  getTags
+  getTags,
+  getPinnedJournals,
+  isPinned,
+  togglePinJournal
 };
 
 export default journalService;

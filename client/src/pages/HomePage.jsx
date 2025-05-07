@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
+import React, { useState, useEffect } from 'react';
 import JournalList from '../components/journal/JournalList';
 import JournalFilters from '../components/journal/JournalFilters';
 import Spinner from '../components/common/Spinner';
-import useTheme from '../hooks/useTheme';
+import { IoBookmark, IoBookmarkOutline } from 'react-icons/io5';
 import { useAuth } from '../contexts/AuthContext';
 import journalService from '../services/journalService';
 import { formatDate } from '../utils/formatters';
@@ -30,36 +28,23 @@ const HomePage = () => {
     totalPages: 0
   });
   const [metadataLoading, setMetadataLoading] = useState(false);
+  const [showPinnedOnly, setShowPinnedOnly] = useState(false);
+  const [pinnedJournalIds, setPinnedJournalIds] = useState([]);
   
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const themeMenuRef = useRef(null);
-  
-  const { theme, handleThemeChange } = useTheme();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
     fetchJournals();
     fetchMetadata();
-
-    // Close theme menu when clicking outside
-    const handleClickOutside = (event) => {
-      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target)) {
-        setShowThemeMenu(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    loadPinnedJournals();
   }, []);
 
-  // Apply filters and search when journals, searchTerm, or activeFilters change
+  // Apply filters and search when journals, searchTerm, activeFilters, or showPinnedOnly change
   useEffect(() => {
     if (journals.length > 0) {
       applyFiltersAndSearch();
     }
-  }, [journals, searchTerm, activeFilters]);
+  }, [journals, searchTerm, activeFilters, showPinnedOnly, pinnedJournalIds]);
 
   const fetchJournals = async (page = 1, limit = 10) => {
     setLoading(true);
@@ -102,6 +87,11 @@ const HomePage = () => {
       setMetadataLoading(false);
     }
   };
+  
+  const loadPinnedJournals = () => {
+    const pinnedIds = journalService.getPinnedJournals();
+    setPinnedJournalIds(pinnedIds);
+  };
 
   const handleSearchChange = (term) => {
     setSearchTerm(term);
@@ -110,9 +100,23 @@ const HomePage = () => {
   const handleFilterChange = (filters) => {
     setActiveFilters(filters);
   };
+  
+  const togglePinnedFilter = () => {
+    setShowPinnedOnly(prev => !prev);
+  };
+  
+  const handlePinStatusChange = () => {
+    // Reload pinned journal IDs from localStorage
+    loadPinnedJournals();
+  };
 
   const applyFiltersAndSearch = () => {
     let results = [...journals];
+    
+    // Apply pinned filter first if enabled
+    if (showPinnedOnly) {
+      results = results.filter(journal => pinnedJournalIds.includes(journal._id));
+    }
     
     // Apply search
     if (searchTerm.trim()) {
@@ -174,31 +178,18 @@ const HomePage = () => {
     fetchJournals(newPage, pagination.limit);
   };
 
-  const toggleThemeMenu = () => {
-    setShowThemeMenu(prev => !prev);
-  };
-
   if (authLoading) {
     return <Spinner fullPage />;
   }
 
   return (
-    <div className="app">
-      <Navbar 
-        theme={theme}
-        handleThemeChange={handleThemeChange}
-        showThemeMenu={showThemeMenu}
-        toggleThemeMenu={toggleThemeMenu}
-        themeMenuRef={themeMenuRef}
-        isAuthenticated={isAuthenticated}
-      />
+    <>
+      <header className="page-header">
+        <h1>Available Journals</h1>
+        <p>Access peer-reviewed journals across various disciplines. Browse our collection of scientific journals and submit your articles</p>
+      </header>
       
-      <main>
-        <header className="page-header">
-          <h1>Available Journals</h1>
-          <p>Access peer-reviewed journals across various disciplines. Browse our collection of scientific journals and submit your articles</p>
-        </header>
-        
+      <div className="filter-controls">
         <JournalFilters
           onSearchChange={handleSearchChange}
           onFilterChange={handleFilterChange}
@@ -207,19 +198,28 @@ const HomePage = () => {
           loading={metadataLoading}
         />
         
-        <JournalList 
-          journals={filteredJournals}
-          loading={loading}
-          error={error}
-          pagination={pagination}
-          formatDate={formatDate}
-          fetchJournals={fetchJournals}
-          handlePageChange={handlePageChange}
-        />
-      </main>
+        <button 
+          className={`pinned-filter-button ${showPinnedOnly ? 'active' : ''}`}
+          onClick={togglePinnedFilter}
+          title={showPinnedOnly ? 'Show all journals' : 'Show pinned journals only'}
+        >
+          {showPinnedOnly ? <IoBookmark /> : <IoBookmarkOutline />}
+          <span>{showPinnedOnly ? 'Pinned Only' : 'All Journals'}</span>
+        </button>
+      </div>
       
-      <Footer />
-    </div>
+      <JournalList 
+        journals={filteredJournals}
+        loading={loading}
+        error={error}
+        pagination={pagination}
+        formatDate={formatDate}
+        fetchJournals={fetchJournals}
+        handlePageChange={handlePageChange}
+        onPinStatusChange={handlePinStatusChange}
+        showPinnedOnly={showPinnedOnly}
+      />
+    </>
   );
 };
 

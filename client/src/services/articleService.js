@@ -10,7 +10,7 @@ import { API_ENDPOINTS } from '../config/api';
 const getUserArticles = async (page = 1, limit = 10) => {
   try {
     const response = await httpService.get(
-      `${API_ENDPOINTS.ARTICLES.USER_ARTICLE_LIST}?page=${page}&limit=${limit}`
+      `${API_ENDPOINTS.ARTICLES.ARTICLE_LIST}?page=${page}&limit=${limit}`
     );
     return response.data;
   } catch (error) {
@@ -91,12 +91,127 @@ const deleteArticle = async (id) => {
   }
 };
 
+/**
+ * Get articles assigned to the editor
+ * @param {number} page - Current page number
+ * @param {number} limit - Number of items per page
+ * @returns {Promise<Object>} - Articles data with pagination
+ */
+const getEditorArticles = async (page = 1, limit = 10) => {
+  try {
+    const response = await httpService.get(
+      `${API_ENDPOINTS.ARTICLES.ARTICLE_LIST}?page=${page}&limit=${limit}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching editor articles:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update article status and comment (final review)
+ * @param {string} articleId - Article ID
+ * @param {Object} data - Status update data { status, comment }
+ * @returns {Promise<Object>} - Response data
+ */
+const updateArticleStatus = async (articleId, data) => {
+  try {
+    const response = await httpService.post(
+      API_ENDPOINTS.ARTICLES.ADD_FINAL_REVIEW,
+      {
+        articleId,
+        status: data.status,
+        comment: data.comment
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating final review for article ${articleId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Add a reviewer to an article
+ * @param {string} articleId - Article ID
+ * @param {string} reviewerId - Reviewer ID to add
+ * @returns {Promise<Object>} - Response data
+ */
+const addReviewer = async (articleId, reviewerId) => {
+  try {
+    const response = await httpService.patch(
+      API_ENDPOINTS.ARTICLES.ASSIGN_REVIEWER(articleId, reviewerId),
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error adding reviewer to article ${articleId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Remove a reviewer from an article
+ * @param {string} articleId - Article ID
+ * @param {string} reviewerId - Reviewer ID to remove
+ * @returns {Promise<Object>} - Response data
+ */
+const removeReviewer = async (articleId, reviewerId) => {
+  try {
+    const response = await httpService.patch(
+      API_ENDPOINTS.ARTICLES.REMOVE_REVIEWER(articleId, reviewerId)
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error removing reviewer ${reviewerId} from article ${articleId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Get list of available reviewers
+ * @returns {Promise<Object>} - Response data with reviewers
+ */
+const getAvailableReviewers = async () => {
+  try {
+    const response = await httpService.get(
+      API_ENDPOINTS.REVIEWER.LIST
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching available reviewers:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get list of available reviewers
+ * @returns {Promise<Object>} - Response data with reviewers
+ */
+const getReviewerList = async () => {
+  try {
+    const response = await httpService.get(
+      API_ENDPOINTS.REVIEWER.LIST
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching reviewers list:', error);
+    throw error;
+  }
+};
+
 const articleService = {
   getUserArticles,
   getArticleById,
   submitArticle,
   updateArticle,
-  deleteArticle
+  deleteArticle,
+  getEditorArticles,
+  updateArticleStatus,
+  addReviewer,
+  removeReviewer,
+  getAvailableReviewers,
+  getReviewerList
 };
 
 export default articleService;

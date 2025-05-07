@@ -14,6 +14,7 @@
   transition: all 0.3s ease;
   background-color: var(--bg-secondary);
   position: relative;
+  width: 100%;
   
   &.drag-active {
     border-color: var(--primary-color);

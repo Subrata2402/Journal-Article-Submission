@@ -14,6 +14,7 @@ router.post('/add-journal',
 );
 router.post('/add-editor', authenticate, verifyAdmin, validate(journalSchema.addEditor), journalController.addEditor);
 router.get('/journal-list', journalController.journalList);
+router.get('/journal-details/:journalId', journalController.journalDetails);
 router.get('/categories', journalController.categories);
 router.get('/tags', journalController.tags);
 router.get('/journal-editor-list', authenticate, verifyAdmin, journalController.journalEditorList);

@@ -78,6 +78,7 @@ const deleteArticle = async (req, res, next) => {
 const articleDetails = async (req, res, next) => {
     try {
         const articleId = req.params.articleId; // Extract article ID from request parameters
+        let article; // Initialize article variable
 
         // Validate article ID
         if (!articleId) {
@@ -89,16 +90,35 @@ const articleDetails = async (req, res, next) => {
             throw new ApiError('Invalid article ID', 400);
         }
 
-        // Find article - either the user is the owner or is listed as an author
-        const article = await Article.findOne({
-            _id: articleId,
-            $or: [
-                { userId: req.user._id },
-                { 'authors.email': req.user.email.id }
-            ]
-        }).select('-__v -reviewers')
-            .populate('journalId', 'title description')
-            .populate('userId', 'firstName middleName lastName email.id profilePicture');
+        if (req.user.role === 'user') {
+            // Find article - either the user is the owner or is listed as an author
+            article = await Article.findOne({
+                _id: articleId,
+                $or: [
+                    { userId: req.user._id },
+                    { 'authors.email': req.user.email.id }
+                ]
+            }).select('-__v -reviewers')
+                .populate('journalId', 'title description')
+                .populate('userId', 'firstName middleName lastName email.id profilePicture');
+        } else if (req.user.role === 'editor') {
+            const journals = await Journal.find({ editorId: req.user._id }).select('_id'); // Get journals edited by the user
+            if (!journals || journals.length === 0) {
+                return res.status(200).json({
+                    success: true,
+                    message: "No articles found for this editor",
+                    data: null
+                });
+            }
+            // Find article - the user is an editor of the journal
+            article = await Article.findOne({
+                journalId: { $in: journals },
+                _id: articleId
+            }).select('-__v')
+                .populate('journalId', 'title description')
+                .populate('userId', 'firstName middleName lastName email.id profilePicture')
+                .populate('reviewers.reviewerId', 'firstName middleName lastName email.id');
+        }
 
         // Check if article exists
         if (!article) {
@@ -168,14 +188,58 @@ const userArticleList = async (req, res, next) => {
 const articleList = async (req, res, next) => {
     try {
         const { page = 1, limit = 10 } = req.query; // Extract page and limit from query parameters
+        let articles = []; // Initialize articles array
+        let totalArticles = 0; // Initialize total articles count
 
-        const articles = await Article.find({ journalId: req.params.journalId })
-            .populate('userId', 'firstName middleName lastName email.id profilePicture')
-            .populate('journalId', 'title description')
-            .skip((page - 1) * limit) // Skip documents for pagination
-            .limit(parseInt(limit)); // Limit the number of documents returned
+        if (req.user.role === 'editor') {
+            const journals = await Journal.find({ editorId: req.user._id }).select('_id'); // Get journals edited by the user
+            if (!journals || journals.length === 0) {
+                return res.status(200).json({
+                    success: true,
+                    message: "No articles found for this editor",
+                    data: {
+                        articles: [],
+                        pagination: {
+                            total: 0,
+                            page: 1,
+                            limit: 10,
+                            totalPages: 0
+                        }
+                    }
+                });
+            }
 
-        const totalArticles = await Article.countDocuments({ journalId: req.params.journalId }); // Get total count of articles
+            // Fetch articles for the journals edited by the user
+            articles = await Article.find({ journalId: { $in: journals } })
+                .select('title abstract status createdAt comment')
+                .populate('journalId', 'title description')
+                .skip((page - 1) * limit) // Skip documents for pagination
+                .limit(parseInt(limit)); // Limit the number of documents returned
+
+            totalArticles = await Article.countDocuments({ journalId: { $in: journals } });
+        } else if (req.user.role === 'user') {
+            const userArticles = await Article.find({ userId: req.user._id })
+                .select('title abstract status createdAt comment')
+                .skip((page - 1) * limit) // Skip documents for pagination
+                .limit(parseInt(limit)); // Limit the number of documents returned
+
+            // Fetch articles where the user is listed as an author
+            const otherArticles = await Article.find({ 'authors.email': req.user.email })
+                .select('title abstract status createdAt')
+                .skip((page - 1) * limit)
+                .limit(parseInt(limit));
+
+            // Combine articles and remove duplicates
+            articles = userArticles.concat(
+                otherArticles.filter(item2 => !userArticles.some(item1 => item1.id === item2.id))
+            );
+
+            // Get the total count of articles for pagination
+            totalArticles = await Article.countDocuments({
+                $or: [{ userId: req.user._id }, { 'authors.email': req.user.email }]
+            });
+        }
+
 
         res.status(200).json({
             success: true,
@@ -254,15 +318,59 @@ const updateArticle = async (req, res, next) => {
  * */
 const assignReviewer = async (req, res, next) => {
     try {
-        const articleId = req.body.articleId;
-        const { reviewerIds } = req.body; // Extract reviewer IDs from request body
+        const articleId = req.query.articleId;
+        const reviewerId = req.query.reviewerId;
 
         if (!articleId) {
             throw new ApiError('Article ID is required', 400);
         }
 
-        if (!Array.isArray(reviewerIds) || reviewerIds.length === 0) {
-            throw new ApiError('Reviewer IDs must be a non-empty array', 400);
+        if (!reviewerId) {
+            throw new ApiError('Reviewer ID is required', 400);
+        }
+
+        const article = await Article.findById(articleId);
+        if (!article) {
+            throw new ApiError('Journal article not found', 404);
+        }
+
+        // Check if the reviewer is already assigned to the article
+        const existingReviewer = article.reviewers.find(r => r.reviewerId.toString() === reviewerId);
+        if (existingReviewer) {
+            throw new ApiError('Reviewer already assigned to this article', 400);
+        }
+
+        article.reviewers.push({ reviewerId, reviewed: false });
+        await article.save();
+
+        logger.info(`Reviewer assigned successfully: ${reviewerId} to article: ${article._id} by editor: ${req.user._id}`);
+
+        res.status(200).json({
+            success: true,
+            message: "Reviewer assigned successfully",
+            data: article
+        });
+
+    } catch (error) {
+        next(error.isOperational ? error : new ApiError(`Failed to add reviewers: ${error.message}`, 400));
+    }
+};
+
+/**
+ * Removes a reviewer from a journal article.
+ * */
+const removeReviewer = async (req, res, next) => {
+    try {
+        // Extract article ID and reviewer ID from request query parameters
+        const articleId = req.query.articleId;
+        const reviewerId = req.query.reviewerId;
+
+        if (!articleId) {
+            throw new ApiError('Article ID is required', 400);
+        }
+
+        if (!reviewerId) {
+            throw new ApiError('Reviewer ID is required', 400);
         }
 
         const article = await Article.findById(articleId);
@@ -271,55 +379,27 @@ const assignReviewer = async (req, res, next) => {
             throw new ApiError('Journal article not found', 404);
         }
 
-        // Check if the article already has 3 or more reviewers
-        if (article.reviewers.length >= 3) {
-            throw new ApiError('An article cannot have more than 3 reviewers', 400);
+        // Check if the reviewer is assigned to the article
+        const reviewerIndex = article.reviewers.findIndex(r => r.reviewerId.toString() === reviewerId);
+        if (reviewerIndex === -1) {
+            throw new ApiError('Reviewer not assigned to this article', 404);
         }
 
-        const validReviewers = [];
-
-        for (const reviewerId of reviewerIds) {
-            // Check if the reviewer exists in the Reviewer collection
-            const reviewerExists = await Reviewer.findById(reviewerId);
-            if (!reviewerExists) {
-                throw new ApiError(`Reviewer with ID ${reviewerId} does not exist`, 404);
-            }
-
-            // Check if the reviewer is already assigned to the article
-            const isAlreadyAssigned = article.reviewers.some(r => r.reviewerId.toString() === reviewerId);
-            if (isAlreadyAssigned) {
-                continue; // Skip this reviewer if already assigned
-            }
-
-            // Check if adding this reviewer would exceed the limit of 3 reviewers
-            if (article.reviewers.length + validReviewers.length >= 3) {
-                throw new ApiError('Adding these reviewers would exceed the limit of 3 reviewers', 400);
-            }
-
-            // Add the reviewer to the valid list
-            validReviewers.push({
-                reviewerId,
-                status: 'pending',
-                reviewed: false,
-                createdAt: new Date()
-            });
-        }
-
-        // Push valid reviewers to the article
-        article.reviewers.push(...validReviewers);
+        // Remove the reviewer from the article
+        article.reviewers.splice(reviewerIndex, 1);
         await article.save();
 
-        logger.info(`Reviewers added successfully: ${validReviewers.map(r => r.reviewerId)} for article: ${article._id} by editor: ${req.user._id}`);
+        logger.info(`Reviewer removed successfully: ${reviewerId} for article: ${article._id} by editor: ${req.user._id}`);
 
         res.status(200).json({
             success: true,
-            message: "Reviewers added successfully",
+            message: "Reviewer removed successfully",
             data: article
         });
     } catch (error) {
-        next(error.isOperational ? error : new ApiError(`Failed to add reviewers: ${error.message}`, 400));
+        next(error.isOperational ? error : new ApiError(`Failed to remove reviewer: ${error.message}`, 400));
     }
-};
+}
 
 /**
  * Add a journal article review.
@@ -554,6 +634,7 @@ module.exports = {
     articleList,
     updateArticle,
     assignReviewer,
+    removeReviewer,
     reviewArticleList,
     addReview,
     addFinalReview,

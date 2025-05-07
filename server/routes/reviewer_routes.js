@@ -13,7 +13,7 @@ router.post('/add-reviewer',
     validate(reviewerSchema.addReviewer), 
     reviewerController.addReviewer
 );
-router.post('/add-bulk-reviewer', 
+router.post('/add-bulk-reviewers', 
     authenticate, 
     verifyEditor, 
     uploadBuffer.single('file'),

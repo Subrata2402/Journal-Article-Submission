@@ -1,10 +1,10 @@
-import React from 'react';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
-import useTheme from '../hooks/useTheme';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import useTheme from '../../hooks/useTheme';
 
-const MainLayout = ({ children }) => {
+const MainLayout = () => {
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const themeMenuRef = useRef(null);
   const { theme, handleThemeChange } = useTheme();
@@ -27,7 +27,7 @@ const MainLayout = ({ children }) => {
         themeMenuRef={themeMenuRef}
       />
       <main className="main-content">
-        {children}
+        <Outlet />
       </main>
       <Footer />
     </div>

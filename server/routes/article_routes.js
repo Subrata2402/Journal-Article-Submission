@@ -28,9 +28,10 @@ router.put('/update-article/:articleId',
 router.delete('/delete-article/:articleId', authenticate, articleController.deleteArticle);
 router.get('/article-details/:articleId', authenticate, articleController.articleDetails);
 router.get('/user-article-list', authenticate, articleController.userArticleList);
-router.get('/article-list/:journalId', authenticate, verifyEditor, articleController.articleList);
+router.get('/article-list', authenticate, articleController.articleList);
 router.get('/review-article-list', authenticate, verifyReviewer, articleController.reviewArticleList);
-router.post('/assign-reviewer', authenticate, verifyEditor, articleController.assignReviewer);
+router.patch('/assign-reviewer', authenticate, verifyEditor, articleController.assignReviewer);
+router.patch('/remove-reviewer', authenticate, verifyEditor, articleController.removeReviewer);
 router.post('/add-review', authenticate, verifyReviewer, validate(articleSchema.addReview), articleController.addReview);
 router.post('/add-final-review', authenticate, verifyEditor, validate(articleSchema.addReview), articleController.addFinalReview);
 router.post('/create-zip', authenticate, verifyEditor, articleController.createZip);

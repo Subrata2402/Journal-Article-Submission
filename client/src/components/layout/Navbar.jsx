@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiSun, FiMoon, FiSettings, FiMenu, FiX } from 'react-icons/fi';
-import { IoLogInOutline, IoPersonOutline, IoLogOutOutline, IoHomeOutline, IoDocumentTextOutline, IoListOutline, IoInformationCircleOutline, IoMailOutline } from 'react-icons/io5';
+import { IoLogInOutline, IoPersonOutline, IoLogOutOutline, IoHomeOutline, IoDocumentTextOutline, IoListOutline, IoInformationCircleOutline, IoMailOutline, IoNewspaperOutline, IoClipboardOutline } from 'react-icons/io5';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link, NavLink } from 'react-router-dom';
 import '../../assets/styles/layout/navbar.scss';
@@ -53,6 +53,9 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
     closeMobileMenu();
   };
   
+  // Check if user is an editor
+  const isEditor = user && user.role === "editor";
+  
   // Navigation links component to avoid repetition
   const NavLinks = ({ mobile = false }) => (
     <ul className={mobile ? "nav-tabs-mobile" : "nav-tabs"}>
@@ -70,28 +73,59 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
       
       {isAuthenticated && (
         <>
-          <li className="nav-item">
-            <NavLink 
-              to="/add-article" 
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-              onClick={mobile ? closeMobileMenu : undefined}
-              title="Add Article"
-            >
-              <IoDocumentTextOutline className="nav-icon" /> 
-              <span className="nav-text">Add Article</span>
-            </NavLink>
-          </li>
-          <li className="nav-item">
-            <NavLink 
-              to="/articles" 
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-              onClick={mobile ? closeMobileMenu : undefined}
-              title="View Articles"
-            >
-              <IoListOutline className="nav-icon" /> 
-              <span className="nav-text">View Articles</span>
-            </NavLink>
-          </li>
+          {!isEditor && (
+            <>
+              <li className="nav-item">
+                <NavLink 
+                  to="/add-article" 
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  onClick={mobile ? closeMobileMenu : undefined}
+                  title="Add Article"
+                >
+                  <IoDocumentTextOutline className="nav-icon" /> 
+                  <span className="nav-text">Add Article</span>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink 
+                  to="/articles" 
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  onClick={mobile ? closeMobileMenu : undefined}
+                  title="View Articles"
+                >
+                  <IoListOutline className="nav-icon" /> 
+                  <span className="nav-text">My Articles</span>
+                </NavLink>
+              </li>
+            </>
+          )}
+          
+          {isEditor && (
+            <>
+              <li className="nav-item">
+                <NavLink 
+                  to="/articles" 
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  onClick={mobile ? closeMobileMenu : undefined}
+                  title="Articles"
+                >
+                  <IoNewspaperOutline className="nav-icon" /> 
+                  <span className="nav-text">Articles</span>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink 
+                  to="/reviewer" 
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  onClick={mobile ? closeMobileMenu : undefined}
+                  title="Reviewer"
+                >
+                  <IoClipboardOutline className="nav-icon" /> 
+                  <span className="nav-text">Reviewer</span>
+                </NavLink>
+              </li>
+            </>
+          )}
         </>
       )}
       
@@ -158,7 +192,10 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
   return (
     <nav className="navbar">
       <div className="navbar__left">
-        <Link to="/" className="logo">Article Submission System</Link>
+        <Link to="/" className="logo">
+          <img src="/logo.png" alt="Article Submission System" className="logo-image" />
+          <span className="logo-title">Article Submission System</span>
+        </Link>
         
         {/* Mobile menu toggle button */}
         <button 
@@ -171,7 +208,7 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
         </button>
       </div>
       
-      {/* Desktop navigation */}
+      {/* Navigation tabs placed in the center */}
       <div className="navbar__center desktop-only">
         <NavLinks />
       </div>

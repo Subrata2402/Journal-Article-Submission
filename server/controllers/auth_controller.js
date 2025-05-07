@@ -345,9 +345,9 @@ const forgotPassword = async (req, res, next) => {
         }
 
         // Verify if the email is verified
-        if (!user.email.verified) {
-            throw new ApiError('Email not verified', 400);
-        }
+        // if (!user.email.verified) {
+        //     throw new ApiError('Email not verified', 400);
+        // }
 
         user.otp = {
             id: Math.floor(100000 + Math.random() * 900000),
@@ -412,10 +412,10 @@ const resetPassword = async (req, res, next) => {
         }
 
         // Check if email is verified
-        if (!user.email.verified) {
-            logger.error(`Email not verified for user: ${user._id}`);
-            throw new ApiError('Email not verified', 400);
-        }
+        // if (!user.email.verified) {
+        //     logger.error(`Email not verified for user: ${user._id}`);
+        //     throw new ApiError('Email not verified', 400);
+        // }
 
         // Check if the user is in the process of resetting password
         if (!user.resetPassword.token) {

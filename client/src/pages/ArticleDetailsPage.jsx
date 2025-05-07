@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  IoCalendarOutline, 
+  IoCalendarOutline,
   IoPersonOutline, 
   IoArrowBackOutline,
   IoDocumentTextOutline,
@@ -9,40 +9,81 @@ import {
   IoTimeOutline,
   IoNewspaperOutline,
   IoSchoolOutline,
-  IoPencilOutline
+  IoPencilOutline,
+  IoCheckmarkCircleOutline,
+  IoCloseCircleOutline,
+  IoAddCircleOutline,
+  IoTrashOutline,
+  IoSaveOutline,
+  IoTimerOutline,
+  IoChevronDownOutline,
+  IoChevronUpOutline,
+  IoRefreshOutline
 } from 'react-icons/io5';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
 import Spinner from '../components/common/Spinner';
-import useTheme from '../hooks/useTheme';
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
 import articleService from '../services/articleService';
 import { formatDate } from '../utils/formatters';
 import '../assets/styles/article/articleDetails.scss';
 import { ARTICLE_COVER_LETTER_PATH, ARTICLE_MENUSCRIPT_PATH, ARTICLE_SUPPLEMENTARY_FILE_PATH } from '../config/constants';
+import toastUtil from '../utils/toastUtil';
+import TextArea from '../components/forms/TextArea';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 const ArticleDetailsPage = () => {
   const { articleId } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { theme, handleThemeChange } = useTheme();
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const themeMenuRef = React.useRef(null);
+  const { user, isLoading: authLoading } = useAuth();
   
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showReviewerForm, setShowReviewerForm] = useState(false);
+  const [reviewersExpanded, setReviewersExpanded] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
-  const toggleThemeMenu = () => {
-    setShowThemeMenu(prev => !prev);
-  };
+  // Review management state
+  const [newReviewer, setNewReviewer] = useState({
+    reviewerId: '',
+    firstName: '',
+    lastName: '',
+    email: ''
+  });
+  const [reviewers, setReviewers] = useState([]);
+  const [availableReviewers, setAvailableReviewers] = useState([]);
+  const [reviewerSearch, setReviewerSearch] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  // Article status management state
+  const [editorComment, setEditorComment] = useState('');
+  const [articleStatus, setArticleStatus] = useState('');
+  
+  // Delete confirmation modal state
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [reviewerToDelete, setReviewerToDelete] = useState(null);
+
+  // Check if user is an editor
+  const isEditor = user && user.role === "editor";
 
   useEffect(() => {
     if (articleId) {
       fetchArticleDetails(articleId);
+      if (isEditor) {
+        fetchAvailableReviewers();
+      }
     }
-  }, [articleId]);
+  }, [articleId, isEditor]);
+
+  // Set initial values when article data is loaded
+  useEffect(() => {
+    if (article) {
+      setEditorComment(article.comment || '');
+      setArticleStatus(article.status || 'pending');
+      if (article.reviewers) {
+        setReviewers(article.reviewers);
+      }
+    }
+  }, [article]);
 
   const fetchArticleDetails = async (id) => {
     setLoading(true);
@@ -61,6 +102,23 @@ const ArticleDetailsPage = () => {
     }
   };
 
+  const fetchAvailableReviewers = async () => {
+    try {
+      const result = await articleService.getReviewerList();
+      if (result.success) {
+        setAvailableReviewers(result.data.reviewers || []);
+      } else {
+        toastUtil.error('Failed to load reviewers');
+      }
+    } catch (err) {
+      console.error('Error fetching available reviewers:', err);
+      toastUtil.error('Could not load available reviewers');
+    }
+  };
+  
+  // Check if the maximum reviewer limit has been reached
+  const isReviewerLimitReached = reviewers.length >= 3;
+
   // Status badge color
   const getStatusColor = (status) => {
     switch(status?.toLowerCase()) {
@@ -68,6 +126,19 @@ const ArticleDetailsPage = () => {
       case 'pending': return 'warning';
       case 'rejected': return 'danger';
       default: return 'info';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch(status?.toLowerCase()) {
+      case 'approved': 
+        return <IoCheckmarkCircleOutline className="status-icon approved" />;
+      case 'pending': 
+        return <IoTimerOutline className="status-icon pending" />;
+      case 'rejected': 
+        return <IoCloseCircleOutline className="status-icon rejected" />;
+      default: 
+        return <IoNewspaperOutline className="status-icon" />;
     }
   };
 
@@ -96,9 +167,183 @@ const ArticleDetailsPage = () => {
   };
 
   const handleEditArticle = () => {
-    navigate(`/edit-article/${articleId}`, { 
+    navigate(`/articles/${articleId}/edit`, { 
       state: { referrer: `/articles/${articleId}` } 
     });
+  };
+
+  // Check if user can edit this article
+  const canEditArticle = () => {
+    if (!article || !user) return false;
+    
+    // For editors, they can't edit articles
+    if (isEditor) {
+      return false;
+    }
+    
+    // For regular users, they can edit their own articles if not approved
+    return article.status !== 'approved' && article.userId?._id === user._id;
+  };
+
+  // Editor functions for reviewer management
+  const toggleReviewerForm = () => {
+    setShowReviewerForm(!showReviewerForm);
+  };
+
+  const toggleReviewersSection = () => {
+    setReviewersExpanded(!reviewersExpanded);
+  };
+
+  const handleReviewerChange = (e) => {
+    const selectedReviewerId = e.target.value;
+    const selectedReviewer = availableReviewers.find(r => r._id === selectedReviewerId);
+    
+    if (selectedReviewer) {
+      setNewReviewer({
+        reviewerId: selectedReviewer._id,
+        firstName: selectedReviewer.firstName,
+        lastName: selectedReviewer.lastName,
+        email: selectedReviewer.email || ''
+      });
+    }
+  };
+
+  const addReviewer = async (e) => {
+    e.preventDefault();
+    
+    if (!newReviewer.reviewerId) {
+      toastUtil.error('Please select a reviewer');
+      return;
+    }
+
+    // Check if reviewer is already assigned
+    if (reviewers.some(r => r.reviewerId?._id === newReviewer.reviewerId)) {
+      toastUtil.error('This reviewer is already assigned');
+      return;
+    }
+
+    // Check if the maximum reviewer limit has been reached
+    if (isReviewerLimitReached) {
+      toastUtil.error('Maximum of 3 reviewers can be assigned');
+      return;
+    }
+
+    setSubmitLoading(true);
+    
+    try {
+      // Call the updated API endpoint for adding a reviewer
+      const result = await articleService.addReviewer(
+        articleId, 
+        newReviewer.reviewerId
+      );
+      
+      if (result.success) {
+        // Create a new reviewer object to add to the UI
+        const mockReviewer = {
+          reviewerId: {
+            _id: newReviewer.reviewerId,
+            firstName: newReviewer.firstName,
+            lastName: newReviewer.lastName
+          },
+          status: "pending",
+          comment: "",
+          reviewDate: null,
+          reviewed: false,
+          createdAt: new Date().toISOString(),
+          _id: `reviewer-${Date.now()}`
+        };
+        
+        const updatedReviewers = [...reviewers, mockReviewer];
+        
+        // Update local state
+        setReviewers(updatedReviewers);
+        setShowReviewerForm(false);
+        setNewReviewer({
+          reviewerId: '',
+          firstName: '',
+          lastName: '',
+          email: ''
+        });
+        
+        toastUtil.success('Reviewer added successfully');
+      } else {
+        toastUtil.error(result.message || 'Failed to add reviewer');
+      }
+    } catch (err) {
+      console.error('Error adding reviewer:', err);
+      toastUtil.error('Failed to add reviewer');
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  const confirmDeleteReviewer = (reviewer) => {
+    setReviewerToDelete(reviewer);
+    setDeleteModalVisible(true);
+  };
+
+  const handleDeleteReviewer = async () => {
+    if (!reviewerToDelete) return;
+    
+    try {
+      // Call the updated API endpoint for removing a reviewer
+      const result = await articleService.removeReviewer(
+        articleId, 
+        reviewerToDelete.reviewerId._id
+      );
+      
+      if (result.success) {
+        // Update local state
+        const updatedReviewers = reviewers.filter(r => r._id !== reviewerToDelete._id);
+        setReviewers(updatedReviewers);
+        toastUtil.success('Reviewer removed successfully');
+      } else {
+        toastUtil.error(result.message || 'Failed to remove reviewer');
+      }
+    } catch (err) {
+      console.error('Error removing reviewer:', err);
+      toastUtil.error('Failed to remove reviewer');
+    } finally {
+      setDeleteModalVisible(false);
+      setReviewerToDelete(null);
+    }
+  };
+
+  const cancelDeleteReviewer = () => {
+    setDeleteModalVisible(false);
+    setReviewerToDelete(null);
+  };
+
+  // Update article status and comments
+  const updateArticleStatus = async () => {
+    setSubmitLoading(true);
+    
+    try {
+      // Call the API to update article status and comment
+      const result = await articleService.updateArticleStatus(articleId, {
+        status: articleStatus,
+        comment: editorComment
+      });
+      
+      if (result.success) {
+        // Update local state with the new values
+        const updatedArticle = {
+          ...article,
+          status: articleStatus,
+          comment: editorComment
+        };
+        
+        setArticle(updatedArticle);
+        toastUtil.success(result.message || 'Article status updated successfully');
+      } else {
+        toastUtil.error(result.message || 'Failed to update article status');
+      }
+    } catch (err) {
+      console.error('Error updating article status:', err);
+      toastUtil.error('Failed to update article status');
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   // If authentication is loading, show spinner
@@ -106,216 +351,435 @@ const ArticleDetailsPage = () => {
     return <Spinner fullPage />;
   }
 
-  // If user is not authenticated, redirect to login
-  if (!isAuthenticated && !authLoading) {
-    return <Navigate to="/login" />;
-  }
-
   return (
-    <div className="app">
-      <Navbar 
-        theme={theme}
-        handleThemeChange={handleThemeChange}
-        showThemeMenu={showThemeMenu}
-        toggleThemeMenu={toggleThemeMenu}
-        themeMenuRef={themeMenuRef}
-        isAuthenticated={isAuthenticated}
-      />
-      
-      <main className="main-content">
-        <div className="content-container">
-          <div className="article-details-page">
-            <div className="back-button-container">
-              <button className="back-button" onClick={goBack}>
-                <IoArrowBackOutline /> Back to Articles
-              </button>
-              
-              {article && article.status !== 'approved' && (
-                <button className="edit-button" onClick={handleEditArticle}>
-                  <IoPencilOutline /> Edit Article
-                </button>
-              )}
+    <div className="content-container">
+      <div className="article-details-page">
+        <div className="back-button-container">
+          <button className="back-button" onClick={goBack}>
+            <IoArrowBackOutline /> Back to Articles
+          </button>
+          
+          {canEditArticle() && (
+            <button className="edit-button" onClick={handleEditArticle}>
+              <IoPencilOutline /> Edit Article
+            </button>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="loading-container">
+            <Spinner size="medium" />
+          </div>
+        ) : error ? (
+          <div className="error-message">
+            <p>{error}</p>
+            <button className="retry-button" onClick={() => fetchArticleDetails(articleId)}>
+              <IoRefreshOutline /> Try Again
+            </button>
+          </div>
+        ) : article ? (
+          <div className="article-details">
+            {/* Article Header */}
+            <div className="article-header">
+              <div className="article-title-section">
+                <h1>{article.title}</h1>
+                <span className={`status-badge ${getStatusColor(article.status)}`}>
+                  {getStatusIcon(article.status)} {article.status}
+                </span>
+              </div>
+
+              <div className="article-meta">
+                <div className="meta-item">
+                  <IoCalendarOutline className="meta-icon" />
+                  <span>Submitted on {formatDate(article.createdAt)}</span>
+                </div>
+                {article.updatedAt && article.updatedAt !== article.createdAt && (
+                  <div className="meta-item">
+                    <IoTimeOutline className="meta-icon" />
+                    <span>Updated on {formatDate(article.updatedAt)}</span>
+                  </div>
+                )}
+                <div className="meta-item">
+                  <IoNewspaperOutline className="meta-icon" />
+                  <span>Journal: {article.journalId?.title || 'Not specified'}</span>
+                </div>
+              </div>
             </div>
 
-            {loading ? (
-              <div className="loading-container">
-                <Spinner size="medium" />
-              </div>
-            ) : error ? (
-              <div className="error-message">
-                <p>{error}</p>
-                <button className="retry-button" onClick={() => fetchArticleDetails(articleId)}>
-                  Try Again
-                </button>
-              </div>
-            ) : article ? (
-              <div className="article-details">
-                <div className="article-header">
-                  <div className="article-title-section">
-                    <h1>{article.title}</h1>
-                    <span className={`status-badge ${getStatusColor(article.status)}`}>
-                      {article.status}
-                    </span>
-                  </div>
-
-                  <div className="article-meta">
-                    <div className="meta-item">
-                      <IoCalendarOutline className="meta-icon" />
-                      <span>Submitted on {formatDate(article.createdAt)}</span>
+            {/* Editor Controls - Visible only for editors */}
+            {isEditor && (
+              <div className="editor-controls">
+                <div className="editor-control-section">
+                  <h2>Editor Actions</h2>
+                  
+                  <div className="status-controls">
+                    <div className="status-selection">
+                      <label htmlFor="article-status">Article Status:</label>
+                      <select 
+                        id="article-status" 
+                        value={articleStatus} 
+                        onChange={(e) => setArticleStatus(e.target.value)}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
                     </div>
-                    {article.updatedAt && article.updatedAt !== article.createdAt && (
-                      <div className="meta-item">
-                        <IoTimeOutline className="meta-icon" />
-                        <span>Updated on {formatDate(article.updatedAt)}</span>
-                      </div>
-                    )}
-                    <div className="meta-item">
-                      <IoNewspaperOutline className="meta-icon" />
-                      <span>Journal: {article.journalId?.title || 'Not specified'}</span>
+                    
+                    <div className="comment-input">
+                      <TextArea 
+                        label="Editor Comment"
+                        name="editorComment"
+                        value={editorComment}
+                        onChange={(e) => setEditorComment(e.target.value)}
+                        placeholder="Add your comments here..."
+                        rows={3}
+                      />
                     </div>
+                    
+                    <button 
+                      className="update-status-button primary-button"
+                      onClick={updateArticleStatus}
+                      disabled={submitLoading}
+                    >
+                      {submitLoading ? (
+                        <>
+                          <Spinner size="small" /> Updating...
+                        </>
+                      ) : (
+                        <>
+                          <IoSaveOutline /> Update Status & Comment
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
-
-                <div className="article-content">
-                  <div className="article-section">
-                    <h2>Abstract</h2>
-                    <p className="article-abstract">{article.abstract}</p>
+                
+                {/* Reviewers Section */}
+                <div className="reviewers-section">
+                  <div className="section-header" onClick={toggleReviewersSection}>
+                    <h2>Reviewers</h2>
+                    <button className="toggle-button">
+                      {reviewersExpanded ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+                    </button>
                   </div>
-
-                  {article.keywords && article.keywords.length > 0 && (
-                    <div className="article-section">
-                      <h2>Keywords</h2>
-                      <div className="article-keywords">
-                        {article.keywords.map((keyword, index) => (
-                          <span key={index} className="keyword-tag">{keyword}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {article.authors && article.authors.length > 0 && (
-                    <div className="article-section">
-                      <h2>Authors</h2>
-                      <div className="authors-list">
-                        {article.authors.map((author, index) => (
-                          <div key={index} className="author-card">
-                            <div className="author-name">
-                              <IoPersonOutline className="author-icon" />
-                              <strong>{author.firstName} {author.lastName}</strong>
-                              {author.firstAuthor && <span className="author-badge primary">First Author</span>}
-                              {author.correspondingAuthor && <span className="author-badge secondary">Corresponding Author</span>}
-                              {author.otherAuthor && <span className="author-badge tertiary">Other Author</span>}
-                            </div>
-                            <div className="author-details">
-                              <div className="author-detail">
-                                <IoMailOutline className="detail-icon" />
-                                <span>{author.email}</span>
+                  
+                  {reviewersExpanded && (
+                    <div className="reviewers-content">
+                      {/* Add Reviewer Button */}
+                      <button 
+                        className="add-reviewer-button secondary-button"
+                        onClick={toggleReviewerForm}
+                        disabled={isReviewerLimitReached}
+                      >
+                        <IoAddCircleOutline /> {showReviewerForm ? 'Cancel' : 'Add Reviewer'}
+                      </button>
+                      
+                      {/* Add Reviewer Form */}
+                      {showReviewerForm && (
+                        <div className="add-reviewer-form">
+                          <h3>Add New Reviewer</h3>
+                          <form onSubmit={addReviewer}>
+                            <div className="form-group">
+                              <label htmlFor="reviewer-search">Search and Select Reviewer:</label>
+                              <div className="searchable-dropdown">
+                                <div className="search-input-container">
+                                  <input
+                                    type="text"
+                                    id="reviewer-search"
+                                    placeholder="Search reviewers..."
+                                    value={reviewerSearch}
+                                    onChange={(e) => setReviewerSearch(e.target.value)}
+                                    onFocus={() => setDropdownOpen(true)}
+                                  />
+                                </div>
+                                
+                                {dropdownOpen && (
+                                  <div className="dropdown-options">
+                                    {availableReviewers
+                                      .filter(reviewer => {
+                                        const fullName = `${reviewer.firstName} ${reviewer.lastName}`.toLowerCase();
+                                        const email = reviewer.email?.toLowerCase() || '';
+                                        const searchTerm = reviewerSearch.toLowerCase();
+                                        
+                                        return fullName.includes(searchTerm) || email.includes(searchTerm);
+                                      })
+                                      .map(reviewer => (
+                                        <div 
+                                          key={reviewer._id} 
+                                          className={`dropdown-option ${newReviewer.reviewerId === reviewer._id ? 'selected' : ''}`}
+                                          onClick={() => {
+                                            setNewReviewer({
+                                              reviewerId: reviewer._id,
+                                              firstName: reviewer.firstName,
+                                              lastName: reviewer.lastName,
+                                              email: reviewer.email || ''
+                                            });
+                                            setReviewerSearch(`${reviewer.firstName} ${reviewer.lastName}`);
+                                            setDropdownOpen(false);
+                                          }}
+                                        >
+                                          <div className="reviewer-name">{reviewer.firstName} {reviewer.lastName}</div>
+                                          {reviewer.email && (
+                                            <div className="reviewer-email">{reviewer.email}</div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    
+                                    {availableReviewers.filter(reviewer => {
+                                      const fullName = `${reviewer.firstName} ${reviewer.lastName}`.toLowerCase();
+                                      const email = reviewer.email?.toLowerCase() || '';
+                                      const searchTerm = reviewerSearch.toLowerCase();
+                                      
+                                      return fullName.includes(searchTerm) || email.includes(searchTerm);
+                                    }).length === 0 && (
+                                      <div className="no-results">No reviewers found</div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                              {author.affiliation && (
-                                <div className="author-detail">
-                                  <IoSchoolOutline className="detail-icon" />
-                                  <span>{author.affiliation}</span>
+                              
+                              {newReviewer.reviewerId && (
+                                <div className="selected-reviewer">
+                                  Selected: <strong>{newReviewer.firstName} {newReviewer.lastName}</strong>
                                 </div>
                               )}
                             </div>
+                            
+                            <div className="form-actions">
+                              <button 
+                                type="submit" 
+                                className="primary-button"
+                                disabled={submitLoading || !newReviewer.reviewerId}
+                              >
+                                {submitLoading ? (
+                                  <>
+                                    <Spinner size="small" /> Adding...
+                                  </>
+                                ) : (
+                                  <>
+                                    <IoAddCircleOutline /> Add Reviewer
+                                  </>
+                                )}
+                              </button>
+                              <button 
+                                type="button" 
+                                className="secondary-button"
+                                onClick={() => setShowReviewerForm(false)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      )}
+                      
+                      {/* Reviewers List */}
+                      {reviewers && reviewers.length > 0 ? (
+                        <div className="reviewers-list">
+                          <table className="reviewers-table">
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Review Date</th>
+                                <th>Comment</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {reviewers.map((reviewer) => (
+                                <tr key={reviewer._id}>
+                                  <td>
+                                    {reviewer.reviewerId?.firstName} {reviewer.reviewerId?.lastName}
+                                  </td>
+                                  <td>
+                                    <span className={`status-badge ${getStatusColor(reviewer.status)}`}>
+                                      {reviewer.status}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    {reviewer.reviewDate ? formatDate(reviewer.reviewDate) : 'Not reviewed yet'}
+                                  </td>
+                                  <td className="reviewer-comment">
+                                    {reviewer.comment || 'No comment provided'}
+                                  </td>
+                                  <td>
+                                    <button 
+                                      className="remove-reviewer-button"
+                                      onClick={() => confirmDeleteReviewer(reviewer)}
+                                      title="Remove reviewer"
+                                    >
+                                      <IoTrashOutline />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="no-reviewers-message">
+                          <p>No reviewers assigned to this article yet.</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Article Content - Standard content for all users */}
+            <div className="article-content">
+              {/* Article sections remain unchanged */}
+              <div className="article-section">
+                <h2>Abstract</h2>
+                <p className="article-abstract">{article.abstract}</p>
+              </div>
+
+              {article.keywords && article.keywords.length > 0 && (
+                <div className="article-section">
+                  <h2>Keywords</h2>
+                  <div className="article-keywords">
+                    {article.keywords.map((keyword, index) => (
+                      <span key={index} className="keyword-tag">{keyword}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {article.authors && article.authors.length > 0 && (
+                <div className="article-section">
+                  <h2>Authors</h2>
+                  <div className="authors-list">
+                    {article.authors.map((author, index) => (
+                      <div key={index} className="author-card">
+                        <div className="author-name">
+                          <IoPersonOutline className="author-icon" />
+                          <strong>{author.firstName} {author.lastName}</strong>
+                          {author.firstAuthor && <span className="author-badge primary">First Author</span>}
+                          {author.correspondingAuthor && <span className="author-badge secondary">Corresponding Author</span>}
+                          {author.otherAuthor && <span className="author-badge tertiary">Other Author</span>}
+                        </div>
+                        <div className="author-details">
+                          <div className="author-detail">
+                            <IoMailOutline className="detail-icon" />
+                            <span>{author.email}</span>
                           </div>
-                        ))}
+                          {author.affiliation && (
+                            <div className="author-detail">
+                              <IoSchoolOutline className="detail-icon" />
+                              <span>{author.affiliation}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="article-section">
+                <h2>Submitter Information</h2>
+                <div className="submitter-info">
+                  <div className="submitter-detail">
+                    <IoPersonOutline className="detail-icon" />
+                    <span>
+                      <strong>Name:</strong> {article.userId?.firstName} {article.userId?.middleName} {article.userId?.lastName}
+                    </span>
+                  </div>
+                  <div className="submitter-detail">
+                    <IoMailOutline className="detail-icon" />
+                    <span>
+                      <strong>Email:</strong> {article.userId?.email?.id}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="article-section files-section">
+                <h2>Article Files</h2>
+                <div className="article-files">
+                  {article.menuScript && (
+                    <div className="file-item">
+                      <IoDocumentTextOutline className="file-icon" />
+                      <div className="file-details">
+                        <span className="file-name">Manuscript</span>
+                        <button 
+                          className="download-button"
+                          onClick={() => handleFileDownload(article.menuScript, 'menuscript')}
+                        >
+                          Download
+                        </button>
                       </div>
                     </div>
                   )}
-
-                  <div className="article-section">
-                    <h2>Submitter Information</h2>
-                    <div className="submitter-info">
-                      <div className="submitter-detail">
-                        <IoPersonOutline className="detail-icon" />
-                        <span>
-                          <strong>Name:</strong> {article.userId?.firstName} {article.userId?.middleName} {article.userId?.lastName}
-                        </span>
-                      </div>
-                      <div className="submitter-detail">
-                        <IoMailOutline className="detail-icon" />
-                        <span>
-                          <strong>Email:</strong> {article.userId?.email?.id}
-                        </span>
+                  
+                  {article.coverLetter && (
+                    <div className="file-item">
+                      <IoDocumentTextOutline className="file-icon" />
+                      <div className="file-details">
+                        <span className="file-name">Cover Letter</span>
+                        <button 
+                          className="download-button"
+                          onClick={() => handleFileDownload(article.coverLetter, 'coverLetter')}
+                        >
+                          Download
+                        </button>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="article-section files-section">
-                    <h2>Article Files</h2>
-                    <div className="article-files">
-                      {article.menuScript && (
-                        <div className="file-item">
-                          <IoDocumentTextOutline className="file-icon" />
-                          <div className="file-details">
-                            <span className="file-name">Manuscript</span>
-                            <button 
-                              className="download-button"
-                              onClick={() => handleFileDownload(article.menuScript, 'menuscript')}
-                            >
-                              Download
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {article.coverLetter && (
-                        <div className="file-item">
-                          <IoDocumentTextOutline className="file-icon" />
-                          <div className="file-details">
-                            <span className="file-name">Cover Letter</span>
-                            <button 
-                              className="download-button"
-                              onClick={() => handleFileDownload(article.coverLetter, 'coverLetter')}
-                            >
-                              Download
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {article.supplementaryFile && (
-                        <div className="file-item">
-                          <IoDocumentTextOutline className="file-icon" />
-                          <div className="file-details">
-                            <span className="file-name">Supplementary Material</span>
-                            <button 
-                              className="download-button"
-                              onClick={() => handleFileDownload(article.supplementaryFile, 'supplementary')}
-                            >
-                              Download
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {article.comment && (
-                    <div className="article-section">
-                      <h2>Editor's Comment</h2>
-                      <div className="editor-comment">
-                        <p>{article.comment}</p>
+                  )}
+                  
+                  {article.supplementaryFile && (
+                    <div className="file-item">
+                      <IoDocumentTextOutline className="file-icon" />
+                      <div className="file-details">
+                        <span className="file-name">Supplementary Material</span>
+                        <button 
+                          className="download-button"
+                          onClick={() => handleFileDownload(article.supplementaryFile, 'supplementary')}
+                        >
+                          Download
+                        </button>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
-            ) : (
-              <div className="not-found">
-                <h2>Article Not Found</h2>
-                <p>The article you are looking for does not exist or has been removed.</p>
-                <button className="back-link" onClick={goBack}>
-                  View All Articles
-                </button>
-              </div>
-            )}
+
+              {/* Show editor comment for both user and editor */}
+              {article.comment && (
+                <div className="article-section">
+                  <h2>Editor's Comment</h2>
+                  <div className="editor-comment">
+                    <p>{article.comment}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </main>
+        ) : (
+          <div className="not-found">
+            <h2>Article Not Found</h2>
+            <p>The article you are looking for does not exist or has been removed.</p>
+            <button className="back-link" onClick={goBack}>
+              View All Articles
+            </button>
+          </div>
+        )}
+      </div>
       
-      <Footer />
+      {/* Confirmation modal for removing reviewers */}
+      <ConfirmationModal
+        isOpen={deleteModalVisible}
+        onClose={cancelDeleteReviewer}
+        onConfirm={handleDeleteReviewer}
+        title="Remove Reviewer"
+        message={`Are you sure you want to remove ${reviewerToDelete?.reviewerId?.firstName} ${reviewerToDelete?.reviewerId?.lastName} as a reviewer?`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

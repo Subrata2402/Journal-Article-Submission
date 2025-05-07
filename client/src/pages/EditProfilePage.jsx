@@ -41,17 +41,13 @@ const EditProfilePage = () => {
   const [errors, setErrors] = useState({});
   const fileInputRef = React.useRef(null);
 
-  const { isAuthenticated, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   // Fetch user profile data on component mount
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
     fetchProfileDetails();
-  }, [isAuthenticated, navigate]);
+  }, []);
 
   const fetchProfileDetails = async () => {
     try {

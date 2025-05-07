@@ -4,23 +4,29 @@ import '../../assets/styles/common/modal.scss';
 
 const ConfirmationModal = ({ 
   isOpen, 
-  onClose, 
   onConfirm, 
+  onCancel,  
   title = 'Confirm Action', 
   message = 'Are you sure you want to proceed?',
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  type = 'warning' // warning, danger, info
+  confirmVariant = 'warning', // warning, danger, success, primary
+  isLoading = false
 }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
-        <div className={`modal-content modal-${type}`}>
+    <div className="modal-overlay" onClick={onCancel}>
+      <div className="modal-container" onClick={e => e.stopPropagation()}>
+        <div className={`modal-content modal-${confirmVariant}`}>
           <div className="modal-header">
             <h3>{title}</h3>
-            <button className="modal-close-btn" onClick={onClose}>
+            <button 
+              className="modal-close-btn" 
+              onClick={onCancel}
+              disabled={isLoading}
+              aria-label="Close"
+            >
               <IoCloseOutline />
             </button>
           </div>
@@ -33,11 +39,19 @@ const ConfirmationModal = ({
           </div>
           
           <div className="modal-footer">
-            <button className="modal-btn modal-btn-secondary" onClick={onClose}>
+            <button 
+              className="modal-btn modal-btn-secondary" 
+              onClick={onCancel}
+              disabled={isLoading}
+            >
               {cancelText}
             </button>
-            <button className={`modal-btn modal-btn-${type}`} onClick={onConfirm}>
-              {confirmText}
+            <button 
+              className={`modal-btn modal-btn-${confirmVariant}`} 
+              onClick={onConfirm}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Processing...' : confirmText}
             </button>
           </div>
         </div>

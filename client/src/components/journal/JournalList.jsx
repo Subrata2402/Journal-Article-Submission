@@ -1,11 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../common/Spinner';
-import { IoBookmarkOutline, IoCalendarOutline, IoPricetagOutline, IoNewspaperOutline } from 'react-icons/io5';
+import { IoBookmarkOutline, IoBookmark, IoCalendarOutline, IoPricetagOutline, IoNewspaperOutline } from 'react-icons/io5';
 import '../../assets/styles/journal/journalList.scss';
+import journalService from '../../services/journalService';
+import toastUtil from '../../utils/toastUtil';
+import { useAuth } from '../../contexts/AuthContext';
 
-const JournalList = ({ journals, loading, error, pagination, formatDate, fetchJournals, handlePageChange }) => {
+const JournalList = ({ 
+  journals, 
+  loading, 
+  error, 
+  pagination, 
+  formatDate, 
+  fetchJournals, 
+  handlePageChange, 
+  onPinStatusChange,
+  showPinnedOnly 
+}) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Check if user is an editor
+  const isEditor = user && user.role === "editor";
   
   // Function to determine header color based on category
   const getCategoryClass = (category) => {
@@ -30,6 +47,28 @@ const JournalList = ({ journals, loading, error, pagination, formatDate, fetchJo
     navigate(`/add-article?journalId=${journalId}`);
   };
   
+  // Function to handle pinning/unpinning journals
+  const handleTogglePinJournal = (e, journalId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const isPinned = journalService.isPinned(journalId);
+    journalService.togglePinJournal(journalId);
+    
+    toastUtil.success(isPinned 
+      ? 'Journal unpinned successfully' 
+      : 'Journal pinned successfully');
+      
+    // Notify parent component to update pinned status
+    if (onPinStatusChange) {
+      onPinStatusChange();
+    }
+  };
+  
+  const isPinnedJournal = (journalId) => {
+    return journalService.isPinned(journalId);
+  };
+  
   return (
     <section className="journal-list">          
       {loading ? (
@@ -50,14 +89,16 @@ const JournalList = ({ journals, loading, error, pagination, formatDate, fetchJo
           </div>
           <h3 className="empty-state-title">No Journals Found</h3>
           <p className="empty-state-description">
-            We couldn't find any journals matching your criteria. Try adjusting your filters or search terms.
+            {showPinnedOnly 
+              ? "You haven't pinned any journals yet."
+              : "We couldn't find any journals matching your criteria. Try adjusting your filters or search terms."}
           </p>
         </div>
       ) : (
         <>
           <div className="journal-grid">
             {journals.map(journal => (
-              <div className="journal-card" key={journal._id}>
+              <div className={`journal-card ${isPinnedJournal(journal._id) ? 'pinned' : ''}`} key={journal._id}>
                 <div className={`journal-card-header ${getCategoryClass(journal.category)}`}>
                   <div className="journal-logo">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -104,15 +145,22 @@ const JournalList = ({ journals, loading, error, pagination, formatDate, fetchJo
                     <div className="journal-actions">
                       <div className="action-buttons">
                         <a href="#" className="view-details-button">View Details</a>
-                        <button 
-                          className="submit-article-button"
-                          onClick={() => handleSubmitArticle(journal._id)}
-                        >
-                          Submit Article
-                        </button>
+                        {!isEditor && (
+                          <button 
+                            className="submit-article-button"
+                            onClick={() => handleSubmitArticle(journal._id)}
+                          >
+                            Submit Article
+                          </button>
+                        )}
                       </div>
-                      <button className="bookmark-button" aria-label="Bookmark">
-                        <IoBookmarkOutline />
+                      <button 
+                        className={`bookmark-button ${isPinnedJournal(journal._id) ? 'active' : ''}`} 
+                        aria-label={isPinnedJournal(journal._id) ? 'Unpin' : 'Pin'}
+                        onClick={(e) => handleTogglePinJournal(e, journal._id)}
+                        title={isPinnedJournal(journal._id) ? 'Unpin journal' : 'Pin journal'}
+                      >
+                        {isPinnedJournal(journal._id) ? <IoBookmark /> : <IoBookmarkOutline />}
                       </button>
                     </div>
                   </div>

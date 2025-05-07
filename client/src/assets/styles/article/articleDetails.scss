@@ -1,7 +1,6 @@
 @use '../variables' as *;
 
 .article-details-page {
-  padding: 1rem;
   
   .back-button-container {
     margin-bottom: 1.5rem;
@@ -144,7 +143,9 @@
         }
         
         .status-badge {
-          display: inline-block;
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-xs);
           padding: 0.5rem 1rem;
           border-radius: 20px;
           font-size: 0.85rem;
@@ -403,6 +404,353 @@
       }
     }
   }
+}
+
+/* Editor-specific UI components */
+.editor-controls {
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    font-size: 1.4rem;
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+    color: var(--text-primary);
+  }
+
+  .editor-control-section {
+    margin-bottom: 1.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .status-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .status-selection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+
+    label {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    select {
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      background-color: var(--background-primary);
+      color: var(--text-primary);
+      min-width: 150px;
+      cursor: pointer;
+
+      option {
+        background-color: var(--background-primary);
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .update-status-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    align-self: flex-end;
+    margin-top: 1rem;
+  }
+}
+
+/* Reviewer management section */
+.reviewers-section {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.5rem;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+
+    h2 {
+      margin: 0;
+    }
+
+    .toggle-button {
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .reviewers-content {
+    animation: fadeIn 0.3s ease;
+  }
+
+  .add-reviewer-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background-color: var(--background-tertiary);
+      color: var(--text-muted);
+      
+      &:hover {
+        background-color: var(--background-tertiary);
+        transform: none;
+      }
+    }
+  }
+
+  .add-reviewer-form {
+    background-color: var(--background-primary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+    animation: fadeIn 0.3s ease;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        background-color: var(--background-primary);
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+
+        option {
+          padding: 0.5rem;
+        }
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  .reviewers-list {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+
+    .reviewers-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background-color: var(--background-primary);
+      border-radius: 8px;
+      overflow: hidden;
+
+      th, td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      th {
+        background-color: var(--background-tertiary);
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+      }
+
+      td {
+        color: var(--text-primary);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .reviewer-comment {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .remove-reviewer-button {
+        background: none;
+        border: none;
+        padding: 0.5rem;
+        color: var(--error-color);
+        opacity: 0.7;
+        cursor: pointer;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+
+        &:hover {
+          opacity: 1;
+          background-color: rgba(var(--error-color-rgb), 0.1);
+        }
+      }
+    }
+  }
+
+  .no-reviewers-message {
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--background-primary);
+    border-radius: 8px;
+    color: var(--text-secondary);
+  }
+}
+
+/* Searchable dropdown styles */
+.searchable-dropdown {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+  
+  .search-input-container {
+    width: 100%;
+    
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      background-color: var(--background-primary);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+      }
+    }
+  }
+  
+  .dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    background-color: var(--background-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: 4px;
+    
+    .dropdown-option {
+      padding: 0.75rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.2s ease;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      &:hover {
+        background-color: var(--background-hover);
+      }
+      
+      &.selected {
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+        
+        .reviewer-name {
+          color: var(--primary-color);
+          font-weight: 500;
+        }
+      }
+      
+      .reviewer-name {
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+      }
+      
+      .reviewer-email {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+    }
+    
+    .no-results {
+      padding: 1rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  }
+}
+
+.selected-reviewer {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  
+  strong {
+    color: var(--primary-color);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {

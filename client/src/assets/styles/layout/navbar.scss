@@ -13,7 +13,7 @@
   z-index: 1000;
   width: 100%;
   
-  @media (max-width: 992px) {
+  @media (max-width: 650px) {
     padding: var(--spacing-sm) var(--spacing-md);
   }
 }
@@ -21,27 +21,52 @@
 .navbar__left {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  gap: var(--spacing-lg);
+  flex-shrink: 0;
   
-  @media (max-width: 992px) {
+  @media (max-width: 650px) {
     width: 100%;
+    justify-content: space-between;
   }
   
   .logo {
     color: var(--navbar-text);
     text-decoration: none;
-    font-weight: 700;
-    font-size: 1.5rem;
+    font-weight: 650;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
     
-    @media (max-width: 768px) {
-      font-size: 1.2rem;
+    .logo-image {
+      height: 40px;
+      width: auto;
+      
+      @media (max-width: 768px) {
+        height: 32px;
+      }
+      
+      @media (max-width: 480px) {
+        height: 28px;
+      }
     }
     
-    @media (max-width: 480px) {
-      font-size: 1rem;
+    .logo-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--navbar-text);
+      white-space: nowrap;
+      
+      @media (max-width: 1000px) {
+        display: none;
+      }
+      
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+      
+      @media (max-width: 650px) {
+        display: none;
+      }
     }
   }
   
@@ -54,7 +79,7 @@
     cursor: pointer;
     padding: var(--spacing-xs);
     
-    @media (max-width: 992px) {
+    @media (max-width: 650px) {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -66,10 +91,11 @@
   }
 }
 
+/* Center navigation */
 .navbar__center {
-  flex: 1;
   display: flex;
   justify-content: center;
+  flex-grow: 1;
   
   .nav-tabs {
     display: flex;
@@ -86,7 +112,7 @@
     .nav-link {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: var(--spacing-sm);
       padding: var(--spacing-sm) var(--spacing-md);
       color: var(--navbar-text);
       font-weight: 500;
@@ -95,7 +121,54 @@
       transition: all var(--transition-fast);
       
       svg {
-        font-size: var(--font-size-md);
+        font-size: var(--font-size-lg);
+      }
+      
+      &:hover {
+        background-color: var(--button-hover-bg);
+        transform: translateY(-2px);
+      }
+      
+      &.active {
+        background-color: var(--primary-color-light);
+        color: var(--primary-color-dark);
+        
+        &:hover {
+          background-color: var(--primary-color-light);
+        }
+      }
+    }
+  }
+}
+
+.navbar__navigation {
+  display: flex;
+  
+  .nav-tabs {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: var(--spacing-md);
+    
+    .nav-item {
+      margin: 0;
+      padding: 0;
+    }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      color: var(--navbar-text);
+      font-weight: 500;
+      border-radius: var(--border-radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      
+      svg {
+        font-size: var(--font-size-lg);
       }
       
       &:hover {
@@ -119,11 +192,12 @@
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
+  flex-shrink: 0;
 }
 
 // Mobile menu styles
 .desktop-only {
-  @media (max-width: 992px) {
+  @media (max-width: 650px) {
     display: none;
   }
 }
@@ -141,7 +215,7 @@
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
   
-  @media (max-width: 992px) {
+  @media (max-width: 650px) {
     display: block;
     
     &.open {
@@ -422,6 +496,74 @@
   font-size: 1.25rem;
 }
 
+// Icon-only display for screens <= 1200px
+@media (max-width: 1200px) {
+  .navbar__navigation {
+    .nav-tabs {
+      .nav-link {
+        padding: var(--spacing-sm);
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+        position: relative;
+
+        svg {
+          font-size: var(--font-size-xl);
+        }
+        
+        .nav-text {
+          display: none;
+        }
+      }
+    }
+  }
+  
+  .auth-buttons {
+    button {
+      padding: var(--spacing-sm);
+      width: 40px;
+      height: 40px;
+      justify-content: center;
+      
+      .button-text {
+        display: none;
+      }
+    }
+  }
+  
+  // Custom tooltip on hover
+  .nav-link,
+  .auth-buttons button,
+  .theme-toggle-btn {
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--bg-color-overlay, rgba(0, 0, 0, 0.8));
+      color: white;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+  }
+  
+  // Position the tooltip for theme button
+  .theme-toggle-btn {
+    position: relative;
+    
+    &:hover::after {
+      bottom: -25px;
+    }
+  }
+}
+
 // Icon-only display for screens <= 1500px
 @media (max-width: 1500px) {
   .navbar__center {
@@ -432,6 +574,10 @@
         height: 40px;
         justify-content: center;
         position: relative;
+
+        svg {
+          font-size: var(--font-size-xl);
+        }
         
         .nav-text {
           display: none;
@@ -489,7 +635,7 @@
 // Additional responsive adjustments
 @media (max-width: 768px) {
   .navbar {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
   }
   
   .login-btn,
@@ -497,5 +643,18 @@
   .logout-btn {
     padding: var(--spacing-xs) var(--spacing-md);
     font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .login-btn,
+  .user-button,
+  .logout-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
   }
 }

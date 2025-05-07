@@ -16,17 +16,12 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { isAuthenticated, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-
     fetchProfileDetails();
-  }, [isAuthenticated, navigate]);
+  }, []);
 
   const fetchProfileDetails = async () => {
     try {

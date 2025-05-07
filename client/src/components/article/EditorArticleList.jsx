@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { IoDocumentTextOutline, IoPencilOutline, IoTrashOutline, IoSearchOutline, IoFilterOutline, IoCalendarOutline } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
+import { IoDocumentTextOutline, IoSearchOutline, IoCalendarOutline, IoCheckmarkCircleOutline, IoCloseCircleOutline, IoTimerOutline, IoNewspaperOutline, IoChatbubbleOutline } from 'react-icons/io5';
 import Spinner from '../common/Spinner';
-import ConfirmationModal from '../common/ConfirmationModal';
 import { formatDate } from '../../utils/formatters';
 import articleService from '../../services/articleService';
 import toastUtil from '../../utils/toastUtil';
 
-const UserArticleList = () => {
+const EditorArticleList = () => {
   const navigate = useNavigate();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,16 +19,10 @@ const UserArticleList = () => {
     total: 0,
     totalPages: 0
   });
-  const [deleteModal, setDeleteModal] = useState({
-    isOpen: false,
-    articleId: null,
-    articleTitle: ''
-  });
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Status badge colors
   const getStatusColor = (status) => {
-    switch(status.toLowerCase()) {
+    switch(status?.toLowerCase()) {
       case 'approved': return 'success';
       case 'pending': return 'warning';
       case 'rejected': return 'danger';
@@ -38,7 +31,7 @@ const UserArticleList = () => {
   };
 
   useEffect(() => {
-    fetchUserArticles();
+    fetchEditorArticles();
   }, []);
 
   useEffect(() => {
@@ -47,10 +40,10 @@ const UserArticleList = () => {
     }
   }, [searchTerm, articles]);
 
-  const fetchUserArticles = async (page = 1, limit = 10) => {
+  const fetchEditorArticles = async (page = 1, limit = 10) => {
     setLoading(true);
     try {
-      const result = await articleService.getUserArticles(page, limit);
+      const result = await articleService.getEditorArticles(page, limit);
       if (result.success) {
         setArticles(result.data.articles);
         setFilteredArticles(result.data.articles);
@@ -59,8 +52,8 @@ const UserArticleList = () => {
         setError('Failed to fetch articles');
       }
     } catch (err) {
-      console.error('Error fetching user articles:', err);
-      setError('An error occurred while fetching your articles. Please try again later.');
+      console.error('Error fetching editor articles:', err);
+      setError('An error occurred while fetching articles. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -87,66 +80,30 @@ const UserArticleList = () => {
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
-    fetchUserArticles(newPage, pagination.limit);
+    fetchEditorArticles(newPage, pagination.limit);
   };
 
   const handleViewArticle = (articleId) => {
     navigate(`/articles/${articleId}`);
   };
 
-  const handleEditArticle = (articleId) => {
-    navigate(`/articles/${articleId}/edit`, { 
-      state: { referrer: '/articles' } 
-    });
-  };
-
-  const handleDeleteArticle = (article) => {
-    setDeleteModal({
-      isOpen: true,
-      articleId: article._id,
-      articleTitle: article.title
-    });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteModal({
-      isOpen: false,
-      articleId: null,
-      articleTitle: ''
-    });
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteModal.articleId || deleteLoading) return;
-    
-    setDeleteLoading(true);
-    
-    try {
-      const result = await articleService.deleteArticle(deleteModal.articleId);
-      
-      if (result.success) {
-        // Remove the article from the state
-        const updatedArticles = articles.filter(article => article._id !== deleteModal.articleId);
-        setArticles(updatedArticles);
-        
-        // Show success message
-        toastUtil.success(result.message || 'Article deleted successfully');
-      } else {
-        toastUtil.error(result.message || 'Failed to delete article');
-      }
-    } catch (error) {
-      toastUtil.error('An error occurred while deleting the article');
-      console.error('Delete article error:', error);
-    } finally {
-      setDeleteLoading(false);
-      closeDeleteModal();
+  const getStatusIcon = (status) => {
+    switch(status?.toLowerCase()) {
+      case 'approved': 
+        return <IoCheckmarkCircleOutline className="status-icon approved" />;
+      case 'pending': 
+        return <IoTimerOutline className="status-icon pending" />;
+      case 'rejected': 
+        return <IoCloseCircleOutline className="status-icon rejected" />;
+      default: 
+        return <IoNewspaperOutline className="status-icon" />;
     }
   };
 
   return (
-    <div className="user-article-list">
+    <div className="editor-article-list">
       <div className="list-header">
-        <h2>My Submitted Articles</h2>
+        <h2>Articles for Review</h2>
         <div className="search-container">
           <div className="search-input-wrapper">
             <IoSearchOutline className="search-icon" />
@@ -168,7 +125,7 @@ const UserArticleList = () => {
       ) : error ? (
         <div className="error-message">
           <p>{error}</p>
-          <button className="retry-button" onClick={() => fetchUserArticles()}>
+          <button className="retry-button" onClick={() => fetchEditorArticles()}>
             Try Again
           </button>
         </div>
@@ -181,11 +138,8 @@ const UserArticleList = () => {
           <p>
             {searchTerm.trim() 
               ? "No articles match your search criteria."
-              : "You haven't submitted any articles yet."}
+              : "There are no articles assigned to you for review."}
           </p>
-          <Link to="/add-article" className="cta-button">
-            Submit New Article
-          </Link>
         </div>
       ) : (
         <>
@@ -196,12 +150,13 @@ const UserArticleList = () => {
                   <th>Title</th>
                   <th>Submission Date</th>
                   <th>Status</th>
+                  <th>Comments</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredArticles.map((article) => (
-                  <tr key={article._id} onClick={() => handleViewArticle(article._id)} style={{ cursor: 'pointer' }}>
+                  <tr key={article._id}>
                     <td className="article-title-cell">
                       <div className="article-title">
                         {article.title}
@@ -221,11 +176,26 @@ const UserArticleList = () => {
                       </div>
                     </td>
                     <td>
-                      <span className={`status-badge ${getStatusColor(article.status)}`}>
-                        {article.status}
-                      </span>
+                      <div className="status-with-icon">
+                        {getStatusIcon(article.status)}
+                        <span className={`status-badge ${getStatusColor(article.status)}`}>
+                          {article.status}
+                        </span>
+                      </div>
                     </td>
-                    <td onClick={(e) => e.stopPropagation()}>
+                    <td>
+                      <div className="article-comment">
+                        {article.comment ? (
+                          <div className="comment-content">
+                            <IoChatbubbleOutline className="comment-icon" />
+                            <span className="comment-text">{article.comment}</span>
+                          </div>
+                        ) : (
+                          <span className="no-comment">No comments</span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
                       <div className="article-actions">
                         <button
                           className="action-button view"
@@ -234,24 +204,6 @@ const UserArticleList = () => {
                         >
                           <IoDocumentTextOutline />
                         </button>
-                        {article.status !== 'approved' && (
-                          <button
-                            className="action-button edit"
-                            title="Edit Article"
-                            onClick={() => handleEditArticle(article._id)}
-                          >
-                            <IoPencilOutline />
-                          </button>
-                        )}
-                        {article.status !== 'approved' && (
-                          <button
-                            className="action-button delete"
-                            title="Delete Article"
-                            onClick={() => handleDeleteArticle(article)}
-                          >
-                            <IoTrashOutline />
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>
@@ -281,22 +233,10 @@ const UserArticleList = () => {
               </button>
             </div>
           )}
-          
-          {/* Delete Confirmation Modal */}
-          <ConfirmationModal
-            isOpen={deleteModal.isOpen}
-            onClose={closeDeleteModal}
-            onConfirm={confirmDelete}
-            title="Delete Article"
-            message={`Are you sure you want to delete "${deleteModal.articleTitle}"? This action cannot be undone.`}
-            confirmText={deleteLoading ? "Deleting..." : "Delete"}
-            cancelText="Cancel"
-            type="danger"
-          />
         </>
       )}
     </div>
   );
 };
 
-export default UserArticleList;
+export default EditorArticleList;

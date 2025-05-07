@@ -9,6 +9,11 @@
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 24px;
   width: 100%;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .journal-card {
@@ -20,6 +25,32 @@
   flex-direction: column;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   background-color: var(--card-bg, white);
+  
+  &.pinned {
+    position: relative;
+    
+    [data-theme="light"] & {
+      box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
+      border: 2px solid rgba(66, 153, 225, 0.3);
+    }
+    
+    [data-theme="dark"] & {
+      box-shadow: 0 4px 12px rgba(99, 179, 237, 0.2);
+      border: 2px solid rgba(99, 179, 237, 0.3);
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 20px;
+      width: 20px;
+      height: 20px;
+      background-color: var(--primary-color);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      transform: rotate(180deg);
+    }
+  }
 }
 
 .journal-card:hover {
@@ -68,32 +99,37 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   
-  svg {
-    [data-theme="light"] & {
-      stroke: rgba(0, 0, 0, 0.5);
-    }
-    
-    [data-theme="dark"] & {
-      stroke: rgba(255, 255, 255, 0.9);
-    }
+  [data-theme="light"] & {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #2d3748;
+  }
+  
+  [data-theme="dark"] & {
+    background-color: rgba(45, 55, 72, 0.8);
+    color: rgba(255, 255, 255, 0.9);
   }
 }
 
 .journal-category-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background-color: white;
-  color: #2d3748;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 13px;
+  bottom: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
   font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  
+  [data-theme="light"] & {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #2d3748;
+  }
   
   [data-theme="dark"] & {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(45, 55, 72, 0.8);
     color: rgba(255, 255, 255, 0.9);
   }
 }
@@ -298,11 +334,12 @@
   justify-content: center;
   padding: 0;
   font-size: 18px;
+  transition: all 0.2s ease;
   
   [data-theme="light"] & {
     color: #718096;
     
-    &:hover {
+    &:hover, &.active {
       color: #4299e1;
     }
   }
@@ -310,9 +347,98 @@
   [data-theme="dark"] & {
     color: rgba(255, 255, 255, 0.6);
     
-    &:hover {
+    &:hover, &.active {
       color: #63b3ed;
     }
+  }
+  
+  &.active {
+    transform: scale(1.15);
+  }
+}
+
+/* Pinned filter button */
+.filter-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: var(--spacing-md);
+}
+
+.pinned-filter-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  line-height: 1;
+  min-width: 150px;
+  
+  [data-theme="light"] & {
+    background-color: white;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+    
+    &:hover, &.active {
+      color: #4299e1;
+      border-color: #4299e1;
+      background-color: rgba(66, 153, 225, 0.05);
+    }
+  }
+  
+  [data-theme="dark"] & {
+    background-color: #2d3748;
+    color: #cbd5e0;
+    border: 1px solid #4a5568;
+    
+    &:hover, &.active {
+      color: #63b3ed;
+      border-color: #63b3ed;
+      background-color: rgba(99, 179, 237, 0.1);
+    }
+  }
+  
+  &.active {
+    [data-theme="light"] & {
+      background-color: rgba(66, 153, 225, 0.1);
+      box-shadow: 0 2px 8px rgba(66, 153, 225, 0.2);
+    }
+    
+    [data-theme="dark"] & {
+      background-color: rgba(99, 179, 237, 0.15);
+      box-shadow: 0 2px 8px rgba(99, 179, 237, 0.2);
+    }
+  }
+  
+  svg {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+    margin-right: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  span {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+  }
+  
+  &:hover svg {
+    transform: scale(1.15);
+  }
+  
+  &.active svg {
+    transform: scale(1.15);
   }
 }
 
@@ -538,5 +664,15 @@
   
   .empty-state-actions {
     margin-bottom: 20px;
+  }
+  
+  .filter-controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .pinned-filter-button {
+    width: 100%;
+    justify-content: center;
   }
 }

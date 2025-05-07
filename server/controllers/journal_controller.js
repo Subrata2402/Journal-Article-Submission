@@ -108,6 +108,33 @@ const journalList = async (req, res, next) => {
 }
 
 /**
+ * Retrieves the details of a specific journal by its ID.
+ * */
+const journalDetails = async (req, res, next) => {
+    try {
+        const journalId = req.params.journalId; // Extract journal ID from request parameters
+
+        if (!journalId) {
+            throw new ApiError('Journal ID is required', 400);
+        }
+
+        const journalData = await Journal.findById(journalId).select('-__v -editorId'); // Find journal by ID and exclude __v field
+
+        if (!journalData) {
+            throw new ApiError('Journal not found', 404);
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Journal data retrieved successfully",
+            data: journalData
+        });
+    } catch (error) {
+        next(new ApiError(`Journal data retrieval failed: ${error.message}`, 400));
+    }
+}
+
+/**
  * Retrieves the list of distinct categories from journals.
  * */
 const categories = async (req, res, next) => {
@@ -303,6 +330,7 @@ module.exports = {
     addJournal,
     deleteJournal,
     journalList,
+    journalDetails,
     categories,
     tags,
     journalEditorList,

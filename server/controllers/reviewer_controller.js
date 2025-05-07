@@ -13,12 +13,12 @@ const addReviewer = async (req, res, next) => {
         if (reviewerData) {
             throw new ApiError('Reviewer already exists', 400);
         }
-        
+
         // Validate required fields
         if (!req.body.firstName || !req.body.lastName || !req.body.email || !req.body.affiliation) {
             throw new ApiError('Missing required fields for reviewer creation', 400);
         }
-        
+
         // Create new reviewer
         const reviewer = new Reviewer({
             firstName: req.body.firstName,
@@ -26,20 +26,20 @@ const addReviewer = async (req, res, next) => {
             email: req.body.email,
             affiliation: req.body.affiliation,
         });
-        
+
         const responseData = await reviewer.save();
-        
+
         // Update user if exists
         await User.findOneAndUpdate(
-            { "email.id": req.body.email }, 
-            { $set: { role: "reviewer" } }, 
+            { "email.id": req.body.email },
+            { $set: { role: "reviewer" } },
             { new: true }
         );
-        
+
         logger.info(`Reviewer added successfully: ${responseData._id} by editor: ${req.user._id}`);
-        
-        res.status(201).json({ 
-            success: true, 
+
+        res.status(201).json({
+            success: true,
             message: "Reviewer added successfully"
         });
     } catch (error) {
@@ -117,29 +117,44 @@ const addBulkReviewer = async (req, res, next) => {
  */
 const reviewerList = async (req, res, next) => {
     try {
-        const { page = 1, limit = 10 } = req.query; // Extract page and limit from query parameters
+        if (!req.query.page || !req.query.limit) {
+            const reviewerData = await Reviewer.find()
+                .select('-__v')
+                .sort({ createdAt: -1 });
 
-        const reviewerData = await Reviewer.find()
-            .select('-__v')
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit) // Skip documents for pagination
-            .limit(parseInt(limit)); // Limit the number of documents returned
-
-        const totalReviewers = await Reviewer.countDocuments(); // Get total count of reviewers
-
-        res.status(200).json({
-            success: true,
-            message: "Reviewer data retrieved successfully",
-            data: {
-                reviewers: reviewerData || [],
-                pagination: {
-                    total: totalReviewers,
-                    page: parseInt(page),
-                    limit: parseInt(limit),
-                    totalPages: Math.ceil(totalReviewers / limit)
+            res.status(200).json({
+                success: true,
+                message: "Reviewer data retrieved successfully",
+                data: {
+                    reviewers: reviewerData || [],
+                    pagination: null
                 }
-            }
-        });
+            });
+        } else {
+            const { page = 1, limit = 10 } = req.query; // Extract page and limit from query parameters
+
+            const reviewerData = await Reviewer.find()
+                .select('-__v')
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * limit) // Skip documents for pagination
+                .limit(parseInt(limit)); // Limit the number of documents returned
+
+            const totalReviewers = await Reviewer.countDocuments(); // Get total count of reviewers
+
+            res.status(200).json({
+                success: true,
+                message: "Reviewer data retrieved successfully",
+                data: {
+                    reviewers: reviewerData || [],
+                    pagination: {
+                        total: totalReviewers,
+                        page: parseInt(page),
+                        limit: parseInt(limit),
+                        totalPages: Math.ceil(totalReviewers / limit)
+                    }
+                }
+            });
+        }
     } catch (error) {
         next(new ApiError(`Reviewer data retrieval failed: ${error.message}`, 400));
     }
@@ -151,32 +166,32 @@ const reviewerList = async (req, res, next) => {
 const deleteReviewer = async (req, res, next) => {
     try {
         const reviewerId = req.params.reviewerId;
-        
+
         if (!reviewerId) {
             throw new ApiError('Reviewer ID is required', 400);
         }
-        
+
         const reviewerData = await Reviewer.findById(reviewerId);
-        
+
         if (!reviewerData) {
             throw new ApiError('Reviewer not found', 404);
         }
-        
+
         // Remove reviewer
         await Reviewer.findByIdAndDelete(reviewerId);
-        
+
         // Update user if exists
         await User.findOneAndUpdate(
-            { email: reviewerData.email }, 
-            { $set: { isReviewer: false } }, 
+            { email: reviewerData.email },
+            { $set: { isReviewer: false } },
             { new: true }
         );
-        
+
         logger.info(`Reviewer deleted: ${reviewerId} by editor: ${req.user._id}`);
-        
-        res.status(200).json({ 
-            success: true, 
-            message: "Reviewer deleted successfully" 
+
+        res.status(200).json({
+            success: true,
+            message: "Reviewer deleted successfully"
         });
     } catch (error) {
         next(error.isOperational ? error : new ApiError(`Reviewer deletion failed: ${error.message}`, 400));

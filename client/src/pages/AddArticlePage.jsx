@@ -13,12 +13,8 @@ import {
 import FormField from '../components/forms/FormField';
 import TextArea from '../components/forms/TextArea';
 import DragDropFileUpload from '../components/common/DragDropFileUpload';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
 import Spinner from '../components/common/Spinner';
-import useTheme from '../hooks/useTheme';
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
 import httpService from '../services/httpService';
 import { API_ENDPOINTS } from '../config/api';
 import toastUtil from '../utils/toastUtil';
@@ -27,10 +23,7 @@ import '../assets/styles/pages/addArticle.scss';
 const AddArticlePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { theme, handleThemeChange } = useTheme();
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const themeMenuRef = React.useRef(null);
+  const { isLoading: authLoading } = useAuth();
   
   const [loading, setLoading] = useState(false);
   const [journals, setJournals] = useState([]);
@@ -87,10 +80,6 @@ const AddArticlePage = () => {
     } finally {
       setLoadingJournals(false);
     }
-  };
-  
-  const toggleThemeMenu = () => {
-    setShowThemeMenu(prev => !prev);
   };
   
   const handleInputChange = (e) => {
@@ -372,284 +361,266 @@ const AddArticlePage = () => {
   if (authLoading) {
     return <Spinner fullPage />;
   }
-  
-  // If user is not authenticated, redirect to login
-  if (!isAuthenticated && !authLoading) {
-    return <Navigate to="/login" />;
-  }
 
   return (
-    <div className="app">
-      <Navbar 
-        theme={theme}
-        handleThemeChange={handleThemeChange}
-        showThemeMenu={showThemeMenu}
-        toggleThemeMenu={toggleThemeMenu}
-        themeMenuRef={themeMenuRef}
-        isAuthenticated={isAuthenticated}
-      />
+    <>
+      <header className="page-header">
+        <h1>Submit New Article</h1>
+        <p>Complete the form below to submit your article for review</p>
+      </header>
       
-      <main className="main-content">
-        <header className="page-header">
-          <h1>Submit New Article</h1>
-          <p>Complete the form below to submit your article for review</p>
-        </header>
-        
-        <div className="content-container">
-          <div className="add-article-form-container">
-            <form onSubmit={handleSubmit} className="add-article-form">
-              <div className="form-section">
+      <div className="content-container">
+        <div className="add-article-form-container">
+          <form onSubmit={handleSubmit} className="add-article-form">
+            <div className="form-section">
+              <h2 className="section-title">
+                <IoNewspaperOutline className="section-icon" />
+                Article Information
+              </h2>
+              
+              <FormField
+                label="Article Title"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Enter the complete title of your article"
+                error={errors.title}
+                required
+              />
+              
+              <TextArea
+                label="Abstract"
+                name="abstract"
+                value={formData.abstract}
+                onChange={handleInputChange}
+                placeholder="Provide a concise summary of your article"
+                rows={6}
+                error={errors.abstract}
+                required
+              />
+              
+              <FormField
+                label="Keywords"
+                name="keywords"
+                value={formData.keywords}
+                onChange={handleInputChange}
+                placeholder="Enter keywords separated by commas (e.g., Psychology, Research, Methods)"
+                error={errors.keywords}
+                required
+              />
+              
+              <div className="form-field">
+                <label htmlFor="journalId" className="form-field__label">
+                  Select Journal
+                  <span className="form-field__required">*</span>
+                </label>
+                
+                <select
+                  id="journalId"
+                  name="journalId"
+                  value={formData.journalId}
+                  onChange={handleInputChange}
+                  className="form-field__select"
+                  disabled={loadingJournals}
+                  required
+                >
+                  <option value="">-- Select a Journal --</option>
+                  {journals.map(journal => (
+                    <option key={journal._id} value={journal._id}>
+                      {journal.title}
+                    </option>
+                  ))}
+                </select>
+                
+                {errors.journalId && <div className="form-field__error">{errors.journalId}</div>}
+              </div>
+            </div>
+            
+            <div className="form-section">
+              <h2 className="section-title">
+                <IoDocumentTextOutline className="section-icon" />
+                Upload Files
+              </h2>
+              
+              <div className="file-uploads-row">
+                <DragDropFileUpload
+                  title="Manuscript"
+                  name="menuScript"
+                  acceptedFormats=".pdf"
+                  value={files.menuScript}
+                  onChange={handleFileChange}
+                  error={errors.menuScript}
+                  required={true}
+                />
+                
+                <DragDropFileUpload
+                  title="Cover Letter"
+                  name="coverLetter"
+                  acceptedFormats=".pdf"
+                  value={files.coverLetter}
+                  onChange={handleFileChange}
+                  error={errors.coverLetter}
+                  required={true}
+                />
+                
+                <DragDropFileUpload
+                  title="Supplementary Files"
+                  name="supplementaryFile"
+                  acceptedFormats=".pdf,.doc,.docx,.xls,.xlsx"
+                  value={files.supplementaryFile}
+                  onChange={handleFileChange}
+                  error={errors.supplementaryFile}
+                  required={false}
+                />
+              </div>
+            </div>
+            
+            <div className="form-section authors-section">
+              <div className="section-title-with-action">
                 <h2 className="section-title">
-                  <IoNewspaperOutline className="section-icon" />
-                  Article Information
+                  <IoPersonOutline className="section-icon" />
+                  Authors
                 </h2>
                 
-                <FormField
-                  label="Article Title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  placeholder="Enter the complete title of your article"
-                  error={errors.title}
-                  required
-                />
-                
-                <TextArea
-                  label="Abstract"
-                  name="abstract"
-                  value={formData.abstract}
-                  onChange={handleInputChange}
-                  placeholder="Provide a concise summary of your article"
-                  rows={6}
-                  error={errors.abstract}
-                  required
-                />
-                
-                <FormField
-                  label="Keywords"
-                  name="keywords"
-                  value={formData.keywords}
-                  onChange={handleInputChange}
-                  placeholder="Enter keywords separated by commas (e.g., Psychology, Research, Methods)"
-                  error={errors.keywords}
-                  required
-                />
-                
-                <div className="form-field">
-                  <label htmlFor="journalId" className="form-field__label">
-                    Select Journal
-                    <span className="form-field__required">*</span>
-                  </label>
-                  
-                  <select
-                    id="journalId"
-                    name="journalId"
-                    value={formData.journalId}
-                    onChange={handleInputChange}
-                    className="form-field__select"
-                    disabled={loadingJournals}
-                    required
-                  >
-                    <option value="">-- Select a Journal --</option>
-                    {journals.map(journal => (
-                      <option key={journal._id} value={journal._id}>
-                        {journal.title}
-                      </option>
-                    ))}
-                  </select>
-                  
-                  {errors.journalId && <div className="form-field__error">{errors.journalId}</div>}
-                </div>
-              </div>
-              
-              <div className="form-section">
-                <h2 className="section-title">
-                  <IoDocumentTextOutline className="section-icon" />
-                  Upload Files
-                </h2>
-                
-                <div className="file-uploads-row">
-                  <DragDropFileUpload
-                    title="Manuscript"
-                    name="menuScript"
-                    acceptedFormats=".pdf"
-                    value={files.menuScript}
-                    onChange={handleFileChange}
-                    error={errors.menuScript}
-                    required={true}
-                  />
-                  
-                  <DragDropFileUpload
-                    title="Cover Letter"
-                    name="coverLetter"
-                    acceptedFormats=".pdf"
-                    value={files.coverLetter}
-                    onChange={handleFileChange}
-                    error={errors.coverLetter}
-                    required={true}
-                  />
-                  
-                  <DragDropFileUpload
-                    title="Supplementary Files"
-                    name="supplementaryFile"
-                    acceptedFormats=".pdf,.doc,.docx,.xls,.xlsx"
-                    value={files.supplementaryFile}
-                    onChange={handleFileChange}
-                    error={errors.supplementaryFile}
-                    required={false}
-                  />
-                </div>
-              </div>
-              
-              <div className="form-section authors-section">
-                <div className="section-title-with-action">
-                  <h2 className="section-title">
-                    <IoPersonOutline className="section-icon" />
-                    Authors
-                  </h2>
-                  
-                  <button 
-                    type="button" 
-                    className="add-author-button" 
-                    onClick={addAuthor}
-                  >
-                    <IoAddCircleOutline /> Add Author
-                  </button>
-                </div>
-                
-                {authors.map((author, index) => (
-                  <div key={index} className="author-card">
-                    <div className="author-card-header">
-                      <h3>Author {index + 1}</h3>
-                      
-                      {index > 0 && (
-                        <button
-                          type="button"
-                          className="remove-author-button"
-                          onClick={() => removeAuthor(index)}
-                        >
-                          <IoCloseCircleOutline /> Remove
-                        </button>
-                      )}
-                    </div>
-                    
-                    <div className="author-form-row">
-                      <FormField
-                        label="First Name"
-                        name={`firstName-${index}`}
-                        value={author.firstName}
-                        onChange={(e) => handleAuthorChange(index, 'firstName', e.target.value)}
-                        placeholder="First Name"
-                        error={errors[`authors.${index}.firstName`]}
-                        required
-                      />
-                      
-                      <FormField
-                        label="Last Name"
-                        name={`lastName-${index}`}
-                        value={author.lastName}
-                        onChange={(e) => handleAuthorChange(index, 'lastName', e.target.value)}
-                        placeholder="Last Name"
-                        error={errors[`authors.${index}.lastName`]}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="author-form-row">
-                      <FormField
-                        label="Email"
-                        name={`email-${index}`}
-                        type="email"
-                        value={author.email}
-                        onChange={(e) => handleAuthorChange(index, 'email', e.target.value)}
-                        placeholder="Email Address"
-                        error={errors[`authors.${index}.email`]}
-                        required
-                        icon={<IoMailOutline />}
-                      />
-                      
-                      <FormField
-                        label="Affiliation"
-                        name={`affiliation-${index}`}
-                        value={author.affiliation}
-                        onChange={(e) => handleAuthorChange(index, 'affiliation', e.target.value)}
-                        placeholder="University or Institution"
-                        error={errors[`authors.${index}.affiliation`]}
-                        required
-                        icon={<IoSchoolOutline />}
-                      />
-                    </div>
-                    
-                    <div className="author-checkboxes">
-                      <div className="checkbox-item">
-                        <input
-                          type="checkbox"
-                          id={`firstAuthor-${index}`}
-                          checked={author.firstAuthor}
-                          onChange={() => handleCheckboxChange(index, 'firstAuthor')}
-                        />
-                        <label htmlFor={`firstAuthor-${index}`}>First Author</label>
-                      </div>
-                      
-                      <div className="checkbox-item">
-                        <input
-                          type="checkbox"
-                          id={`correspondingAuthor-${index}`}
-                          checked={author.correspondingAuthor}
-                          onChange={() => handleCheckboxChange(index, 'correspondingAuthor')}
-                        />
-                        <label htmlFor={`correspondingAuthor-${index}`}>Corresponding Author</label>
-                      </div>
-                      
-                      <div className="checkbox-item">
-                        <input
-                          type="checkbox"
-                          id={`otherAuthor-${index}`}
-                          checked={author.otherAuthor}
-                          onChange={() => handleCheckboxChange(index, 'otherAuthor')}
-                        />
-                        <label htmlFor={`otherAuthor-${index}`}>Other Author</label>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="form-actions">
                 <button 
                   type="button" 
-                  className="secondary-button" 
-                  onClick={() => navigate('/articles')}
-                  disabled={loading}
+                  className="add-author-button" 
+                  onClick={addAuthor}
                 >
-                  Cancel
-                </button>
-                
-                <button 
-                  type="submit" 
-                  className="primary-button" 
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Spinner size="small" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <IoCheckmarkCircleOutline />
-                      Submit Article
-                    </>
-                  )}
+                  <IoAddCircleOutline /> Add Author
                 </button>
               </div>
-            </form>
-          </div>
+              
+              {authors.map((author, index) => (
+                <div key={index} className="author-card">
+                  <div className="author-card-header">
+                    <h3>Author {index + 1}</h3>
+                    
+                    {index > 0 && (
+                      <button
+                        type="button"
+                        className="remove-author-button"
+                        onClick={() => removeAuthor(index)}
+                      >
+                        <IoCloseCircleOutline /> Remove
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="author-form-row">
+                    <FormField
+                      label="First Name"
+                      name={`firstName-${index}`}
+                      value={author.firstName}
+                      onChange={(e) => handleAuthorChange(index, 'firstName', e.target.value)}
+                      placeholder="First Name"
+                      error={errors[`authors.${index}.firstName`]}
+                      required
+                    />
+                    
+                    <FormField
+                      label="Last Name"
+                      name={`lastName-${index}`}
+                      value={author.lastName}
+                      onChange={(e) => handleAuthorChange(index, 'lastName', e.target.value)}
+                      placeholder="Last Name"
+                      error={errors[`authors.${index}.lastName`]}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="author-form-row">
+                    <FormField
+                      label="Email"
+                      name={`email-${index}`}
+                      type="email"
+                      value={author.email}
+                      onChange={(e) => handleAuthorChange(index, 'email', e.target.value)}
+                      placeholder="Email Address"
+                      error={errors[`authors.${index}.email`]}
+                      required
+                      icon={<IoMailOutline />}
+                    />
+                    
+                    <FormField
+                      label="Affiliation"
+                      name={`affiliation-${index}`}
+                      value={author.affiliation}
+                      onChange={(e) => handleAuthorChange(index, 'affiliation', e.target.value)}
+                      placeholder="University or Institution"
+                      error={errors[`authors.${index}.affiliation`]}
+                      required
+                      icon={<IoSchoolOutline />}
+                    />
+                  </div>
+                  
+                  <div className="author-checkboxes">
+                    <div className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        id={`firstAuthor-${index}`}
+                        checked={author.firstAuthor}
+                        onChange={() => handleCheckboxChange(index, 'firstAuthor')}
+                      />
+                      <label htmlFor={`firstAuthor-${index}`}>First Author</label>
+                    </div>
+                    
+                    <div className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        id={`correspondingAuthor-${index}`}
+                        checked={author.correspondingAuthor}
+                        onChange={() => handleCheckboxChange(index, 'correspondingAuthor')}
+                      />
+                      <label htmlFor={`correspondingAuthor-${index}`}>Corresponding Author</label>
+                    </div>
+                    
+                    <div className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        id={`otherAuthor-${index}`}
+                        checked={author.otherAuthor}
+                        onChange={() => handleCheckboxChange(index, 'otherAuthor')}
+                      />
+                      <label htmlFor={`otherAuthor-${index}`}>Other Author</label>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="form-actions">
+              <button 
+                type="button" 
+                className="secondary-button" 
+                onClick={() => navigate('/articles')}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              
+              <button 
+                type="submit" 
+                className="primary-button" 
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Spinner size="small" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <IoCheckmarkCircleOutline />
+                    Submit Article
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 
