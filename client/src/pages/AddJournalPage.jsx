@@ -7,7 +7,6 @@ import {
   IoCalendarOutline,
   IoStatsChartOutline,
   IoCheckmarkCircleOutline,
-  IoClose,
 } from 'react-icons/io5';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,6 +14,7 @@ import FormField from '../components/forms/FormField';
 import TextArea from '../components/forms/TextArea';
 import DateField from '../components/forms/DateField';
 import CustomSelect from '../components/forms/CustomSelect';
+import TagInput from '../components/forms/TagInput';
 import Spinner from '../components/common/Spinner';
 import httpService from '../services/httpService';
 import { API_ENDPOINTS } from '../config/api';
@@ -24,7 +24,6 @@ const AddJournalPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const tagInputRef = useRef(null);
 
   // Initialize form state based on journal schema
   const [formData, setFormData] = useState({
@@ -112,46 +111,6 @@ const AddJournalPage = () => {
         [name]: ''
       }));
     }
-  };
-
-  // Tag handling functions
-  const handleTagInputChange = (e) => {
-    setTagInput(e.target.value);
-  };
-
-  const handleTagInputKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      addTag();
-    } else if (e.key === 'Backspace' && tagInput === '' && tags.length > 0) {
-      // Remove the last tag when backspace is pressed on empty input
-      removeTag(tags.length - 1);
-    }
-  };
-
-  const addTag = () => {
-    const trimmedInput = tagInput.trim();
-    if (trimmedInput && !tags.includes(trimmedInput)) {
-      const newTags = [...tags, trimmedInput];
-      setTags(newTags);
-      setTagInput('');
-    }
-  };
-
-  const removeTag = (index) => {
-    const newTags = [...tags];
-    newTags.splice(index, 1);
-    setTags(newTags);
-  };
-
-  const handleTagInputBlur = () => {
-    if (tagInput.trim()) {
-      addTag();
-    }
-  };
-
-  const focusTagInput = () => {
-    tagInputRef.current?.focus();
   };
 
   const validateForm = () => {
@@ -274,41 +233,15 @@ const AddJournalPage = () => {
               />
             </div>
 
-            <div className="tags-input-container">
-              <label className="tags-input-label">Tags</label>
-              <div
-                className="tags-input-wrapper"
-                onClick={focusTagInput}
-              >
-                {tags.map((tag, index) => (
-                  <div className="tag-item" key={index}>
-                    <span>{tag}</span>
-                    <button
-                      type="button"
-                      className="tag-close"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeTag(index);
-                      }}
-                      aria-label={`Remove tag ${tag}`}
-                    >
-                      <IoClose />
-                    </button>
-                  </div>
-                ))}
-                <input
-                  ref={tagInputRef}
-                  type="text"
-                  value={tagInput}
-                  onChange={handleTagInputChange}
-                  onKeyDown={handleTagInputKeyDown}
-                  onBlur={handleTagInputBlur}
-                  className="tags-input"
-                  placeholder={tags.length === 0 ? "Add tags (press Enter or comma)" : ""}
-                />
-              </div>
-              <p className="tags-input-help">Press Enter, comma, or tab to add a tag</p>
-            </div>
+            <TagInput
+              label="Tags"
+              tags={tags}
+              setTags={setTags}
+              tagInputValue={tagInput}
+              setTagInputValue={setTagInput}
+              placeholder="Add tags (press Enter or comma)"
+              helpText="Press Enter, comma, or tab to add a tag"
+            />
           </div>
 
           <div className="form-section">

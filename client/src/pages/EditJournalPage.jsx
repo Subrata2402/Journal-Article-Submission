@@ -7,7 +7,6 @@ import {
   IoCalendarOutline,
   IoStatsChartOutline,
   IoCheckmarkCircleOutline,
-  IoClose,
   IoPerson,
 } from 'react-icons/io5';
 import { toast } from 'react-toastify';
@@ -15,6 +14,8 @@ import { useAuth } from '../contexts/AuthContext';
 import FormField from '../components/forms/FormField';
 import TextArea from '../components/forms/TextArea';
 import DateField from '../components/forms/DateField';
+import CustomSelect from '../components/forms/CustomSelect';
+import TagInput from '../components/forms/TagInput';
 import Spinner from '../components/common/Spinner';
 import journalService from '../services/journalService';
 import '../assets/styles/pages/addJournal.scss';
@@ -347,41 +348,15 @@ const EditJournalPage = () => {
                 />
               </div>
 
-              <div className="tags-input-container">
-                <label className="tags-input-label">Tags</label>
-                <div
-                  className="tags-input-wrapper"
-                  onClick={focusTagInput}
-                >
-                  {tags.map((tag, index) => (
-                    <div className="tag-item" key={index}>
-                      <span>{tag}</span>
-                      <button
-                        type="button"
-                        className="tag-close"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeTag(index);
-                        }}
-                        aria-label={`Remove tag ${tag}`}
-                      >
-                        <IoClose />
-                      </button>
-                    </div>
-                  ))}
-                  <input
-                    ref={tagInputRef}
-                    type="text"
-                    value={tagInput}
-                    onChange={handleTagInputChange}
-                    onKeyDown={handleTagInputKeyDown}
-                    onBlur={handleTagInputBlur}
-                    className="tags-input"
-                    placeholder={tags.length === 0 ? "Add tags (press Enter or comma)" : ""}
-                  />
-                </div>
-                <p className="tags-input-help">Press Enter, comma, or tab to add a tag</p>
-              </div>
+              <TagInput
+                label="Tags"
+                tags={tags}
+                setTags={setTags}
+                tagInputValue={tagInput}
+                setTagInputValue={setTagInput}
+                placeholder="Add tags (press Enter or comma)"
+                helpText="Press Enter, comma, or tab to add a tag"
+              />
             </div>
 
             <div className="form-section">
@@ -391,29 +366,23 @@ const EditJournalPage = () => {
               </h2>
 
               <div className="form-row">
-                <div className="form-field">
-                  <label htmlFor="publicationFrequency" className="form-field__label">
-                    Publication Frequency
-                    <span className="form-field__required">*</span>
-                  </label>
-                  <select
-                    id="publicationFrequency"
-                    name="publicationFrequency"
-                    className="form-field__select"
-                    value={formData.publicationFrequency}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="Daily">Daily</option>
-                    <option value="Weekly">Weekly</option>
-                    <option value="Monthly">Monthly</option>
-                    <option value="Quarterly">Quarterly</option>
-                    <option value="Annually">Annually</option>
-                  </select>
-                  {errors.publicationFrequency && (
-                    <div className="form-field__error">{errors.publicationFrequency}</div>
-                  )}
-                </div>
+                <CustomSelect
+                  label="Publication Frequency"
+                  name="publicationFrequency"
+                  value={formData.publicationFrequency}
+                  onChange={handleInputChange}
+                  options={[
+                    { value: "Daily", label: "Daily" },
+                    { value: "Weekly", label: "Weekly" },
+                    { value: "Monthly", label: "Monthly" },
+                    { value: "Quarterly", label: "Quarterly" },
+                    { value: "Annually", label: "Annually" }
+                  ]}
+                  placeholder="Select publication frequency"
+                  error={errors.publicationFrequency}
+                  required
+                  icon={<IoCalendarOutline />}
+                />
 
                 <FormField
                   label="Peer Review Process"

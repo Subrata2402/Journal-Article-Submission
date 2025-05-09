@@ -9,10 +9,14 @@ import {
   IoCheckmarkCircleOutline,
   IoAddCircleOutline,
   IoCloseCircleOutline,
-  IoArrowBackOutline
+  IoArrowBackOutline,
+  IoCloseOutline,
+  IoAddOutline
 } from 'react-icons/io5';
 import FormField from '../components/forms/FormField';
 import TextArea from '../components/forms/TextArea';
+import CustomSelect from '../components/forms/CustomSelect';
+import TagInput from '../components/forms/TagInput';
 import DragDropFileUpload from '../components/common/DragDropFileUpload';
 import Spinner from '../components/common/Spinner';
 import { useAuth } from '../contexts/AuthContext';
@@ -36,9 +40,10 @@ const EditArticlePage = () => {
   const [formData, setFormData] = useState({
     title: '',
     abstract: '',
-    keywords: '',
     journalId: '',
   });
+  const [keywords, setKeywords] = useState([]);
+  const [keywordInput, setKeywordInput] = useState('');
   const [errors, setErrors] = useState({});
   const [files, setFiles] = useState({
     menuScript: null,
@@ -91,9 +96,13 @@ const EditArticlePage = () => {
         setFormData({
           title: article.title || '',
           abstract: article.abstract || '',
-          keywords: article.keywords ? article.keywords.join(', ') : '',
           journalId: article.journalId?._id || ''
         });
+
+        // Set keywords array directly
+        if (article.keywords && article.keywords.length > 0) {
+          setKeywords(article.keywords);
+        }
 
         // Set existing file names
         setExistingFiles({
@@ -275,13 +284,10 @@ const EditArticlePage = () => {
     }
 
     // Validate keywords - now required and limited to maximum 6 keywords
-    if (!formData.keywords.trim()) {
+    if (keywords.length === 0) {
       newErrors.keywords = 'Keywords are required';
-    } else {
-      const keywordsCount = formData.keywords.split(',').filter(k => k.trim()).length;
-      if (keywordsCount > 6) {
-        newErrors.keywords = 'Maximum 6 keywords allowed';
-      }
+    } else if (keywords.length > 6) {
+      newErrors.keywords = 'Maximum 6 keywords allowed';
     }
 
     // Validate journal selection
@@ -339,9 +345,8 @@ const EditArticlePage = () => {
       data.append('title', formData.title);
       data.append('abstract', formData.abstract);
 
-      // Parse keywords from comma-separated string to array
-      if (formData.keywords.trim()) {
-        const keywords = formData.keywords.split(',').map(k => k.trim());
+      // Add keywords as JSON string
+      if (keywords.length > 0) {
         data.append('keywords', JSON.stringify(keywords));
       }
 
@@ -379,25 +384,6 @@ const EditArticlePage = () => {
       setLoading(false);
     }
   };
-
-  // Add a useEffect for real-time keywords validation
-  useEffect(() => {
-    if (formData.keywords) {
-      const keywordsArr = formData.keywords.split(',').filter(k => k.trim());
-      if (keywordsArr.length > 6) {
-        // If more than 6 keywords, truncate to 6 and show error
-        const truncatedKeywords = keywordsArr.slice(0, 6).join(', ');
-        setFormData(prev => ({
-          ...prev,
-          keywords: truncatedKeywords
-        }));
-        setErrors(prev => ({
-          ...prev,
-          keywords: 'Maximum 6 keywords allowed'
-        }));
-      }
-    }
-  }, [formData.keywords]);
 
   const handleGoBack = () => {
     navigate(referrer);
@@ -461,41 +447,48 @@ const EditArticlePage = () => {
                 required
               />
 
-              <FormField
+              <TagInput
                 label="Keywords"
-                name="keywords"
-                value={formData.keywords}
-                onChange={handleInputChange}
-                placeholder="Enter keywords separated by commas (e.g., Psychology, Research, Methods)"
+                tags={keywords}
+                setTags={setKeywords}
+                tagInputValue={keywordInput}
+                setTagInputValue={setKeywordInput}
+                placeholder="Type and press Enter to add keywords..."
                 error={errors.keywords}
                 required
+                maxTags={6}
+                helpText="Add up to 6 keywords. Press Enter or comma after each keyword."
               />
 
-              <div className="form-field">
-                <label htmlFor="journalId" className="form-field__label">
-                  Select Journal
-                  <span className="form-field__required">*</span>
-                </label>
-
-                <select
-                  id="journalId"
+              {loadingJournals ? (
+                <div className="form-field">
+                  <label className="form-field__label">
+                    <span className="form-field__label-text">
+                      Select Journal
+                      <span className="form-field__required">*</span>
+                    </span>
+                  </label>
+                  <div className="select-loading">
+                    <Spinner size="small" />
+                    <span>Loading journals...</span>
+                  </div>
+                </div>
+              ) : (
+                <CustomSelect
+                  label="Select Journal"
                   name="journalId"
                   value={formData.journalId}
                   onChange={handleInputChange}
-                  className="form-field__select"
-                  disabled={loadingJournals}
+                  options={journals.map(journal => ({
+                    value: journal._id,
+                    label: journal.title
+                  }))}
+                  placeholder="Select a journal"
+                  error={errors.journalId}
                   required
-                >
-                  <option value="">-- Select a Journal --</option>
-                  {journals.map(journal => (
-                    <option key={journal._id} value={journal._id}>
-                      {journal.title}
-                    </option>
-                  ))}
-                </select>
-
-                {errors.journalId && <div className="form-field__error">{errors.journalId}</div>}
-              </div>
+                  icon={<IoNewspaperOutline />}
+                />
+              )}
             </div>
 
             <div className="form-section">

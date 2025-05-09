@@ -9,10 +9,13 @@ import {
   IoCheckmarkCircleOutline,
   IoAddCircleOutline,
   IoCloseCircleOutline,
+  IoCloseOutline,
+  IoAddOutline
 } from 'react-icons/io5';
 import FormField from '../components/forms/FormField';
 import TextArea from '../components/forms/TextArea';
 import CustomSelect from '../components/forms/CustomSelect';
+import TagInput from '../components/forms/TagInput';
 import DragDropFileUpload from '../components/common/DragDropFileUpload';
 import Spinner from '../components/common/Spinner';
 import { useAuth } from '../contexts/AuthContext';
@@ -32,9 +35,10 @@ const AddArticlePage = () => {
   const [formData, setFormData] = useState({
     title: '',
     abstract: '',
-    keywords: '',
     journalId: '',
   });
+  const [keywords, setKeywords] = useState([]);
+  const [keywordInput, setKeywordInput] = useState('');
   const [errors, setErrors] = useState({});
   const [files, setFiles] = useState({
     menuScript: null,
@@ -114,6 +118,54 @@ const AddArticlePage = () => {
           [name]: ''
         }));
       }
+    }
+  };
+
+  // Keywords handling
+  const handleKeywordInputChange = (e) => {
+    setKeywordInput(e.target.value);
+    // Clear keyword error when typing
+    if (errors.keywords) {
+      setErrors(prev => ({
+        ...prev,
+        keywords: ''
+      }));
+    }
+  };
+
+  const handleKeywordKeyDown = (e) => {
+    // Add keyword when Enter or comma is pressed
+    if ((e.key === 'Enter' || e.key === ',') && keywordInput.trim()) {
+      e.preventDefault();
+      addKeyword();
+    }
+  };
+
+  const addKeyword = () => {
+    const newKeyword = keywordInput.trim();
+    if (newKeyword && !keywords.includes(newKeyword)) {
+      // Check if adding would exceed 6 keywords
+      if (keywords.length < 6) {
+        setKeywords(prev => [...prev, newKeyword]);
+        setKeywordInput('');
+      } else {
+        // Show error if trying to add more than 6 keywords
+        setErrors(prev => ({
+          ...prev,
+          keywords: 'Maximum 6 keywords allowed'
+        }));
+      }
+    }
+  };
+
+  const removeKeyword = (index) => {
+    setKeywords(prev => prev.filter((_, i) => i !== index));
+    // Clear error when removing keywords
+    if (errors.keywords) {
+      setErrors(prev => ({
+        ...prev,
+        keywords: ''
+      }));
     }
   };
   
@@ -224,13 +276,10 @@ const AddArticlePage = () => {
     }
     
     // Validate keywords - now required and limited to maximum 6 keywords
-    if (!formData.keywords.trim()) {
+    if (keywords.length === 0) {
       newErrors.keywords = 'Keywords are required';
-    } else {
-      const keywordsCount = formData.keywords.split(',').filter(k => k.trim()).length;
-      if (keywordsCount > 6) {
-        newErrors.keywords = 'Maximum 6 keywords allowed';
-      }
+    } else if (keywords.length > 6) {
+      newErrors.keywords = 'Maximum 6 keywords allowed';
     }
     
     // Validate journal selection
@@ -294,9 +343,8 @@ const AddArticlePage = () => {
       data.append('title', formData.title);
       data.append('abstract', formData.abstract);
       
-      // Parse keywords from comma-separated string to array
-      if (formData.keywords.trim()) {
-        const keywords = formData.keywords.split(',').map(k => k.trim());
+      // Add keywords as JSON string
+      if (keywords.length > 0) {
         data.append('keywords', JSON.stringify(keywords));
       }
       
@@ -338,25 +386,6 @@ const AddArticlePage = () => {
       setLoading(false);
     }
   };
-  
-  // Add a new useEffect for real-time keywords validation
-  useEffect(() => {
-    if (formData.keywords) {
-      const keywordsArr = formData.keywords.split(',').filter(k => k.trim());
-      if (keywordsArr.length > 6) {
-        // If more than 6 keywords, truncate to 6 and show error
-        const truncatedKeywords = keywordsArr.slice(0, 6).join(', ');
-        setFormData(prev => ({
-          ...prev,
-          keywords: truncatedKeywords
-        }));
-        setErrors(prev => ({
-          ...prev,
-          keywords: 'Maximum 6 keywords allowed'
-        }));
-      }
-    }
-  }, [formData.keywords]);
   
   // If authentication is loading, show spinner
   if (authLoading) {
@@ -400,41 +429,48 @@ const AddArticlePage = () => {
                 required
               />
               
-              <FormField
+              <TagInput
                 label="Keywords"
-                name="keywords"
-                value={formData.keywords}
-                onChange={handleInputChange}
-                placeholder="Enter keywords separated by commas (e.g., Psychology, Research, Methods)"
+                tags={keywords}
+                setTags={setKeywords}
+                tagInputValue={keywordInput}
+                setTagInputValue={setKeywordInput}
+                placeholder="Type and press Enter to add keywords..."
                 error={errors.keywords}
                 required
+                maxTags={6}
+                helpText="Add up to 6 keywords. Press Enter or comma after each keyword."
               />
               
-              <div className="form-field">
-                <label htmlFor="journalId" className="form-field__label">
-                  Select Journal
-                  <span className="form-field__required">*</span>
-                </label>
-                
-                <select
-                  id="journalId"
+              {loadingJournals ? (
+                <div className="form-field">
+                  <label className="form-field__label">
+                    <span className="form-field__label-text">
+                      Select Journal
+                      <span className="form-field__required">*</span>
+                    </span>
+                  </label>
+                  <div className="select-loading">
+                    <Spinner size="small" />
+                    <span>Loading journals...</span>
+                  </div>
+                </div>
+              ) : (
+                <CustomSelect
+                  label="Select Journal"
                   name="journalId"
                   value={formData.journalId}
                   onChange={handleInputChange}
-                  className="form-field__select"
-                  disabled={loadingJournals}
+                  options={journals.map(journal => ({
+                    value: journal._id,
+                    label: journal.title
+                  }))}
+                  placeholder="Select a journal"
+                  error={errors.journalId}
                   required
-                >
-                  <option value="">-- Select a Journal --</option>
-                  {journals.map(journal => (
-                    <option key={journal._id} value={journal._id}>
-                      {journal.title}
-                    </option>
-                  ))}
-                </select>
-                
-                {errors.journalId && <div className="form-field__error">{errors.journalId}</div>}
-              </div>
+                  icon={<IoNewspaperOutline />}
+                />
+              )}
             </div>
             
             <div className="form-section">
