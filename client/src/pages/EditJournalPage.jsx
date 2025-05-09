@@ -30,7 +30,6 @@ const EditJournalPage = () => {
   const tagInputRef = useRef(null);
   const [journal, setJournal] = useState(null);
   const [sourceRoute, setSourceRoute] = useState('/');
-  const [editorInfo, setEditorInfo] = useState(null);
 
   // Initialize form state
   const [formData, setFormData] = useState({
@@ -51,8 +50,7 @@ const EditJournalPage = () => {
       timeToPublication: '',
       articlesPerYear: 0
     },
-    submissionGuidelines: '',
-    editorId: ''
+    submissionGuidelines: ''
   });
 
   const [tags, setTags] = useState([]);
@@ -109,8 +107,7 @@ const EditJournalPage = () => {
               timeToPublication: journalData.metrics?.timeToPublication || '60 days',
               articlesPerYear: journalData.metrics?.articlesPerYear || 100
             },
-            submissionGuidelines: submissionGuidelinesStr,
-            editorId: journalData.editorId || ''
+            submissionGuidelines: submissionGuidelinesStr
           });
 
           // Set tags
@@ -491,23 +488,6 @@ const EditJournalPage = () => {
                 description="Enter each guideline on a new line. These will be presented as a list to authors."
               />
             </div>
-
-            {isAdminOrEditor && (
-              <div className="form-section">
-                <h2 className="section-title">
-                  <IoPerson className="section-icon" />
-                  Editor Information
-                </h2>
-
-                <FormField
-                  label="Editor ID"
-                  name="editorId"
-                  value={formData.editorId}
-                  onChange={handleInputChange}
-                  placeholder="Enter the editor ID"
-                />
-              </div>
-            )}
 
             <div className="form-actions">
               <button

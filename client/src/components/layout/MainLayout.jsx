@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -16,6 +16,25 @@ const MainLayout = () => {
       setShowThemeMenu(prev => !prev);
     }
   };
+
+  // Add click outside handler to close the theme menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target)) {
+        toggleThemeMenu(false);
+      }
+    };
+
+    // Add event listener when the menu is open
+    if (showThemeMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showThemeMenu]);
 
   return (
     <div className="app">
