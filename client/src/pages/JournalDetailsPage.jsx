@@ -9,6 +9,10 @@ import {
   IoCheckmarkCircleOutline,
   IoAccessibilityOutline,
   IoStatsChartOutline,
+  IoPencil,
+  IoPerson,
+  IoNewspaperOutline,
+  IoPricetagsOutline,
 } from 'react-icons/io5';
 import Spinner from '../components/common/Spinner';
 import { formatDate } from '../utils/formatters';
@@ -26,8 +30,9 @@ const JournalDetailsPage = () => {
   const [error, setError] = useState(null);
   const [isPinnedState, setIsPinnedState] = useState(false);
 
-  // Check if user is an editor
+  // Check if user is an editor or admin
   const isEditor = user && user.role === "editor";
+  const isAdmin = user && user.role === "admin";
 
   useEffect(() => {
     if (journalId) {
@@ -153,7 +158,17 @@ const JournalDetailsPage = () => {
                   {isPinned() ? <IoBookmark /> : <IoBookmarkOutline />}
                   <span>{isPinned() ? 'Pinned' : 'Pin Journal'}</span>
                 </button>
-                {!isEditor && (
+                {(isEditor || isAdmin) && (
+                  <button 
+                    className="edit-journal-button"
+                    onClick={() => navigate(`/edit-journal/${journalId}`, { state: { from: `/view-journal/${journalId}` } })}
+                    title="Edit Journal"
+                  >
+                    <IoPencil />
+                    <span>Edit Journal</span>
+                  </button>
+                )}
+                {!isEditor && !isAdmin && (
                   <button 
                     className="submit-article-button"
                     onClick={handleSubmitArticle}
@@ -166,13 +181,19 @@ const JournalDetailsPage = () => {
           </div>
 
           <div className="journal-content">
-            <div className="journal-section">
-              <h2>Description</h2>
+            <div className="form-section">
+              <h2 className="section-title">
+                <IoNewspaperOutline className="section-icon" />
+                Description
+              </h2>
               <p className="journal-description">{journal.description}</p>
             </div>
 
-            <div className="journal-section">
-              <h2>Journal Details</h2>
+            <div className="form-section">
+              <h2 className="section-title">
+                <IoCalendarOutline className="section-icon" />
+                Journal Details
+              </h2>
               <div className="journal-details-grid">
                 <div className="detail-item">
                   <div className="detail-icon">
@@ -229,8 +250,11 @@ const JournalDetailsPage = () => {
             </div>
 
             {journal.metrics && (
-              <div className="journal-section">
-                <h2>Journal Metrics</h2>
+              <div className="form-section">
+                <h2 className="section-title">
+                  <IoStatsChartOutline className="section-icon" />
+                  Journal Metrics
+                </h2>
                 <div className="metrics-grid">
                   <div className="metric-item">
                     <h3>Average Review Time</h3>
@@ -252,9 +276,48 @@ const JournalDetailsPage = () => {
               </div>
             )}
 
+            {/* Editor section moved after metrics */}
+            {isAdmin && journal.editorId && (
+              <div className="form-section">
+                <h2 className="section-title">
+                  <IoPerson className="section-icon" />
+                  Editor Information
+                </h2>
+                <div className="editor-details">
+                  <div className="editor-card">
+                    <div className="editor-header">
+                      <h3>
+                        {journal.editorId.firstName} {journal.editorId.lastName}
+                      </h3>
+                      {journal.editorId.email && (
+                        <p className="editor-email">{journal.editorId.email.id}</p>
+                      )}
+                    </div>
+                    <div className="editor-info">
+                      {journal.editorId.institution && (
+                        <div className="info-item">
+                          <span className="info-label">Institution:</span>
+                          <span className="info-value">{journal.editorId.institution}</span>
+                        </div>
+                      )}
+                      {journal.editorId.phoneNumber && (
+                        <div className="info-item">
+                          <span className="info-label">Contact:</span>
+                          <span className="info-value">{journal.editorId.phoneNumber}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {journal.submissionGuidelines && journal.submissionGuidelines.length > 0 && (
-              <div className="journal-section">
-                <h2>Submission Guidelines</h2>
+              <div className="form-section">
+                <h2 className="section-title">
+                  <IoCheckmarkCircleOutline className="section-icon" />
+                  Submission Guidelines
+                </h2>
                 <div className="guidelines-list">
                   <ul>
                     {journal.submissionGuidelines.map((guideline, index) => (
@@ -266,8 +329,11 @@ const JournalDetailsPage = () => {
             )}
 
             {journal.tags && journal.tags.length > 0 && (
-              <div className="journal-section">
-                <h2>Tags</h2>
+              <div className="form-section">
+                <h2 className="section-title">
+                  <IoPricetagsOutline className="section-icon" />
+                  Tags
+                </h2>
                 <div className="tags-container">
                   {journal.tags.map((tag, index) => (
                     <span key={index} className="tag-pill">{tag}</span>

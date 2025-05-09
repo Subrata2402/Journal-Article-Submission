@@ -20,6 +20,9 @@ import ReviewArticlePage from './pages/ReviewArticlePage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import JournalDetailsPage from './pages/JournalDetailsPage';
+import AddJournalPage from './pages/AddJournalPage';
+import EditJournalPage from './pages/EditJournalPage';
+import AddEditorPage from './pages/AddEditorPage';
 import MainLayout from './components/layout/MainLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './assets/styles/main.scss';
@@ -107,6 +110,49 @@ const ReviewerRoute = ({ children }) => {
   return children;
 };
 
+// Admin-only route - redirects non-admins to the home page
+const AdminRoute = ({ children }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+  
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!isAuthenticated) {
+    // Save the current path to redirect after login
+    return <Navigate to="/login" state={{ from: location.pathname }} />;
+  }
+  
+  // If user is not an admin, redirect to home page
+  if (!user || user.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
+
+// Admin or Editor route - restricts access to users with these roles
+const AdminOrEditorRoute = ({ children }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+  
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location.pathname }} />;
+  }
+  
+  // Allow access only if user is an admin or editor
+  if (!user || (user.role !== "admin" && user.role !== "editor")) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
+
 const App = () => {
   return (
     <AuthProvider>
@@ -128,11 +174,21 @@ const App = () => {
             
             {/* Protected Journal Details route - requires authentication */}
             <Route 
-              path="/journals/:journalId" 
+              path="/view-journal/:journalId" 
               element={
                 <ProtectedRoute>
                   <JournalDetailsPage />
                 </ProtectedRoute>
+              }
+            />
+            
+            {/* Edit Journal route - only for admins and editors */}
+            <Route 
+              path="/edit-journal/:journalId" 
+              element={
+                <AdminOrEditorRoute>
+                  <EditJournalPage />
+                </AdminOrEditorRoute>
               }
             />
             
@@ -215,6 +271,24 @@ const App = () => {
                 <ReviewerRoute>
                   <ReviewArticlePage />
                 </ReviewerRoute>
+              } 
+            />
+
+            {/* Admin-only routes */}
+            <Route 
+              path="/add-journal" 
+              element={
+                <AdminRoute>
+                  <AddJournalPage />
+                </AdminRoute>
+              } 
+            />
+            <Route 
+              path="/add-editor" 
+              element={
+                <AdminRoute>
+                  <AddEditorPage />
+                </AdminRoute>
               } 
             />
           </Route>

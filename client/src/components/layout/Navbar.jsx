@@ -80,17 +80,30 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
       {isAuthenticated && (
         <>
           {isAdmin && (
-            <li className="nav-item">
-              <NavLink 
-                to="/journals" 
-                className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-                onClick={mobile ? closeMobileMenu : undefined}
-                title="Journals"
-              >
-                <IoNewspaperOutline className="nav-icon" /> 
-                <span className="nav-text">Journals</span>
-              </NavLink>
-            </li>
+            <>
+              <li className="nav-item">
+                <NavLink 
+                  to="/add-journal" 
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  onClick={mobile ? closeMobileMenu : undefined}
+                  title="Add Journal"
+                >
+                  <IoNewspaperOutline className="nav-icon" /> 
+                  <span className="nav-text">Add Journal</span>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink 
+                  to="/add-editor" 
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  onClick={mobile ? closeMobileMenu : undefined}
+                  title="Add Editor"
+                >
+                  <IoPersonOutline className="nav-icon" /> 
+                  <span className="nav-text">Add Editor</span>
+                </NavLink>
+              </li>
+            </>
           )}
           
           {!isEditor && !isAdmin && (

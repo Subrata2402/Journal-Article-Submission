@@ -167,7 +167,14 @@ const journalDetails = async (req, res, next) => {
             throw new ApiError('Journal ID is required', 400);
         }
 
-        const journalData = await Journal.findById(journalId).select('-__v -editorId'); // Find journal by ID and exclude __v field
+        let journalData;
+
+        if (req.user.role === 'admin') {
+            // If the user is an admin, retrieve all journal data excluding __v and editorId fields
+            journalData = await Journal.findById(journalId).select('-__v').populate('editorId', 'firstName lastName email.id phoneNumber institution');
+        } else {
+            journalData = await Journal.findById(journalId).select('-__v -editorId'); // Find journal by ID and exclude __v field
+        } // Find journal by ID and exclude __v field
 
         if (!journalData) {
             throw new ApiError('Journal not found', 404);

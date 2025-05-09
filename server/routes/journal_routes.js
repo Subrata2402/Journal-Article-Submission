@@ -27,7 +27,7 @@ router.put('/update-journal/:journalId',
 
 // Get routes
 router.get('/journal-list', journalController.journalList);
-router.get('/journal-details/:journalId', journalController.journalDetails);
+router.get('/journal-details/:journalId', authenticate, journalController.journalDetails);
 router.get('/categories', journalController.categories);
 router.get('/tags', journalController.tags);
 router.get('/journal-editor-list', authenticate, verifyAdmin, journalController.journalEditorList);

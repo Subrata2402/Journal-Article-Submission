@@ -546,3 +546,125 @@
     }
   }
 }
+
+// Custom Select styling
+.custom-select-container {
+  width: 100%;
+}
+
+.custom-select {
+  position: relative;
+  min-height: 42px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background-color: var(--input-bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    border-color: var(--border-hover-color);
+  }
+  
+  &:focus, &.open {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color-light);
+  }
+  
+  &.error {
+    border-color: var(--error-color);
+    
+    &:focus, &.open {
+      box-shadow: 0 0 0 2px var(--error-color-light);
+    }
+  }
+}
+
+.custom-select-value {
+  flex-grow: 1;
+  font-size: var(--font-size-md);
+  padding: var(--spacing-sm) 0;
+  color: var(--text-color);
+  
+  // Style for placeholder
+  &:empty::before,
+  &:only-child:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+  }
+}
+
+.custom-select-icon {
+  display: flex;
+  align-items: center;
+  margin-left: var(--spacing-md);
+  color: var(--text-muted);
+  transition: transform var(--transition-fast);
+  
+  .open & {
+    color: var(--primary-color);
+    transform: rotate(180deg);
+  }
+}
+
+.custom-select-loading {
+  width: 100%;
+  padding: var(--spacing-sm) 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-xs);
+  
+  // Animation
+  animation: dropdownFadeIn 0.2s ease-in-out;
+}
+
+.custom-select-option {
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+  
+  &.selected {
+    background-color: var(--primary-color-light);
+    color: var(--primary-color-dark);
+    font-weight: 500;
+  }
+  
+  &.highlighted:not(.selected) {
+    background-color: var(--bg-hover);
+  }
+  
+  &:hover:not(.selected) {
+    background-color: var(--bg-hover);
+  }
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

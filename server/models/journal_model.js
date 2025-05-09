@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const journalSchema = new mongoose.Schema({
     editorId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Register',
+        ref: 'User',
     },
     title: {
         type: String,

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../common/Spinner';
-import { IoBookmarkOutline, IoBookmark, IoCalendarOutline, IoPricetagOutline, IoNewspaperOutline } from 'react-icons/io5';
+import { IoBookmarkOutline, IoBookmark, IoCalendarOutline, IoPricetagOutline, IoNewspaperOutline, IoPencilOutline, IoTrashOutline, IoEllipsisVertical, IoEyeOutline } from 'react-icons/io5';
 import '../../assets/styles/journal/journalList.scss';
 import journalService from '../../services/journalService';
 import toastUtil from '../../utils/toastUtil';
 import { useAuth } from '../../contexts/AuthContext';
+import ConfirmationModal from '../common/ConfirmationModal';
 
 const JournalList = ({ 
   journals, 
@@ -20,9 +21,12 @@ const JournalList = ({
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ show: false, journalId: null, title: '' });
   
-  // Check if user is an editor
+  // Check if user is an editor or admin
   const isEditor = user && user.role === "editor";
+  const isAdmin = user && user.role === "admin";
   
   // Function to determine header color based on category
   const getCategoryClass = (category) => {
@@ -44,7 +48,7 @@ const JournalList = ({
   
   // Function to handle navigation to journal details page
   const handleViewDetails = (journalId) => {
-    navigate(`/journals/${journalId}`);
+    navigate(`/view-journal/${journalId}`);
   };
   
   // Function to handle navigation to add article page with selected journal
@@ -68,11 +72,82 @@ const JournalList = ({
     if (onPinStatusChange) {
       onPinStatusChange();
     }
+    
+    // Close dropdown if open
+    setActiveDropdown(null);
   };
   
   const isPinnedJournal = (journalId) => {
     return journalService.isPinned(journalId);
   };
+  
+  // Toggle dropdown menu
+  const toggleDropdown = (e, journalId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setActiveDropdown(activeDropdown === journalId ? null : journalId);
+  };
+  
+  // Close dropdown when clicking elsewhere
+  const handleOutsideClick = () => {
+    setActiveDropdown(null);
+  };
+  
+  // Handle journal edit
+  const handleEditJournal = (e, journalId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/edit-journal/${journalId}`);
+    setActiveDropdown(null);
+  };
+  
+  // Open delete confirmation modal
+  const confirmDeleteJournal = (e, journal) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setDeleteModal({
+      show: true,
+      journalId: journal._id,
+      title: journal.title
+    });
+    
+    setActiveDropdown(null);
+  };
+  
+  // Handle journal delete
+  const handleDeleteJournal = async () => {
+    try {
+      const response = await journalService.deleteJournal(deleteModal.journalId);
+      if (response.success) {
+        toastUtil.success('Journal deleted successfully');
+        fetchJournals(); // Refresh the journals list
+      } else {
+        toastUtil.error(response.message || 'Failed to delete journal');
+      }
+    } catch (error) {
+      console.error('Error deleting journal:', error);
+      toastUtil.error(error.message || 'An error occurred while deleting the journal');
+    } finally {
+      setDeleteModal({ show: false, journalId: null, title: '' });
+    }
+  };
+  
+  // Close delete modal
+  const closeDeleteModal = () => {
+    setDeleteModal({ show: false, journalId: null, title: '' });
+  };
+  
+  // Add click event listener to close dropdown when clicking outside
+  React.useEffect(() => {
+    if (activeDropdown) {
+      document.addEventListener('click', handleOutsideClick);
+      return () => {
+        document.removeEventListener('click', handleOutsideClick);
+      };
+    }
+  }, [activeDropdown]);
   
   return (
     <section className="journal-list">          
@@ -153,9 +228,11 @@ const JournalList = ({
                           onClick={() => handleViewDetails(journal._id)} 
                           className="view-details-button"
                         >
-                          View Details
+                          <IoEyeOutline /> View Details
                         </button>
-                        {!isEditor && (
+                        
+                        {/* Show Submit Article button only for regular users (not editors or admins) */}
+                        {!isEditor && !isAdmin && (
                           <button 
                             className="submit-article-button"
                             onClick={() => handleSubmitArticle(journal._id)}
@@ -164,14 +241,60 @@ const JournalList = ({
                           </button>
                         )}
                       </div>
-                      <button 
-                        className={`bookmark-button ${isPinnedJournal(journal._id) ? 'active' : ''}`} 
-                        aria-label={isPinnedJournal(journal._id) ? 'Unpin' : 'Pin'}
-                        onClick={(e) => handleTogglePinJournal(e, journal._id)}
-                        title={isPinnedJournal(journal._id) ? 'Unpin journal' : 'Pin journal'}
-                      >
-                        {isPinnedJournal(journal._id) ? <IoBookmark /> : <IoBookmarkOutline />}
-                      </button>
+                      
+                      {/* Show three-dots menu for admin users */}
+                      {isAdmin ? (
+                        <div className="admin-actions">
+                          <button 
+                            className="menu-button"
+                            onClick={(e) => toggleDropdown(e, journal._id)}
+                            aria-label="Journal options"
+                          >
+                            <IoEllipsisVertical />
+                          </button>
+                          
+                          {activeDropdown === journal._id && (
+                            <div className="dropdown-menu">
+                              <button 
+                                onClick={(e) => handleTogglePinJournal(e, journal._id)}
+                                className="dropdown-item"
+                              >
+                                {isPinnedJournal(journal._id) ? (
+                                  <>
+                                    <IoBookmark /> Unpin Journal
+                                  </>
+                                ) : (
+                                  <>
+                                    <IoBookmarkOutline /> Pin Journal
+                                  </>
+                                )}
+                              </button>
+                              <button 
+                                onClick={(e) => handleEditJournal(e, journal._id)}
+                                className="dropdown-item"
+                              >
+                                <IoPencilOutline /> Edit Journal
+                              </button>
+                              <button 
+                                onClick={(e) => confirmDeleteJournal(e, journal)}
+                                className="dropdown-item delete"
+                              >
+                                <IoTrashOutline /> Delete Journal
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        // Regular bookmark button for non-admin users
+                        <button 
+                          className={`bookmark-button ${isPinnedJournal(journal._id) ? 'active' : ''}`} 
+                          aria-label={isPinnedJournal(journal._id) ? 'Unpin' : 'Pin'}
+                          onClick={(e) => handleTogglePinJournal(e, journal._id)}
+                          title={isPinnedJournal(journal._id) ? 'Unpin journal' : 'Pin journal'}
+                        >
+                          {isPinnedJournal(journal._id) ? <IoBookmark /> : <IoBookmarkOutline />}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -200,6 +323,18 @@ const JournalList = ({
               </button>
             </div>
           )}
+          
+          {/* Delete Confirmation Modal */}
+          <ConfirmationModal
+            isOpen={deleteModal.show}
+            onClose={closeDeleteModal}
+            onConfirm={handleDeleteJournal}
+            title="Delete Journal"
+            message={`Are you sure you want to delete "${deleteModal.title}"? This action cannot be undone.`}
+            confirmText="Delete"
+            cancelText="Cancel"
+            type="danger"
+          />
         </>
       )}
     </section>

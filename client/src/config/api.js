@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id) => `/journal/update-journal/${id}`,
     DELETE: (id) => `/journal/delete-journal/${id}`,
     ADD: '/journal/add-journal',
+    ADD_EDITOR: `/journal/add-editor`,
   },
   REVIEWER: {
     LIST: '/reviewer/reviewer-list',
