@@ -523,16 +523,21 @@ const reviewArticleList = async (req, res, next) => {
         // Fetch articles assigned to the reviewer
         const { page = 1, limit = 10 } = req.query; // Extract page and limit from query parameters
         const articles = await Article.find({ 'reviewers.reviewerId': reviewer._id })
-            .select('title abstract createdAt mergedScript status')
+            .select('title abstract createdAt menuScript status reviewers')
             .populate('journalId', 'title description')
             .skip((page - 1) * limit) // Skip documents for pagination
             .limit(parseInt(limit)); // Limit the number of documents returned
+
+        const filteredArticles = articles.map(article => ({
+            ...article.toObject(),
+            reviewers: article.reviewers.filter(e => e.reviewerId.toString() === reviewer._id.toString())
+        }));
 
         res.status(200).json({
             success: true,
             message: "Review Articles retrieved successfully",
             data: {
-                articles: articles || [],
+                articles: filteredArticles || [],
                 pagination: {
                     total: totalArticles,
                     page: parseInt(page),

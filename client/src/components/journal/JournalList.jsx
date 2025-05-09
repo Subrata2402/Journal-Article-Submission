@@ -42,6 +42,11 @@ const JournalList = ({
       .join(' ');
   };
   
+  // Function to handle navigation to journal details page
+  const handleViewDetails = (journalId) => {
+    navigate(`/journals/${journalId}`);
+  };
+  
   // Function to handle navigation to add article page with selected journal
   const handleSubmitArticle = (journalId) => {
     navigate(`/add-article?journalId=${journalId}`);
@@ -144,7 +149,12 @@ const JournalList = ({
                     
                     <div className="journal-actions">
                       <div className="action-buttons">
-                        <a href="#" className="view-details-button">View Details</a>
+                        <button 
+                          onClick={() => handleViewDetails(journal._id)} 
+                          className="view-details-button"
+                        >
+                          View Details
+                        </button>
                         {!isEditor && (
                           <button 
                             className="submit-article-button"

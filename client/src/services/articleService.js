@@ -200,6 +200,89 @@ const getReviewerList = async () => {
   }
 };
 
+/**
+ * Get articles assigned to the current reviewer
+ * @param {number} page - Current page number
+ * @param {number} limit - Number of items per page
+ * @param {string} status - Filter by review status (pending, completed, all)
+ * @returns {Promise<Object>} - Articles data with pagination
+ */
+async function getReviewArticles(page = 1, limit = 10, status = 'pending') {
+  try {
+    let endpoint = `${API_ENDPOINTS.ARTICLES.REVIEW_ARTICLE_LIST}?page=${page}&limit=${limit}`;
+    
+    // Add status filter if provided and not 'all'
+    if (status && status !== 'all') {
+      endpoint += `&status=${status}`;
+    }
+    
+    const response = await httpService.get(endpoint);
+    return {
+      success: true,
+      articles: response.data.data.articles || [],
+      pagination: response.data.data.pagination || {
+        total: 0,
+        page: page,
+        limit: limit,
+        totalPages: 0
+      },
+      message: response.data.message
+    };
+  } catch (error) {
+    console.error('Error fetching articles for review:', error);
+    if (error.response && error.response.data) {
+      throw {
+        success: false,
+        message: error.response.data.message || 'Failed to fetch articles for review',
+        status: error.response.status
+      };
+    }
+    throw {
+      success: false,
+      message: error.message || 'An error occurred while connecting to the server',
+      status: 500
+    };
+  }
+}
+
+/**
+ * Submit a review for an article
+ * @param {string} articleId - Article ID
+ * @param {string} status - Review status (approved/rejected)
+ * @param {string} comment - Review comment
+ * @returns {Promise<Object>} - Response data
+ */
+const submitReview = async (articleId, status, comment) => {
+  try {
+    const response = await httpService.post(
+      API_ENDPOINTS.ARTICLES.ADD_REVIEW,
+      {
+        articleId,
+        status,
+        comment
+      }
+    );
+    return {
+      success: true,
+      message: response.data.message || 'Review submitted successfully'
+    };
+  } catch (error) {
+    console.error(`Error submitting review for article ${articleId}:`, error);
+    if (error.response && error.response.data) {
+      throw {
+        success: false,
+        message: error.response.data.message || 'Failed to submit review',
+        status: error.response.status
+      };
+    }
+    throw {
+      success: false,
+      message: error.message || 'An error occurred while connecting to the server',
+      status: 500
+    };
+  }
+};
+
 const articleService = {
   getUserArticles,
   getArticleById,
@@ -211,7 +294,9 @@ const articleService = {
   addReviewer,
   removeReviewer,
   getAvailableReviewers,
-  getReviewerList
+  getReviewerList,
+  getReviewArticles,
+  submitReview
 };
 
 export default articleService;

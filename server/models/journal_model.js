@@ -20,7 +20,7 @@ const journalSchema = new mongoose.Schema({
     },
     tags: {
         type: [String],
-        required: false
+        required: false 
     },
     publishedDate: {
         type: Date,
@@ -29,6 +29,67 @@ const journalSchema = new mongoose.Schema({
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    publicationFrequency: {
+        type: String,
+        required: true,
+        enum: ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annually'],
+        default: 'Monthly'
+    },
+    openAccess: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
+    peerReviewProcess: {
+        type: String,
+        required: false,
+        default: 'Single-blind peer review'
+    },
+    impactFactor: {
+        value: {
+            type: Number,
+            required: false,
+            default: 0
+        },
+        year: {
+            type: Number,
+            required: false,
+            default: new Date().getFullYear()
+        }
+    },
+    metrics: {
+        averageReviewTime: {
+            type: String,
+            required: false,
+            default: '30 days'
+        },
+        acceptanceRate: {
+            type: String,
+            required: false,
+            default: '50%'
+        },
+        timeToPublication: {
+            type: String,
+            required: false,
+            default: '60 days'
+        },
+        articlesPerYear: {
+            type: Number,
+            required: false,
+            default: 100
+        }
+    },
+    submissionGuidelines: {
+        type: [String],
+        required: false,
+        default: [
+            'Manuscripts must be original and not published elsewhere',
+            'Research must follow ethical standards appropriate to the field',
+            'Formatting should follow journal-specific requirements',
+            'Citations should use appropriate referencing style',
+            'All data should be accessible and transparent'
+        ]
     },
 }, { timestamps: true });
 

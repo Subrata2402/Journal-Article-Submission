@@ -11,8 +11,8 @@ const { sendMail } = require('./mail_controller');
 const addJournal = async (req, res, next) => {
     try {
         // Validate input data
-        if (!req.body.title || !req.body.description) {
-            throw new ApiError('Journal title and description are required', 400);
+        if (!req.body.title || !req.body.description || !req.body.category) {
+            throw new ApiError('Journal title, description, and category are required', 400);
         }
 
         const journal = new Journal({
@@ -20,6 +20,22 @@ const addJournal = async (req, res, next) => {
             description: req.body.description,
             category: req.body.category,
             tags: req.body.tags || [],
+            publicationFrequency: req.body.publicationFrequency || 'Monthly',
+            openAccess: req.body.openAccess || false,
+            peerReviewProcess: req.body.peerReviewProcess || 'Single-blind peer review',
+            impactFactor: {
+                value: req.body.impactFactor?.value || 0,
+                year: req.body.impactFactor?.year || new Date().getFullYear()
+            },
+            metrics: {
+                averageReviewTime: req.body.metrics?.averageReviewTime || '30 days',
+                averageAcceptanceRate: req.body.metrics?.averageAcceptanceRate || '20%',
+                timeToPublication: req.body.metrics?.timeToPublication || '60 days',
+                articlesPerYear: req.body.metrics?.articlesPerYear || 100
+            },
+            isDeleted: false,
+            editorId: null, // Initially set to null, can be updated later
+            createdBy: req.user._id,
             publishedDate: new Date()
         });
 
@@ -29,10 +45,43 @@ const addJournal = async (req, res, next) => {
 
         res.status(201).json({
             success: true,
-            message: "Journal added successfully"
+            message: "Journal added successfully",
+            data: responseData
         });
     } catch (error) {
         next(error.isOperational ? error : new ApiError(`Journal addition failed: ${error.message}`, 400));
+    }
+}
+
+/**
+ * Updates an existing journal entry.
+ * */
+const updateJournal = async (req, res, next) => {
+    try {
+        const journalId = req.params.journalId; // Extract journal ID from request parameters
+
+        if (!journalId) {
+            throw new ApiError('Journal ID is required', 400);
+        }
+
+        const journalData = await Journal.findById(journalId); // Find journal by ID
+
+        if (!journalData) {
+            throw new ApiError('Journal not found', 404);
+        }
+
+        // Update journal data
+        const updatedJournal = await Journal.findByIdAndUpdate(journalId, req.body, { new: true });
+
+        logger.info(`Journal updated successfully: ${updatedJournal._id} by admin: ${req.user._id}`);
+
+        res.status(200).json({
+            success: true,
+            message: "Journal updated successfully",
+            data: updatedJournal
+        });
+    } catch (error) {
+        next(error.isOperational ? error : new ApiError(`Journal update failed: ${error.message}`, 400));
     }
 }
 
@@ -82,7 +131,7 @@ const journalList = async (req, res, next) => {
         const { page = 1, limit = 10 } = req.query; // Extract page and limit from query parameters
 
         const journalData = await Journal.find()
-            .select('-__v') // Exclude the __v field from the response
+            .select('_id title description category tags publishedDate createdAt updatedAt') // Exclude the __v field from the response
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit) // Skip documents for pagination
             .limit(parseInt(limit)); // Limit the number of documents returned
@@ -328,6 +377,7 @@ const removeEditor = async (req, res, next) => {
 
 module.exports = {
     addJournal,
+    updateJournal,
     deleteJournal,
     journalList,
     journalDetails,

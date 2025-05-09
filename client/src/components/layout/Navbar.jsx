@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiSun, FiMoon, FiSettings, FiMenu, FiX } from 'react-icons/fi';
-import { IoLogInOutline, IoPersonOutline, IoLogOutOutline, IoHomeOutline, IoDocumentTextOutline, IoListOutline, IoInformationCircleOutline, IoMailOutline, IoNewspaperOutline, IoClipboardOutline } from 'react-icons/io5';
+import { IoLogInOutline, IoPersonOutline, IoLogOutOutline, IoHomeOutline, IoDocumentTextOutline, IoListOutline, IoInformationCircleOutline, IoMailOutline, IoNewspaperOutline, IoClipboardOutline, IoCheckmarkDoneOutline } from 'react-icons/io5';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link, NavLink } from 'react-router-dom';
 import '../../assets/styles/layout/navbar.scss';
@@ -56,6 +56,12 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
   // Check if user is an editor
   const isEditor = user && user.role === "editor";
   
+  // Check if user is a reviewer
+  const isReviewer = user && user.role === "reviewer";
+  
+  // Check if user is an admin
+  const isAdmin = user && user.role === "admin";
+
   // Navigation links component to avoid repetition
   const NavLinks = ({ mobile = false }) => (
     <ul className={mobile ? "nav-tabs-mobile" : "nav-tabs"}>
@@ -73,7 +79,21 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
       
       {isAuthenticated && (
         <>
-          {!isEditor && (
+          {isAdmin && (
+            <li className="nav-item">
+              <NavLink 
+                to="/journals" 
+                className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                onClick={mobile ? closeMobileMenu : undefined}
+                title="Journals"
+              >
+                <IoNewspaperOutline className="nav-icon" /> 
+                <span className="nav-text">Journals</span>
+              </NavLink>
+            </li>
+          )}
+          
+          {!isEditor && !isAdmin && (
             <>
               <li className="nav-item">
                 <NavLink 
@@ -97,10 +117,25 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
                   <span className="nav-text">My Articles</span>
                 </NavLink>
               </li>
+              
+              {/* Review tab - only shown for reviewers */}
+              {isReviewer && (
+                <li className="nav-item">
+                  <NavLink 
+                    to="/review" 
+                    className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                    onClick={mobile ? closeMobileMenu : undefined}
+                    title="Review Articles"
+                  >
+                    <IoCheckmarkDoneOutline className="nav-icon" /> 
+                    <span className="nav-text">Review</span>
+                  </NavLink>
+                </li>
+              )}
             </>
           )}
           
-          {isEditor && (
+          {isEditor && !isAdmin && (
             <>
               <li className="nav-item">
                 <NavLink 

@@ -12,29 +12,40 @@ const articleUploadFields = [
     { name: "supplementaryFile", maxCount: 1 }
 ];
 
-// Article routes
+// ------------------- Article routes ------------------- //
+// This route handles the addition of articles, including file uploads for menu script, cover letter, and supplementary files.
+
+// Post routes
 router.post('/add-article',
     authenticate,
     upload.fields(articleUploadFields),
     validate(articleSchema.addArticle),
     articleController.addArticle
 );
+router.post('/add-review', authenticate, verifyReviewer, validate(articleSchema.addReview), articleController.addReview);
+router.post('/add-final-review', authenticate, verifyEditor, validate(articleSchema.addReview), articleController.addFinalReview);
+router.post('/create-zip', authenticate, verifyEditor, articleController.createZip);
+
+// Put routes
 router.put('/update-article/:articleId', 
     authenticate, 
     upload.fields(articleUploadFields), 
     validate(articleSchema.updateArticle), 
     articleController.updateArticle
 );
+
+// Delete routes
 router.delete('/delete-article/:articleId', authenticate, articleController.deleteArticle);
+
+// Get routes
 router.get('/article-details/:articleId', authenticate, articleController.articleDetails);
 router.get('/user-article-list', authenticate, articleController.userArticleList);
 router.get('/article-list', authenticate, articleController.articleList);
 router.get('/review-article-list', authenticate, verifyReviewer, articleController.reviewArticleList);
+router.get('/download-zip/:filename', articleController.downloadZip);
+
+// Patch routes
 router.patch('/assign-reviewer', authenticate, verifyEditor, articleController.assignReviewer);
 router.patch('/remove-reviewer', authenticate, verifyEditor, articleController.removeReviewer);
-router.post('/add-review', authenticate, verifyReviewer, validate(articleSchema.addReview), articleController.addReview);
-router.post('/add-final-review', authenticate, verifyEditor, validate(articleSchema.addReview), articleController.addFinalReview);
-router.post('/create-zip', authenticate, verifyEditor, articleController.createZip);
-router.get('/download-zip/:filename', articleController.downloadZip);
 
 module.exports = router;

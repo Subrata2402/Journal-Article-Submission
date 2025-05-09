@@ -5,6 +5,24 @@ export interface Journal {
   _id: string;
   title: string;
   description: string;
+  category?: string;
+  tags?: string[];
+  publishedDate?: string;
+  isDeleted?: boolean;
+  impactFactor?: {
+    value: number;
+    year: number;
+  };
+  metrics?: {
+    averageReviewTime: string;
+    acceptanceRate: string;
+    timeToPublication: string;
+    articlesPerYear: number;
+  };
+  publicationFrequency?: string;
+  openAccess?: boolean;
+  peerReviewProcess?: string;
+  submissionGuidelines?: string[];
   createdAt: string;
   updatedAt: string;
   editorId?: string;
@@ -56,4 +74,13 @@ export interface ArticleApiResponse {
     articles: Article[];
     pagination: Pagination;
   };
+}
+
+/**
+ * Journal details API response interface
+ */
+export interface JournalDetailsApiResponse {
+  success: boolean;
+  message: string;
+  data: Journal;
 }

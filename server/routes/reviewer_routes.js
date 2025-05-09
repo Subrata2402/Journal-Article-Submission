@@ -6,7 +6,8 @@ const validate = require('../middleware/validator');
 const reviewerSchema = require('../validators/reviewerValidator');
 const { uploadBuffer } = require('../middleware/multer');
 
-// Reviewer routes
+// ------------------- Reviewer routes ------------------- //
+// Post routes
 router.post('/add-reviewer', 
     authenticate, 
     verifyEditor, 
@@ -19,7 +20,11 @@ router.post('/add-bulk-reviewers',
     uploadBuffer.single('file'),
     reviewerController.addBulkReviewer
 );
+
+// Get routes
 router.get('/reviewer-list', authenticate, verifyEditor, reviewerController.reviewerList);
+
+// Delete routes
 router.delete('/delete-reviewer/:reviewerId', authenticate, verifyEditor, reviewerController.deleteReviewer);
 
 module.exports = router;

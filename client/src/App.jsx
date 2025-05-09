@@ -15,8 +15,11 @@ import EditArticlePage from './pages/EditArticlePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ReviewerPage from './pages/ReviewerPage';
+import ReviewPage from './pages/ReviewPage';
+import ReviewArticlePage from './pages/ReviewArticlePage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import JournalDetailsPage from './pages/JournalDetailsPage';
 import MainLayout from './components/layout/MainLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './assets/styles/main.scss';
@@ -82,6 +85,28 @@ const EditorRoute = ({ children }) => {
   return children;
 };
 
+// Reviewer-only route - redirects non-reviewers to the home page
+const ReviewerRoute = ({ children }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+  
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!isAuthenticated) {
+    // Save the current path to redirect after login
+    return <Navigate to="/login" state={{ from: location.pathname }} />;
+  }
+  
+  // If user is not a reviewer, redirect to home page
+  if (!user || user.role !== "reviewer") {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
+
 const App = () => {
   return (
     <AuthProvider>
@@ -100,6 +125,16 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            
+            {/* Protected Journal Details route - requires authentication */}
+            <Route 
+              path="/journals/:journalId" 
+              element={
+                <ProtectedRoute>
+                  <JournalDetailsPage />
+                </ProtectedRoute>
+              }
+            />
             
             {/* Common protected routes - accessible by both roles */}
             <Route 
@@ -162,6 +197,24 @@ const App = () => {
                 <EditorRoute>
                   <ReviewerPage />
                 </EditorRoute>
+              } 
+            />
+            
+            {/* Reviewer-only routes */}
+            <Route 
+              path="/review" 
+              element={
+                <ReviewerRoute>
+                  <ReviewPage />
+                </ReviewerRoute>
+              } 
+            />
+            <Route 
+              path="/review/:articleId" 
+              element={
+                <ReviewerRoute>
+                  <ReviewArticlePage />
+                </ReviewerRoute>
               } 
             />
           </Route>

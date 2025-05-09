@@ -20,8 +20,9 @@ export const API_ENDPOINTS = {
     TAGS: '/journal/tags',
     DETAIL: (id) => `/journal/journal-details/${id}`,
     CREATE: '/journal/create',
-    UPDATE: (id) => `/journal/${id}/update`,
-    DELETE: (id) => `/journal/${id}/delete`,
+    UPDATE: (id) => `/journal/update-journal/${id}`,
+    DELETE: (id) => `/journal/delete-journal/${id}`,
+    ADD: '/journal/add-journal',
   },
   REVIEWER: {
     LIST: '/reviewer/reviewer-list',
@@ -41,6 +42,8 @@ export const API_ENDPOINTS = {
     REMOVE_REVIEWER: (articleId, reviewerId) => `/article/remove-reviewer?articleId=${articleId}&reviewerId=${reviewerId}`,
     ASSIGN_REVIEWER: (articleId, reviewerId) => `/article/assign-reviewer?articleId=${articleId}&reviewerId=${reviewerId}`,
     ADD_FINAL_REVIEW: '/article/add-final-review',
+    REVIEW_ARTICLE_LIST: '/article/review-article-list',
+    ADD_REVIEW: '/article/add-review',
   },
   AUTH: {
     LOGIN: '/auth/login',
