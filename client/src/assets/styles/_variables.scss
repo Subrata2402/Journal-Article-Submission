@@ -13,6 +13,9 @@
   --primary-color: #0284c7;
   --success-color: #22c55e;
   --warning-color: #f97316;
+  --primary-dark: #0369a1;
+  --primary-rgb: 2, 132, 199;
+  --success-rgb: 34, 197, 94;
   --primary-color-dark: #0369a1;
   --primary-color-light: rgba(2, 132, 199, 0.2);
   --secondary-button-bg: #f1f5f9;
@@ -48,7 +51,10 @@
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
+  --spacing-xxl: 2.5rem;
   --spacing-2xl: 3rem;
+  --spacing-xxxl: 3.5rem;
+  
   
   // Typography
   --font-family: 'Poppins', sans-serif;
@@ -94,6 +100,9 @@
   --warning-button-bg: #fef3c7;
   --warning-button-text: #92400e;
   --warning-button-hover-bg: #fef9c3;
+  --primary-dark: #0369a1;
+  --primary-rgb: 2, 132, 199;
+  --success-rgb: 34, 197, 94;
   --primary-color-dark: #38bdf8;
   --primary-color-light: rgba(14, 165, 233, 0.2);
   --secondary-button-bg: #334155;
@@ -139,6 +148,9 @@
     --warning-button-bg: #fef3c7;
     --warning-button-text: #92400e;
     --warning-button-hover-bg: #fef9c3;
+    --primary-dark: #0369a1;
+    --primary-rgb: 2, 132, 199;
+    --success-rgb: 34, 197, 94;
     --primary-color-dark: #38bdf8;
     --primary-color-light: rgba(14, 165, 233, 0.2);
     --secondary-button-bg: #334155;
@@ -178,6 +190,13 @@
     --card-bg: #ffffff;
     --primary-color: #0284c7;
     --success-color: #22c55e;
+    --warning-color: #f97316;
+    --warning-button-bg: #fef3c7;
+    --warning-button-text: #92400e;
+    --warning-button-hover-bg: #fef9c3;
+    --primary-dark: #0369a1;
+    --primary-rgb: 2, 132, 199;
+    --success-rgb: 34, 197, 94;
     --primary-color-dark: #0369a1;
     --primary-color-light: rgba(2, 132, 199, 0.2);
     --secondary-button-bg: #f1f5f9;

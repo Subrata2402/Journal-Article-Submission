@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import ScrollToTop from '../common/ScrollToTop';
 import useTheme from '../../hooks/useTheme';
 
 const MainLayout = () => {
@@ -49,6 +50,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };

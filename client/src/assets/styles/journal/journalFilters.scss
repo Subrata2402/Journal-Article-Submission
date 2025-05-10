@@ -586,16 +586,16 @@
   .journal-filters {
     .filter-button-fixed {
       top: auto;
-      bottom: 1.5rem;
-      left: 1.5rem;
+      bottom: var(--spacing-lg);
+      left: var(--spacing-lg);
       transform: none;
       border-radius: 50%;
-      width: 3.5rem;
-      height: 3.5rem;
+      width: var(--spacing-xxxl);
+      height: var(--spacing-xxxl);
       padding: 0;
       
       &.active {
-        left: 1.5rem; // Keep in same position when active
+        left: var(--spacing-lg); // Keep in same position when active
       }
     }
     

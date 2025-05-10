@@ -1,0 +1,30 @@
+// Common Components
+@import './common/buttons.scss';
+@import './common/forms.scss';
+@import './common/spinner.scss';
+@import './common/modal.scss';
+@import './common/alert.scss';
+@import './common/toast.scss';
+@import './common/scrollToTop.scss';
+
+// Layout Components
+@import './layout/navbar.scss';
+@import './layout/footer.scss';
+
+// Journal Components
+@import './journal/journalList.scss';
+@import './journal/journalFilters.scss';
+@import './journal/journalDetails.scss';
+
+// Article Components
+@import './article/articleDetails.scss';
+@import './article/userArticleList.scss';
+
+// Page Styles
+@import './pages/home.scss';
+@import './pages/auth.scss';
+@import './pages/about.scss';
+@import './pages/contact.scss';
+@import './pages/articles.scss';
+@import './pages/addJournal.scss';
+@import './pages/addArticle.scss';

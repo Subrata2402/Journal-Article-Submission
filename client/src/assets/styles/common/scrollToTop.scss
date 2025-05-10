@@ -1,0 +1,56 @@
+@use '../variables' as *;
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  &__button {
+    width: 50px !important;
+    height: 50px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    
+    .btn__icon {
+      font-size: 1.5rem;
+      margin: 0 !important;
+    }
+    
+    &:hover {
+      transform: translateY(-3px);
+    }
+    
+    &:active {
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .scroll-to-top {
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+
+    &__button {
+      width: var(--spacing-xxxl) !important;
+      height: var(--spacing-xxxl) !important;
+      
+      .btn__icon {
+        font-size: 1.25rem;
+      }
+    }
+  }
+}
