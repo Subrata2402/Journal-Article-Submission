@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   IoPersonOutline,
-  IoMailOutline,
-  IoCallOutline,
-  IoSchoolOutline,
   IoSaveOutline,
   IoArrowBackOutline,
   IoNewspaperOutline,
 } from 'react-icons/io5';
-import FormField from '../components/forms/FormField';
-import CustomSelect from '../components/forms/CustomSelect';
-import Spinner from '../components/common/Spinner';
+import FormField from '../../components/forms/FormField';
+import CustomSelect from '../../components/forms/CustomSelect';
+import Spinner from '../../components/common/Spinner';
 import { toast } from 'react-toastify';
-import { useAuth } from '../contexts/AuthContext';
-import httpService from '../services/httpService';
-import { API_ENDPOINTS } from '../config/api';
-import '../assets/styles/pages/addJournal.scss';
-import '../assets/styles/pages/reviewer.scss';
+import { useAuth } from '../../contexts/AuthContext';
+import httpService from '../../services/httpService';
+import { API_ENDPOINTS } from '../../config/api';
+import '../../assets/styles/pages/addJournal.scss';
+import '../../assets/styles/pages/reviewer.scss';
 
 const AddEditorPage = () => {
   const { user } = useAuth();

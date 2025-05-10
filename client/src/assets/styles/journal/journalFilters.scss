@@ -200,31 +200,6 @@
             }
           }
         }
-        
-        &.date-filter-section {
-          .date-filters {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            
-            .form-field {
-              margin-bottom: 0;
-              
-              // Adjust style for date picker in sidebar
-              .custom-date-field {
-                .date-display {
-                  border-radius: var(--border-radius);
-                  padding: 0.65rem;
-                  font-size: 0.95rem;
-                }
-                
-                .custom-date-picker {
-                  z-index: 1010; // Higher than sidebar
-                }
-              }
-            }
-          }
-        }
       }
     }
     
@@ -238,7 +213,7 @@
         background-color: var(--background-secondary);
         color: var(--text-primary);
         border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
+        border-radius: var(--border-radius-md);
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
@@ -445,7 +420,7 @@
         font-weight: 500;
         cursor: pointer;
         padding: 0.25rem 0.5rem;
-        border-radius: var(--border-radius);
+        border-radius: var(--border-radius-md);
         
         &:hover {
           text-decoration: underline;
@@ -515,7 +490,7 @@
                 .date-display {
                   background-color: var(--input-bg);
                   border: 1px solid var(--border-color);
-                  border-radius: var(--border-radius);
+                  border-radius: var(--border-radius-md);
                   padding: 0.75rem;
                   display: flex;
                   justify-content: space-between;

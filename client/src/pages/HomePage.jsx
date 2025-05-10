@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import JournalList from '../components/journal/JournalList';
 import JournalFilters from '../components/journal/JournalFilters';
 import Spinner from '../components/common/Spinner';
 import { IoBookmark, IoBookmarkOutline } from 'react-icons/io5';
 import { useAuth } from '../contexts/AuthContext';
 import journalService from '../services/journalService';
-import { formatDate } from '../utils/formatters';
+import { formatDate, toTitleCase } from '../utils/formatters';
 import '../assets/styles/pages/home.scss';
 
 const HomePage = () => {
@@ -130,17 +130,17 @@ const HomePage = () => {
     // Apply category filter
     if (activeFilters.categories.length > 0) {
       results = results.filter(journal => 
-        journal.category && activeFilters.categories.includes(journal.category)
+        journal.category && activeFilters.categories.includes(toTitleCase(journal.category))
       );
     }
     
     // Apply tag filter
     if (activeFilters.tags.length > 0) {
       results = results.filter(journal => 
-        journal.tags && journal.tags.some(tag => activeFilters.tags.includes(tag))
+        journal.tags && journal.tags.some(tag => activeFilters.tags.includes(toTitleCase(tag)))
       );
     }
-    
+
     // Apply date range filter
     if (activeFilters.dateRange.from || activeFilters.dateRange.to) {
       results = results.filter(journal => {

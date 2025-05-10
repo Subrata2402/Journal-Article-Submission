@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   IoCalendarOutline,
@@ -20,15 +20,19 @@ import {
   IoChevronUpOutline,
   IoRefreshOutline
 } from 'react-icons/io5';
-import Spinner from '../components/common/Spinner';
-import { useAuth } from '../contexts/AuthContext';
-import articleService from '../services/articleService';
-import { formatDate } from '../utils/formatters';
-import '../assets/styles/article/articleDetails.scss';
-import { ARTICLE_COVER_LETTER_PATH, ARTICLE_MENUSCRIPT_PATH, ARTICLE_SUPPLEMENTARY_FILE_PATH } from '../config/constants';
-import toastUtil from '../utils/toastUtil';
-import TextArea from '../components/forms/TextArea';
-import ConfirmationModal from '../components/common/ConfirmationModal';
+import Spinner from '../../components/common/Spinner';
+import { useAuth } from '../../contexts/AuthContext';
+import articleService from '../../services/articleService';
+import { formatDate } from '../../utils/formatters';
+import '../../assets/styles/article/articleDetails.scss';
+import { 
+  ARTICLE_COVER_LETTER_PATH, 
+  ARTICLE_MENUSCRIPT_PATH, 
+  ARTICLE_SUPPLEMENTARY_FILE_PATH 
+} from '../../config/constants';
+import toastUtil from '../../utils/toastUtil';
+import TextArea from '../../components/forms/TextArea';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const ArticleDetailsPage = () => {
   const { articleId } = useParams();

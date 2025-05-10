@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { FiSearch, FiChevronLeft, FiChevronRight, FiEye, FiFileText } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FiSearch, FiChevronLeft, FiChevronRight, FiEye } from 'react-icons/fi';
 import { IoDocumentTextOutline } from 'react-icons/io5';
-import { useAuth } from '../contexts/AuthContext';
-import Alert from '../components/common/Alert';
-import Spinner from '../components/common/Spinner';
-import articleService from '../services/articleService';
-import '../assets/styles/article/userArticleList.scss';
-import '../assets/styles/pages/reviewer.scss';
+import { useAuth } from '../../contexts/AuthContext';
+import Alert from '../../components/common/Alert';
+import Spinner from '../../components/common/Spinner';
+import articleService from '../../services/articleService';
+import '../../assets/styles/article/userArticleList.scss';
+import '../../assets/styles/pages/reviewer.scss';
 
 const ReviewPage = () => {
   const { user } = useAuth();

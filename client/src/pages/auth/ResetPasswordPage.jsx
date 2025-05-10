@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { IoLockClosedOutline, IoArrowBackOutline, IoCheckmarkCircleOutline, IoWarningOutline } from 'react-icons/io5';
-import FormField from '../components/forms/FormField';
-import httpService from '../services/httpService';
-import { API_ENDPOINTS } from '../config/api';
-import toastUtil from '../utils/toastUtil';
-import { secureSessionStorage } from '../utils/storageUtil';
-import '../assets/styles/pages/auth.scss';
+import { 
+  IoLockClosedOutline, 
+  IoArrowBackOutline, 
+  IoCheckmarkCircleOutline, 
+  IoWarningOutline 
+} from 'react-icons/io5';
+import FormField from '../../components/forms/FormField';
+import httpService from '../../services/httpService';
+import { API_ENDPOINTS } from '../../config/api';
+import toastUtil from '../../utils/toastUtil';
+import { secureSessionStorage } from '../../utils/storageUtil';
+import '../../assets/styles/pages/auth.scss';
 
 const ResetPasswordPage = () => {
   const [formData, setFormData] = useState({

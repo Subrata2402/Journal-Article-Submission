@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IoChevronDownOutline, IoChevronUpOutline, IoSearchOutline } from 'react-icons/io5';
+import { IoChevronDownOutline, IoChevronUpOutline, IoSearchOutline, IoClose } from 'react-icons/io5';
+import CustomCheckbox from './CustomCheckbox';
 import '../../assets/styles/common/forms.scss';
 
 /**
- * A custom select component with search functionality
+ * A multi-select dropdown component with search functionality
  * 
  * @param {Object[]} options - The options for the select dropdown
  * @param {string} options[].value - The value of the option
  * @param {string} options[].label - The label to display for the option
- * @param {string} value - The currently selected value
+ * @param {string[]} values - Array of selected values
  * @param {Function} onChange - Callback when the selection changes
- * @param {string} [placeholder="Select an option"] - Placeholder text when no option is selected
+ * @param {string} [placeholder="Select options"] - Placeholder text when no option is selected
  * @param {string} [name] - The name of the select field
  * @param {string} [error] - Error message to display
  * @param {string} [label] - Label text for the field
@@ -20,13 +21,13 @@ import '../../assets/styles/common/forms.scss';
  * @param {React.ReactNode} [icon] - Icon to display with the label
  * @param {boolean} [searchable=true] - Enable search functionality
  * @param {string} [searchPlaceholder="Search options..."] - Placeholder for the search input
- * @param {number} [searchThreshold=8] - Minimum number of options to show search functionality
+ * @param {number} [searchThreshold=5] - Minimum number of options to show search functionality
  */
-const CustomSelect = ({ 
-  options = [], 
-  value, 
+const MultiSelect = ({ 
+  options, 
+  values = [], 
   onChange, 
-  placeholder = "Select an option", 
+  placeholder = "Select options", 
   name,
   error,
   label,
@@ -43,9 +44,6 @@ const CustomSelect = ({
   const [searchQuery, setSearchQuery] = useState('');
   const selectRef = useRef(null);
   const searchInputRef = useRef(null);
-  
-  // Find the selected option label
-  const selectedOption = options.find(option => option.value === value);
   
   // Filter options based on search query
   const filteredOptions = searchQuery.trim() === '' ? options : options.filter(option => 
@@ -104,10 +102,15 @@ const CustomSelect = ({
       e.stopPropagation();
     }
     
-    onChange({ target: { name, value: option.value } });
-    setIsOpen(false);
+    // Toggle selected state for the option
+    const newValues = values.includes(option.value)
+      ? values.filter(v => v !== option.value)
+      : [...values, option.value];
+    
+    onChange({ target: { name, value: newValues } });
+    
+    // Don't close the dropdown - let users select multiple options
     setHighlightedIndex(options.findIndex(opt => opt.value === option.value));
-    setSearchQuery('');
   };
 
   const toggleDropdown = () => {
@@ -125,6 +128,13 @@ const CustomSelect = ({
   const handleSearchClick = (e) => {
     // Prevent dropdown from closing when clicking in the search input
     e.stopPropagation();
+  };
+  
+  // Remove a selected value
+  const removeValue = (value, e) => {
+    e.stopPropagation(); // Prevent the dropdown from toggling
+    const newValues = values.filter(v => v !== value);
+    onChange({ target: { name, value: newValues } });
   };
   
   // Handle keyboard navigation
@@ -208,7 +218,12 @@ const CustomSelect = ({
       }
     }
   };
-
+  
+  // Get selected option labels for display
+  const selectedOptionLabels = options
+    .filter(option => values.includes(option.value))
+    .map(option => option.label);
+  
   return (
     <div className="form-field custom-select-container">
       {label && (
@@ -235,8 +250,25 @@ const CustomSelect = ({
           loadingComponent || <div className="custom-select-loading">Loading...</div>
         ) : (
           <>
-            <div className="custom-select-value">
-              {selectedOption ? selectedOption.label : placeholder}
+            <div className="custom-select-value multi-select-values">
+              {values.length > 0 ? (
+                <div className="selected-tags">
+                  {selectedOptionLabels.map((label, index) => (
+                    <span className="selected-tag" key={index}>
+                      {label}
+                      <button 
+                        className="remove-tag-btn"
+                        onClick={(e) => removeValue(options.find(opt => opt.label === label)?.value, e)}
+                        aria-label={`Remove ${label}`}
+                      >
+                        <IoClose />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                placeholder
+              )}
             </div>
             
             <div className="custom-select-icon">
@@ -269,17 +301,25 @@ const CustomSelect = ({
                 <ul 
                   className="custom-select-dropdown"
                   role="listbox" 
+                  aria-multiselectable="true"
                 >
                   {filteredOptions.length > 0 ? (
-                    filteredOptions.map((option, index) => (
-                      <li
+                    filteredOptions.map((option, index) => (                      <li
                         key={option.value}
-                        className={`custom-select-option ${option.value === value ? 'selected' : ''} ${index === highlightedIndex ? 'highlighted' : ''}`}
+                        className={`custom-select-option multi-select-option ${values.includes(option.value) ? 'selected' : ''} ${index === highlightedIndex ? 'highlighted' : ''}`}
                         onClick={(e) => handleOptionClick(option, e)}
-                        aria-selected={option.value === value}
+                        aria-selected={values.includes(option.value)}
                         role="option"
                       >
-                        {option.label}
+                        <CustomCheckbox 
+                          checked={values.includes(option.value)}
+                          size="small"
+                          onChange={(_) => {
+                            // We need to handle the onChange separately to prevent event propagation issues
+                            handleOptionClick(option, { stopPropagation: () => {} });
+                          }}
+                        />
+                        <span className="option-label">{option.label}</span>
                       </li>
                     ))
                   ) : (
@@ -297,4 +337,4 @@ const CustomSelect = ({
   );
 };
 
-export default CustomSelect;
+export default MultiSelect;

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FiEdit, FiUser, FiMail, FiPhone, FiCalendar, FiMapPin, FiSettings } from 'react-icons/fi';
 import { IoArrowBackOutline } from 'react-icons/io5';
-import { useAuth } from '../contexts/AuthContext';
-import httpService from '../services/httpService';
-import { API_ENDPOINTS } from '../config/api';
-import { PROFILE_PICTURES_PATH, DEFAULT_PROFILE_IMAGE } from '../config/constants';
-import Spinner from '../components/common/Spinner';
-import toastUtil from '../utils/toastUtil';
-import '../assets/styles/pages/profile.scss';
+import { useAuth } from '../../contexts/AuthContext';
+import httpService from '../../services/httpService';
+import { API_ENDPOINTS } from '../../config/api';
+import { PROFILE_PICTURES_PATH, DEFAULT_PROFILE_IMAGE } from '../../config/constants';
+import Spinner from '../../components/common/Spinner';
+import toastUtil from '../../utils/toastUtil';
+import '../../assets/styles/pages/profile.scss';
 import { FaCircleCheck } from 'react-icons/fa6';
 
 const ProfilePage = () => {

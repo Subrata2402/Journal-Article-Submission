@@ -1,8 +1,8 @@
 // Base URLs
-// export const API_BASE_URL = 'https://article-api.debdevcs.org/api'; // Default to localhost if env var not available
-// export const ASSETS_BASE_URL = 'https://article-api.debdevcs.org'; // Direct server URL for assets
-export const API_BASE_URL = 'http://localhost:3000/api'; // Default to localhost if env var not available
-export const ASSETS_BASE_URL = 'http://localhost:3000'; // Direct server URL for assets
+export const API_BASE_URL = 'https://article-api.debdevcs.org/api'; // Default to localhost if env var not available
+export const ASSETS_BASE_URL = 'https://article-api.debdevcs.org'; // Direct server URL for assets
+// export const API_BASE_URL = 'http://localhost:3000/api'; // Default to localhost if env var not available
+// export const ASSETS_BASE_URL = 'http://localhost:3000'; // Direct server URL for assets
 
 // Asset paths
 export const PROFILE_PICTURES_PATH = `${ASSETS_BASE_URL}/profile-pictures`;

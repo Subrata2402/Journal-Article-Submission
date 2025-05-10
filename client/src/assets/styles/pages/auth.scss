@@ -5,8 +5,8 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: var(--spacing-lg);
-  background-color: var(--bg-color);
+  padding: var(--spacing-sm);
+  background-color: var(--body-bg);
 
   .form-container {
     width: 100%;
@@ -20,7 +20,13 @@
 
     // Register form has wider width for two fields per row
     &.register-form {
-      max-width: 600px;
+      max-width: 800px;
+    }
+
+    // Responsive adjustments
+    @media (max-width: 600px) {
+      padding: var(--spacing-md);
+      max-width: 100%;
     }
   }
 

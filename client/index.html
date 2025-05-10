@@ -1,15 +1,69 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8" />
-    <link rel="shortcut icon" href="logo.png" type="image/x-icon">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Article Submission System</title>
-    <!-- Description -->
-    <meta name="description" content="A simple article submission system." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#4a67d2" />
+    
+    <!-- Title and Description -->
+    <title>Journal Article Submission System | Academic Publishing Platform</title>
+    <meta name="description" content="A comprehensive academic publishing platform for journal management, article submissions, and peer review processes." />
+    <meta name="keywords" content="journal management, academic publishing, article submission, peer review, research publication" />
+    <meta name="author" content="Journal Project Team" />
+    
+    <!-- Favicons for different devices -->
+    <link rel="icon" href="/logo.png" sizes="32x32" />
+    <link rel="icon" href="/logo.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="shortcut icon" href="/logo.png" type="image/x-icon" />
+    
+    <!-- Open Graph / Facebook Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://articlesubsys.web.app/" />
+    <meta property="og:title" content="Journal Article Submission System" />
+    <meta property="og:description" content="A comprehensive academic publishing platform for journal management, article submissions, and peer review processes." />
+    <meta property="og:image" content="/logo.png" />
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Journal Article Submission System" />
+    <meta name="twitter:description" content="A comprehensive academic publishing platform for journal management, article submissions, and peer review processes." />
+    <meta name="twitter:image" content="/logo.png" />
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Schema.org markup for Google -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Journal Article Submission System",
+        "description": "A comprehensive academic publishing platform for journal management, article submissions, and peer review processes.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web Browser"
+      }
+    </script>
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Critical CSS - You could inject here when needed -->
+    
+    <!-- CSP for security (consider adding when in production) -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;" /> -->
   </head>
   <body>
+    <noscript>You need to enable JavaScript to run this application.</noscript>
     <div id="root"></div>
+    
+    <!-- Main application script -->
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Google Analytics or other analytics script could go here -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR-GA-ID"></script> -->
   </body>
 </html>

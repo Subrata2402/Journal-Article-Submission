@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { IoLogInOutline, IoWarningOutline, IoArrowBackOutline } from 'react-icons/io5';
-import FormField from '../components/forms/FormField';
-import { useAuth } from '../contexts/AuthContext';
-import toastUtil from '../utils/toastUtil';
-import { secureSessionStorage } from '../utils/storageUtil';
-import '../assets/styles/pages/auth.scss';
+import FormField from '../../components/forms/FormField';
+import { useAuth } from '../../contexts/AuthContext';
+import toastUtil from '../../utils/toastUtil';
+import { secureSessionStorage } from '../../utils/storageUtil';
+import '../../assets/styles/pages/auth.scss';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({

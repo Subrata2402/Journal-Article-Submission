@@ -1,7 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { IoSearch, IoClose, IoOptions, IoChevronBack } from 'react-icons/io5';
 import DateField from '../forms/DateField';
+import MultiSelect from '../forms/MultiSelect';
 import '../../assets/styles/journal/journalFilters.scss';
+import { toTitleCase } from '../../utils/formatters';
 
 const JournalFilters = ({ 
   onFilterChange, 
@@ -23,28 +25,7 @@ const JournalFilters = ({
     setSearchTerm(value);
     onSearchChange(value);
   };
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategories(prev => {
-      const newCategories = prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category];
-      
-      applyFilters(newCategories, selectedTags, dateRange);
-      return newCategories;
-    });
-  };
-
-  const handleTagChange = (tag) => {
-    setSelectedTags(prev => {
-      const newTags = prev.includes(tag)
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag];
-      
-      applyFilters(selectedCategories, newTags, dateRange);
-      return newTags;
-    });
-  };
+  // We've replaced the individual change handlers with inline handlers in the MultiSelect components
 
   const handleDateChange = (field, value) => {
     setDateRange(prev => {
@@ -152,8 +133,7 @@ const JournalFilters = ({
           <h3>Filter Journals</h3>
         </div>
         
-        <div className="filters-sidebar-content">
-          <div className="filter-section">
+        <div className="filters-sidebar-content">          <div className="filter-section">
             <h4>Categories</h4>
             {loading ? (
               <p className="loading-text">Loading categories...</p>
@@ -162,22 +142,23 @@ const JournalFilters = ({
                 {categories.length === 0 ? (
                   <p>No categories available</p>
                 ) : (
-                  categories.map((category) => (
-                    <label key={category} className="filter-option">
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(category)}
-                        onChange={() => handleCategoryChange(category)}
-                      />
-                      <span className="checkbox-label">{category}</span>
-                    </label>
-                  ))
+                  <MultiSelect
+                    options={categories.map(category => ({ value: toTitleCase(category), label: toTitleCase(category) }))}
+                    values={selectedCategories}
+                    onChange={(e) => {
+                      setSelectedCategories(e.target.value);
+                      applyFilters(e.target.value, selectedTags, dateRange);
+                    }}
+                    placeholder="Select categories"
+                    searchable={true}
+                    searchPlaceholder="Search categories..."
+                    searchThreshold={5}
+                  />
                 )}
               </div>
             )}
           </div>
-          
-          <div className="filter-section">
+            <div className="filter-section">
             <h4>Tags</h4>
             {loading ? (
               <p className="loading-text">Loading tags...</p>
@@ -186,16 +167,18 @@ const JournalFilters = ({
                 {tags.length === 0 ? (
                   <p>No tags available</p>
                 ) : (
-                  tags.map((tag) => (
-                    <label key={tag} className="filter-option">
-                      <input
-                        type="checkbox"
-                        checked={selectedTags.includes(tag)}
-                        onChange={() => handleTagChange(tag)}
-                      />
-                      <span className="checkbox-label">{tag}</span>
-                    </label>
-                  ))
+                  <MultiSelect
+                    options={tags.map(tag => ({ value: toTitleCase(tag), label: toTitleCase(tag) }))}
+                    values={selectedTags}
+                    onChange={(e) => {
+                      setSelectedTags(e.target.value);
+                      applyFilters(selectedCategories, e.target.value, dateRange);
+                    }}
+                    placeholder="Select tags"
+                    searchable={true}
+                    searchPlaceholder="Search tags..."
+                    searchThreshold={5}
+                  />
                 )}
               </div>
             )}

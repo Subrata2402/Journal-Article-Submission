@@ -13,12 +13,13 @@ const DateField = ({
   minDate,
   maxDate,
   icon, // Added icon prop
-}) => {
-  const [showPicker, setShowPicker] = useState(false);
+}) => {  const [showPicker, setShowPicker] = useState(false);
   const [viewDate, setViewDate] = useState(value ? new Date(value) : new Date());
   const [showMonthSelector, setShowMonthSelector] = useState(false);
   const [showYearSelector, setShowYearSelector] = useState(false);
+  const [showAbove, setShowAbove] = useState(false);
   const pickerRef = useRef(null);
+  const dateFieldRef = useRef(null);
   
   // Format the date for display
   const formatDateForDisplay = (dateString) => {
@@ -160,12 +161,12 @@ const DateField = ({
     
     return false;
   };
-  
-  // Handle day selection
+    // Handle day selection
   const handleSelectDate = (day, month, year) => {
     if (isDateDisabled(day, month, year)) return;
     
-    const selectedDate = new Date(year, month, day);
+    // Fix timezone issues by using UTC methods to ensure correct date
+    const selectedDate = new Date(Date.UTC(year, month, day));
     const formattedDate = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
     
     onChange({ target: { name, value: formattedDate } });
@@ -195,8 +196,7 @@ const DateField = ({
     setShowMonthSelector(false);
     setShowYearSelector(!showYearSelector);
   };
-  
-  // Handle click outside to close the picker
+    // Handle click outside to close the picker
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (pickerRef.current && !pickerRef.current.contains(event.target)) {
@@ -211,6 +211,25 @@ const DateField = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  
+  // Check if date picker should be shown above or below
+  const checkPosition = () => {
+    if (dateFieldRef.current) {
+      const rect = dateFieldRef.current.getBoundingClientRect();
+      const bottomSpace = window.innerHeight - rect.bottom;
+      // If less than 350px of space below, show above (date picker is about 300-350px tall)
+      const shouldShowAbove = bottomSpace < 350;
+      setShowAbove(shouldShowAbove);
+    }
+  };
+  
+  // Toggle the date picker and check position
+  const toggleDatePicker = () => {
+    if (!showPicker) {
+      checkPosition();
+    }
+    setShowPicker(!showPicker);
+  };
 
   // Generate weekday headers
   const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -224,11 +243,10 @@ const DateField = ({
           {required && <span className="form-field__required">*</span>}
         </span>
       </label>
-      
-      <div className="custom-date-field" ref={pickerRef}>
+        <div className="custom-date-field" ref={dateFieldRef}>
         <div 
           className={`date-display ${error ? 'error' : ''}`} 
-          onClick={() => setShowPicker(!showPicker)}
+          onClick={toggleDatePicker}
         >
           {value ? (
             <span className="selected-date">
@@ -241,7 +259,7 @@ const DateField = ({
         </div>
         
         {showPicker && (
-          <div className="custom-date-picker">
+          <div ref={pickerRef} className={`custom-date-picker ${showAbove ? 'position-above' : ''}`}>
             <div className="date-picker-header">
               <button 
                 type="button" 

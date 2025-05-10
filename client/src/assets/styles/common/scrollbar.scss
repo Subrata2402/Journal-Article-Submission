@@ -1,0 +1,153 @@
+// Modern custom scrollbar styles for the journal application
+// These can be imported into specific components using @use '../common/scrollbar.scss' as *;
+
+// Modern scrollbar mixin
+@mixin custom-scrollbar($width: var(--scrollbar-width)) {
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  
+  // Webkit browsers
+  &::-webkit-scrollbar {
+    width: $width;
+    height: $width;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: var(--border-radius-md);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--border-radius-md);
+    transition: background var(--transition-fast);
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+  
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+// Add small scrollbar mixin - useful for dropdowns, small containers, etc.
+@mixin small-scrollbar {
+  @include custom-scrollbar(6px);
+}
+
+// Mixin for horizontal scrollbars only - useful for tables
+@mixin horizontal-scrollbar($height: 6px) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  
+  &::-webkit-scrollbar {
+    width: 0;
+    height: $height;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: var(--border-radius-sm);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--border-radius-sm);
+    
+    &:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
+  }
+}
+
+// Mixin for vertical scrollbars only - useful for long content sections
+@mixin vertical-scrollbar($width: var(--scrollbar-width)) {
+  overflow-x: hidden;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: $width;
+    height: 0;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: var(--border-radius-sm);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--border-radius-sm);
+    
+    &:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
+  }
+}
+
+// Hidden scrollbar mixin (show on hover) - useful for cleaner interfaces
+@mixin hidden-scrollbar {
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  
+  &:hover {
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  // Webkit
+  &::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+    background: transparent;
+    opacity: 0;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+  }
+  
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: var(--border-radius-md);
+      
+      &:hover {
+        background: var(--scrollbar-thumb-hover);
+      }
+    }
+  }
+}
+
+// Fancy styled scrollbars - with gradients and rounded corners
+@mixin fancy-scrollbar($width: var(--scrollbar-width)) {
+  &::-webkit-scrollbar {
+    width: $width;
+    height: $width;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius-lg);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, var(--primary-color), rgba(var(--primary-rgb), 0.7));
+    border-radius: var(--border-radius-lg);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
+      border: 1px solid transparent;
+    }
+  }
+}

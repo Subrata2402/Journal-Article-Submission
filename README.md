@@ -2,7 +2,7 @@
 
 A comprehensive platform for academic publishing that connects authors, reviewers, and editors in a streamlined digital workflow. This system supports the entire lifecycle of academic publishing from journal creation to article submission, peer review, and publication.
 
-![Project Logo](./client/public/logo.png)
+<!-- ![Project Logo](./client/public/logo.png) -->
 
 ## Project Overview
 

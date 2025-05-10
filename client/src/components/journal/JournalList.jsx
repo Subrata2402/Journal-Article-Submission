@@ -7,6 +7,7 @@ import journalService from '../../services/journalService';
 import toastUtil from '../../utils/toastUtil';
 import { useAuth } from '../../contexts/AuthContext';
 import ConfirmationModal from '../common/ConfirmationModal';
+import { toTitleCase } from '../../utils/formatters';
 
 const JournalList = ({ 
   journals, 
@@ -36,14 +37,6 @@ const JournalList = ({
       case 'psychology': return 'psychology';
       default: return 'science'; // Default color
     }
-  };
-  
-  // Function to convert category to title case
-  const toTitleCase = (str) => {
-    if (!str) return 'N/A';
-    return str === 'N/A' ? str : str.split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
   };
   
   // Function to handle navigation to journal details page
@@ -215,7 +208,7 @@ const JournalList = ({
                           <IoPricetagOutline />
                           <span className="tags-container">
                             {journal.tags.map((tag, index) => (
-                              <span key={index} className="journal-tag">{tag}</span>
+                              <span key={index} className="journal-tag">{toTitleCase(tag)}</span>
                             ))}
                           </span>
                         </div>

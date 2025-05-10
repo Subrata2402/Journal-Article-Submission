@@ -5,14 +5,14 @@
  * @returns {string} Formatted date string
  */
 export const formatDate = (dateString, options = {}) => {
-  const defaultOptions = { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  const defaultOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
   };
-  
+
   const mergedOptions = { ...defaultOptions, ...options };
-  
+
   try {
     return new Date(dateString).toLocaleDateString('en-US', mergedOptions);
   } catch (error) {
@@ -30,7 +30,7 @@ export const formatDate = (dateString, options = {}) => {
 export const truncateText = (text, maxLength = 150) => {
   if (!text) return '';
   if (text.length <= maxLength) return text;
-  
+
   return `${text.substring(0, maxLength)}...`;
 };
 
@@ -41,11 +41,19 @@ export const truncateText = (text, maxLength = 150) => {
  */
 export const createSlug = (text) => {
   if (!text) return '';
-  
+
   return text
     .toLowerCase()
     .replace(/[^\w\s-]/g, '') // Remove special characters
     .replace(/\s+/g, '-')     // Replace spaces with hyphens
     .replace(/-+/g, '-')      // Replace multiple hyphens with single hyphen
     .trim();
+};
+
+// Function to convert category to title case
+export const toTitleCase = (str) => {
+  if (!str) return 'N/A';
+  return str === 'N/A' ? str : str.split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 };

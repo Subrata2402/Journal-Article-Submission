@@ -5,6 +5,12 @@
   --body-text: #333333;
   --navbar-bg: #ffffff;
   --navbar-text: #333333;
+  
+  // Scrollbar
+  --scrollbar-width: 8px;
+  --scrollbar-track: rgba(0, 0, 0, 0.05);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
   --button-bg: #e9ecef;
   --button-text: #333333;
   --button-hover-bg: #dee2e6;
@@ -30,6 +36,7 @@
   --label-text: #475569;
   --text-muted: #64748b;
   --error-color: #ef4444;
+  --error-color-light: rgba(239, 68, 68, 0.2);
   --error-border: #fca5a5;
   --footer-bg: #1e293b;
   --footer-text: #e2e8f0;
@@ -54,7 +61,7 @@
   --spacing-xxl: 2.5rem;
   --spacing-2xl: 3rem;
   --spacing-xxxl: 3.5rem;
-  
+
   
   // Typography
   --font-family: 'Poppins', sans-serif;
@@ -90,6 +97,11 @@
   --navbar-bg: #1e1e1e;
   --navbar-text: #ffffff;
   --button-bg: #333333;
+  
+  // Scrollbar
+  --scrollbar-track: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
   --button-text: #ffffff;
   --button-hover-bg: #444444;
   --heading-text: #f8fafc;
@@ -114,6 +126,7 @@
   --label-text: #cbd5e1;
   --text-muted: #94a3b8;
   --error-color: #f87171;
+  --error-color-light: rgba(248, 113, 113, 0.2);
   --error-border: #7f1d1d;
   --footer-bg: #0f172a;
   --footer-text: #cbd5e1;
@@ -162,6 +175,7 @@
     --label-text: #cbd5e1;
     --text-muted: #94a3b8;
     --error-color: #f87171;
+    --error-color-light: rgba(248, 113, 113, 0.2);
     --error-border: #7f1d1d;
     --footer-bg: #0f172a;
     --footer-text: #cbd5e1;
@@ -208,6 +222,7 @@
     --label-text: #475569;
     --text-muted: #64748b;
     --error-color: #ef4444;
+    --error-color-light: rgba(239, 68, 68, 0.2);
     --error-border: #fca5a5;
     --footer-bg: #1e293b;
     --footer-text: #e2e8f0;

@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiTrash2, FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import reviewerService from '../services/reviewerService';
-import { useAuth } from '../contexts/AuthContext';
-import FormField from '../components/forms/FormField';
-import Button from '../components/common/Button';
-import Alert from '../components/common/Alert';
-import Spinner from '../components/common/Spinner';
-import DragDropFileUpload from '../components/common/DragDropFileUpload';
-import ConfirmationModal from '../components/common/ConfirmationModal';
-import '../assets/styles/pages/reviewer.scss';
+import reviewerService from '../../services/reviewerService';
+import { useAuth } from '../../contexts/AuthContext';
+import FormField from '../../components/forms/FormField';
+import Alert from '../../components/common/Alert';
+import Spinner from '../../components/common/Spinner';
+import DragDropFileUpload from '../../components/common/DragDropFileUpload';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
+import '../../assets/styles/pages/reviewer.scss';
 
 const ReviewerPage = () => {
   const { user } = useAuth();

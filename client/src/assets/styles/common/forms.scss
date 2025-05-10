@@ -1,4 +1,5 @@
 @use '../variables' as *;
+@use './scrollbar.scss' as *;
 
 // Form Field Styles
 .form-field {
@@ -324,8 +325,7 @@
       flex-shrink: 0;
     }
   }
-  
-  .custom-date-picker {
+    .custom-date-picker {
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
@@ -336,6 +336,12 @@
     box-shadow: var(--shadow-lg);
     padding: var(--spacing-sm);
     user-select: none;
+    
+    // Position above when not enough space below
+    &.position-above {
+      top: auto;
+      bottom: calc(100% + 4px);
+    }
     
     .date-picker-header {
       display: flex;
@@ -429,27 +435,11 @@
           font-weight: 500;
         }
       }
-    }
-    
-    .year-selector-dropdown {
+    }      .year-selector-dropdown {
       grid-template-columns: repeat(4, 1fr);
       max-height: 240px;
       overflow-y: auto;
-      
-      /* Scrollbar styling */
-      &::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      
-      &::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      
-      &::-webkit-scrollbar-thumb {
-        background-color: var(--border-color);
-        border-radius: 20px;
-      }
+      @include vertical-scrollbar(6px);
     }
     
     .weekday-header {
@@ -547,6 +537,113 @@
   }
 }
 
+// Custom Checkbox
+.custom-checkbox-wrapper {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: var(--spacing-xs);
+  
+  &.small {
+    .custom-checkbox {
+      width: 16px;
+      height: 16px;
+      
+      .checkbox-checkmark {
+        font-size: 10px;
+      }
+    }
+    .custom-checkbox-label {
+      font-size: var(--font-size-xs);
+    }
+  }
+  
+  &.default {
+    .custom-checkbox {
+      width: 18px;
+      height: 18px;
+      
+      .checkbox-checkmark {
+        font-size: 12px;
+      }
+    }
+    .custom-checkbox-label {
+      font-size: var(--font-size-sm);
+    }
+  }
+  
+  &.large {
+    .custom-checkbox {
+      width: 22px;
+      height: 22px;
+      
+      .checkbox-checkmark {
+        font-size: 14px;
+      }
+    }
+    .custom-checkbox-label {
+      font-size: var(--font-size-md);
+    }
+  }
+  
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .custom-checkbox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--input-bg);
+    transition: all 0.2s ease;
+    
+    &.checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      
+      .checkbox-checkmark {
+        color: white;
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    &:hover:not(.disabled) {
+      border-color: var(--primary-color);
+    }
+    
+    .checkbox-checkmark {
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s ease;
+      pointer-events: none;
+    }
+    
+    .original-checkbox {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+  }
+  
+  .custom-checkbox-label {
+    color: var(--text-color);
+    transition: color 0.2s ease;
+  }
+}
+
 // Custom Select styling
 .custom-select-container {
   width: 100%;
@@ -565,7 +662,7 @@
   transition: all var(--transition-fast);
   
   &:hover {
-    border-color: var(--border-hover-color);
+    border-color: var(--primary-color-light);
   }
   
   &:focus, &.open {
@@ -595,6 +692,58 @@
     content: attr(data-placeholder);
     color: var(--text-muted);
   }
+    // Multi-select styles
+  &.multi-select-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: var(--spacing-xs) 0;
+    
+    .selected-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      
+      .selected-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background-color: var(--primary-color-light);
+        color: var(--primary-color-dark);
+        font-size: var(--font-size-xs);
+        padding: 2px 8px;
+        border-radius: var(--border-radius-sm);
+        font-weight: 500;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background-color: var(--primary-color-light);
+        }
+        
+        .remove-tag-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--primary-color-dark);
+          padding: 0;
+          font-size: 0.875rem;
+          margin-left: 2px;
+          transition: all 0.2s ease;
+          border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          
+          &:hover {
+            color: var(--error-color);
+            background-color: rgba(var(--error-rgb), 0.1);
+          }
+        }
+      }
+    }
+  }
 }
 
 .custom-select-icon {
@@ -617,24 +766,90 @@
   font-style: italic;
 }
 
-.custom-select-dropdown {
+.custom-select-dropdown-container {
   position: absolute;
   top: calc(100% + 5px);
   left: 0;
   width: 100%;
-  max-height: 250px;
-  overflow-y: auto;
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-md);
+  background-color: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: var(--border-radius-md, 6px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   z-index: 100;
+  animation: dropdownFadeIn 0.2s ease-in-out;
+  overflow: hidden; // Ensure rounded corners are maintained
+  display: block !important; // Force display
+  .custom-select-search {
+    position: relative;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    background-color: var(--background-tertiary, #f8f9fa);
+    display: block !important; /* Ensure this is always displayed */
+    
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted, #6c757d);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 0.5rem 0.5rem 0.5rem 2rem;
+      border: 1px solid var(--border-color, #e0e0e0);
+      border-radius: var(--border-radius-sm, 4px);
+      background-color: var(--input-bg, #ffffff);
+      color: var(--body-text, #333333);
+      font-size: var(--font-size-sm, 0.875rem);
+      transition: all 0.2s ease;
+      display: block;
+      
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.2);
+      }
+      
+      &::placeholder {
+        color: var(--text-muted);
+        font-size: var(--font-size-xs);
+      }
+    }
+  }
+}
+
+.custom-select-dropdown {
+  width: 100%;
+  max-height: 200px; // Reduced to accommodate search input
+  overflow-y: auto;
   list-style: none;
   margin: 0;
-  padding: var(--spacing-xs);
+  padding: 0.5rem;
+  background-color: var(--card-bg, #ffffff);
   
-  // Animation
-  animation: dropdownFadeIn 0.2s ease-in-out;
+  // Add scrollbar styling 
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color, #e0e0e0) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--border-color, #e0e0e0);
+    border-radius: 3px;
+  }
 }
 
 .custom-select-option {
@@ -650,12 +865,52 @@
   }
   
   &.highlighted:not(.selected) {
-    background-color: var(--bg-hover);
+    background-color: var(--background-tertiary);
   }
   
   &:hover:not(.selected) {
-    background-color: var(--bg-hover);
+    background-color: var(--background-tertiary);
   }
+  
+  // Multi-select option with custom checkbox
+  &.multi-select-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    
+    .custom-checkbox {
+      flex-shrink: 0;
+    }
+    
+    .option-label {
+      flex-grow: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    &.selected {
+      background-color: transparent;
+      font-weight: normal;
+    }
+
+    &:hover {
+      background-color: var(--primary-color-light);
+    }
+  }
+}
+
+.custom-select-no-options {
+  padding: var(--spacing-md);
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px; // Ensure a reasonable height when no options
 }
 
 @keyframes dropdownFadeIn {
@@ -666,6 +921,107 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// Custom Checkbox Styles
+.custom-checkbox {
+  --checkbox-size-small: 16px;
+  --checkbox-size-medium: 20px;
+  --checkbox-size-large: 24px;
+  --checkbox-bg: var(--input-bg, #ffffff);
+  --checkbox-border: var(--border-color, #e0e0e0);
+  --checkbox-checked-color: var(--primary-color, #3a86ff);
+  --checkbox-checked-border: var(--primary-color, #3a86ff);
+  
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  &__control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--checkbox-size-medium);
+    height: var(--checkbox-size-medium);
+    background-color: var(--checkbox-bg);
+    border: 1px solid var(--checkbox-border);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    
+    .custom-checkbox__icon {
+      color: white;
+      font-size: calc(var(--checkbox-size-medium) * 0.6);
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.2s ease;
+    }
+  }
+  
+  &__label {
+    margin-left: 8px;
+    font-size: var(--font-size-sm);
+    color: var(--text-color);
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  // Size variations
+  &--small &__control {
+    width: var(--checkbox-size-small);
+    height: var(--checkbox-size-small);
+    
+    .custom-checkbox__icon {
+      font-size: calc(var(--checkbox-size-small) * 0.6);
+    }
+  }
+  
+  &--large &__control {
+    width: var(--checkbox-size-large);
+    height: var(--checkbox-size-large);
+    
+    .custom-checkbox__icon {
+      font-size: calc(var(--checkbox-size-large) * 0.6);
+    }
+  }
+  
+  // Checked state
+  &--checked {
+    .custom-checkbox__control {
+      background-color: var(--checkbox-checked-color);
+      border-color: var(--checkbox-checked-border);
+      
+      .custom-checkbox__icon {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+  
+  // Disabled state
+  &--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    
+    .custom-checkbox__label {
+      cursor: not-allowed;
+    }
+  }
+  
+  // Hover state
+  &:not(&--checked):not(&--disabled):hover {
+    .custom-checkbox__control {
+      border-color: var(--checkbox-checked-border);
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   IoCalendarOutline, 
@@ -14,12 +14,12 @@ import {
   IoNewspaperOutline,
   IoPricetagsOutline,
 } from 'react-icons/io5';
-import Spinner from '../components/common/Spinner';
-import { formatDate } from '../utils/formatters';
-import journalService from '../services/journalService';
-import toastUtil from '../utils/toastUtil';
-import { useAuth } from '../contexts/AuthContext';
-import '../assets/styles/journal/journalDetails.scss';
+import Spinner from '../../components/common/Spinner';
+import { formatDate } from '../../utils/formatters';
+import journalService from '../../services/journalService';
+import toastUtil from '../../utils/toastUtil';
+import { useAuth } from '../../contexts/AuthContext';
+import '../../assets/styles/journal/journalDetails.scss';
 
 const JournalDetailsPage = () => {
   const { journalId } = useParams();
@@ -336,7 +336,7 @@ const JournalDetailsPage = () => {
                 </h2>
                 <div className="tags-container">
                   {journal.tags.map((tag, index) => (
-                    <span key={index} className="tag-pill">{tag}</span>
+                    <span key={index} className="tag-pill">{toTitleCase(tag)}</span>
                   ))}
                 </div>
               </div>

@@ -12,15 +12,15 @@ import {
   IoCloudUploadOutline,
   IoLockClosedOutline,
 } from 'react-icons/io5';
-import { useAuth } from '../contexts/AuthContext';
-import httpService from '../services/httpService';
-import { API_ENDPOINTS } from '../config/api';
-import { PROFILE_PICTURES_PATH, DEFAULT_PROFILE_IMAGE } from '../config/constants';
-import FormField from '../components/forms/FormField';
-import DateField from '../components/forms/DateField';
-import Spinner from '../components/common/Spinner';
-import toastUtil from '../utils/toastUtil';
-import '../assets/styles/pages/profile.scss';
+import { useAuth } from '../../contexts/AuthContext';
+import httpService from '../../services/httpService';
+import { API_ENDPOINTS } from '../../config/api';
+import { PROFILE_PICTURES_PATH, DEFAULT_PROFILE_IMAGE } from '../../config/constants';
+import FormField from '../../components/forms/FormField';
+import DateField from '../../components/forms/DateField';
+import Spinner from '../../components/common/Spinner';
+import toastUtil from '../../utils/toastUtil';
+import '../../assets/styles/pages/profile.scss';
 
 const EditProfilePage = () => {
   const [formData, setFormData] = useState({

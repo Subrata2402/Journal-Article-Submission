@@ -176,6 +176,7 @@
               color: var(--primary-color);
               background-color: var(--primary-color-light);
               border-color: var(--primary-color);
+              height: 32px;
             }
           }
           
@@ -207,7 +208,7 @@
           .submit-article-button {
             display: inline-flex;
             align-items: center;
-            padding: var(--spacing-xs) var (--spacing-md);
+            padding: var(--spacing-xs) var(--spacing-md);
             background-color: var(--primary-color);
             border: none;
             border-radius: var(--border-radius-sm);

@@ -1,6 +1,7 @@
 @use './_variables' as *;
+@use './components.scss';
+@use './common/scrollbar.scss' as *;
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-@import './components.scss';
 
 // Base styles
 * {
@@ -14,6 +15,49 @@ body {
   background-color: var(--body-bg);
   color: var(--body-text);
   transition: all var(--transition-normal);
+}
+
+// Modern Custom Scrollbar - apply globally
+html {
+  scroll-behavior: smooth;
+}
+
+// Apply modern scrollbar to the main document
+html {
+  @include custom-scrollbar;
+}
+
+// Apply scrollbar styling to common containers
+body, 
+.modal-content,
+.dropdown-menu,
+.card-body,
+.table-responsive,
+.overflow-auto,
+[class*="overflow-y-auto"],
+[class*="overflow-x-auto"] {
+  @include custom-scrollbar;
+}
+
+// Apply thin scrollbars to smaller elements
+textarea,
+select[multiple],
+.form-select,
+.dropdown-menu-inner,
+.sidebar-menu {
+  @include small-scrollbar;
+}
+
+// Apply fancy scrollbars to special elements like code blocks and dashboards
+pre code,
+.dashboard-panel,
+.highlights-section {
+  @include fancy-scrollbar;
+}
+.code-block,
+.dashboard-panel,
+.analytics-container {
+  @include fancy-scrollbar;
 }
 
 .app {

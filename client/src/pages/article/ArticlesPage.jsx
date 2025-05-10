@@ -1,9 +1,8 @@
-import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import UserArticleList from '../components/article/UserArticleList';
-import EditorArticleList from '../components/article/EditorArticleList';
-import Spinner from '../components/common/Spinner';
-import '../assets/styles/article/userArticleList.scss';
+import { useAuth } from '../../contexts/AuthContext';
+import UserArticleList from '../../components/article/UserArticleList';
+import EditorArticleList from '../../components/article/EditorArticleList';
+import Spinner from '../../components/common/Spinner';
+import '../../assets/styles/article/userArticleList.scss';
 
 const ArticlesPage = () => {
   const { user, isLoading: authLoading } = useAuth();

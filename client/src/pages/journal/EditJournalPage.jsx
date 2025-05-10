@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
   IoArrowBackOutline,
@@ -7,18 +7,17 @@ import {
   IoCalendarOutline,
   IoStatsChartOutline,
   IoCheckmarkCircleOutline,
-  IoPerson,
 } from 'react-icons/io5';
 import { toast } from 'react-toastify';
-import { useAuth } from '../contexts/AuthContext';
-import FormField from '../components/forms/FormField';
-import TextArea from '../components/forms/TextArea';
-import DateField from '../components/forms/DateField';
-import CustomSelect from '../components/forms/CustomSelect';
-import TagInput from '../components/forms/TagInput';
-import Spinner from '../components/common/Spinner';
-import journalService from '../services/journalService';
-import '../assets/styles/pages/addJournal.scss';
+import { useAuth } from '../../contexts/AuthContext';
+import FormField from '../../components/forms/FormField';
+import TextArea from '../../components/forms/TextArea';
+import DateField from '../../components/forms/DateField';
+import CustomSelect from '../../components/forms/CustomSelect';
+import TagInput from '../../components/forms/TagInput';
+import Spinner from '../../components/common/Spinner';
+import journalService from '../../services/journalService';
+import '../../assets/styles/pages/addJournal.scss';
 
 const EditJournalPage = () => {
   const navigate = useNavigate();

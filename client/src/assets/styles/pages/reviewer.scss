@@ -1,3 +1,5 @@
+@use '../common/scrollbar.scss' as *;
+
 .reviewer-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -340,24 +342,7 @@
     .table-responsive {
       overflow-x: auto;
       margin-bottom: 1rem;
-
-      &::-webkit-scrollbar {
-        height: 6px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: var(--bg-tertiary);
-        border-radius: 3px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb);
-        border-radius: 3px;
-
-        &:hover {
-          background: var(--scrollbar-thumb-hover);
-        }
-      }
+      @include horizontal-scrollbar(6px);
     }
 
     .reviewer-table {
@@ -655,30 +640,12 @@
       }
     }
   }
-  
-  // Table styling
+    // Table styling
   .table-responsive {
     overflow-x: auto;
     margin-bottom: 1rem;
-    
-    &::-webkit-scrollbar {
-      height: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: var(--bg-tertiary);
-      border-radius: 3px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--scrollbar-thumb);
-      border-radius: 3px;
-
-      &:hover {
-        background: var(--scrollbar-thumb-hover);
-      }
-    }
-
+    @include horizontal-scrollbar(6px);
+  
     .articles-table {
       width: 100%;
       border-collapse: separate;

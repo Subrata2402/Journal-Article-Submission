@@ -139,3 +139,18 @@
     }
   }
 }
+
+@media (max-width: 380px) {
+  .drag-drop-upload {
+    min-height: 150px;
+    min-width: auto;
+    
+    .upload-icon {
+      font-size: 1.5rem;
+    }
+    
+    .upload-title {
+      font-size: 0.9rem;
+    }
+  }
+}

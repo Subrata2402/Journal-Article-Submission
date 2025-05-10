@@ -1,30 +1,30 @@
 // Common Components
-@import './common/buttons.scss';
-@import './common/forms.scss';
-@import './common/spinner.scss';
-@import './common/modal.scss';
-@import './common/alert.scss';
-@import './common/toast.scss';
-@import './common/scrollToTop.scss';
+@forward './common/buttons.scss';
+@forward './common/forms.scss';
+@forward './common/spinner.scss';
+@forward './common/modal.scss';
+@forward './common/alert.scss';
+@forward './common/toast.scss';
+@forward './common/scrollToTop.scss';
 
 // Layout Components
-@import './layout/navbar.scss';
-@import './layout/footer.scss';
+@forward './layout/navbar.scss';
+@forward './layout/footer.scss';
 
 // Journal Components
-@import './journal/journalList.scss';
-@import './journal/journalFilters.scss';
-@import './journal/journalDetails.scss';
+@forward './journal/journalList.scss';
+@forward './journal/journalFilters.scss';
+@forward './journal/journalDetails.scss';
 
 // Article Components
-@import './article/articleDetails.scss';
-@import './article/userArticleList.scss';
+@forward './article/articleDetails.scss';
+@forward './article/userArticleList.scss';
 
 // Page Styles
-@import './pages/home.scss';
-@import './pages/auth.scss';
-@import './pages/about.scss';
-@import './pages/contact.scss';
-@import './pages/articles.scss';
-@import './pages/addJournal.scss';
-@import './pages/addArticle.scss';
+@forward './pages/home.scss';
+@forward './pages/auth.scss';
+@forward './pages/about.scss';
+@forward './pages/contact.scss';
+@forward './pages/articles.scss';
+@forward './pages/addJournal.scss';
+@forward './pages/addArticle.scss';

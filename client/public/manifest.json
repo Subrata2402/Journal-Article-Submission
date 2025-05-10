@@ -1,0 +1,26 @@
+{
+  "short_name": "Journal System",
+  "name": "Journal Article Submission System",
+  "description": "A comprehensive academic publishing platform for journal management, article submissions, and peer review processes.",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#4a67d2",
+  "background_color": "#ffffff"
+}
