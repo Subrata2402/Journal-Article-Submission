@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { IoCheckmark } from 'react-icons/io5';
 import '../../assets/styles/common/forms.scss';
 
@@ -32,10 +32,16 @@ const CustomCheckbox = ({
     // Pass the checked state to the parent component
     onChange(e.target.checked);
   };
-  
-  const handleClick = (e) => {
+    const handleClick = (e) => {
     // For certain cases, we may want to prevent propagation when inside other clickable elements
     e.stopPropagation();
+  };
+  
+  const handleControlClick = () => {
+    if (!disabled) {
+      // Toggle the checkbox state by simulating a click on the hidden input
+      inputRef.current.click();
+    }
   };
   
   // Generate classes based on props
@@ -50,10 +56,17 @@ const CustomCheckbox = ({
   const checkboxStyle = color && checked ? { 
     '--checkbox-checked-color': color,
     '--checkbox-checked-border': color 
-  } : {};
-
-  return (
-    <div className={checkboxClasses} style={checkboxStyle}>
+  } : {};  return (
+    <div 
+      className={checkboxClasses} 
+      style={checkboxStyle} 
+      onClick={(e) => {
+        // Only handle clicks directly on the container, not on its children
+        if (e.target.classList.contains(checkboxClasses.split(' ')[0])) {
+          handleControlClick();
+        }
+      }}
+    >
       <input
         ref={inputRef}
         type="checkbox"
@@ -64,18 +77,26 @@ const CustomCheckbox = ({
         onClick={handleClick}
         disabled={disabled}
         className="custom-checkbox__input"
-      />
-      <div className="custom-checkbox__control">
+      />      <div 
+        className="custom-checkbox__control" 
+        onClick={handleControlClick}
+      >
         {checked && (
           <IoCheckmark className="custom-checkbox__icon" />
         )}
-      </div>
-      {label && (
+      </div>      {label && (
         <label 
           htmlFor={id} 
           className="custom-checkbox__label"
           onClick={(e) => {
-            if (disabled) e.preventDefault();
+            if (disabled) {
+              e.preventDefault();
+            } else if (!id) {
+              // If no id is provided, manually toggle the checkbox
+              // since htmlFor won't work without an id
+              e.preventDefault();
+              handleControlClick();
+            }
           }}
         >
           {label}

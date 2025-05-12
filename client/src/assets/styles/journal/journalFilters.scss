@@ -141,13 +141,18 @@
     &.open {
       left: 0;
     }
-    
-    .filters-sidebar-header {
+      .filters-sidebar-header {
       display: flex;
-      justify-content: space-between;
+      gap: var(--spacing-xs);
       align-items: center;
       padding: 1.5rem 1.5rem 0.75rem;
       border-bottom: 1px solid var(--border-color);
+      
+      .header-icon {
+        font-size: 1.3rem;
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+      }
       
       h3 {
         font-size: 1.25rem;
@@ -168,35 +173,72 @@
         &:last-child {
           margin-bottom: 0;
         }
-        
-        h4 {
-          font-size: 1rem;
-          margin: 0 0 1rem 0;
-          font-weight: 500;
-          color: var(--text-secondary);
+          .section-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.85rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 1px dashed var(--border-color);
+          
+          .section-icon {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          h4 {
+            font-size: 1rem;
+            margin: 0;
+            font-weight: 500;
+            color: var(--text-secondary);
+          }
         }
         
         .filter-options {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
-          
-          .filter-option {
+            .filter-option {
             display: flex;
             align-items: center;
-            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 4px;
+            transition: background-color 0.15s ease;
             
+            &:hover {
+              background-color: var(--hover-bg);
+            }
+            
+            // Custom styling for CustomCheckbox within filter-option
+            .custom-checkbox-container {
+              width: 100%;
+              
+              .custom-checkbox-label {
+                font-size: 0.9rem;
+                color: var(--text-primary);
+              }
+            }
+            
+            // Legacy support for regular checkboxes (if still used anywhere)
             input[type="checkbox"] {
               margin-right: 0.75rem;
+              width: 16px;
+              height: 16px;
+              cursor: pointer;
+              accent-color: var(--primary-color);
             }
             
             .checkbox-label {
               color: var(--text-primary);
-              text-transform: capitalize;
-            }
-            
-            &:hover .checkbox-label {
-              color: var(--primary-color);
+              font-size: 0.9rem;
+              
+              &:hover {
+                color: var(--primary-color);
+              }
             }
           }
         }

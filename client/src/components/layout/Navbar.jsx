@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FiSun, FiMoon, FiSettings, FiMenu, FiX } from 'react-icons/fi';
 import { IoLogInOutline, IoPersonOutline, IoLogOutOutline, IoHomeOutline, IoDocumentTextOutline, IoListOutline, IoInformationCircleOutline, IoMailOutline, IoNewspaperOutline, IoClipboardOutline, IoCheckmarkDoneOutline } from 'react-icons/io5';
 import { useAuth } from '../../contexts/AuthContext';

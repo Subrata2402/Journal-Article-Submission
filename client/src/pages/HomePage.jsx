@@ -100,9 +100,14 @@ const HomePage = () => {
   const handleFilterChange = (filters) => {
     setActiveFilters(filters);
   };
-  
-  const togglePinnedFilter = () => {
-    setShowPinnedOnly(prev => !prev);
+    const togglePinnedFilter = (newState) => {
+    // If newState is provided, use it directly (for CustomCheckbox)
+    // Otherwise toggle the current state (for backward compatibility)
+    if (typeof newState === 'boolean') {
+      setShowPinnedOnly(newState);
+    } else {
+      setShowPinnedOnly(prev => !prev);
+    }
   };
   
   const handlePinStatusChange = () => {
@@ -188,24 +193,16 @@ const HomePage = () => {
         <h1>Available Journals</h1>
         <p>Access peer-reviewed journals across various disciplines. Browse our collection of scientific journals and submit your articles</p>
       </header>
-      
-      <div className="filter-controls">
+        <div className="filter-controls">
         <JournalFilters
           onSearchChange={handleSearchChange}
           onFilterChange={handleFilterChange}
           categories={categories}
           tags={tags}
           loading={metadataLoading}
+          showPinnedOnly={showPinnedOnly}
+          onTogglePinnedFilter={togglePinnedFilter}
         />
-        
-        <button 
-          className={`pinned-filter-button ${showPinnedOnly ? 'active' : ''}`}
-          onClick={togglePinnedFilter}
-          title={showPinnedOnly ? 'Show all journals' : 'Show pinned journals only'}
-        >
-          {showPinnedOnly ? <IoBookmark /> : <IoBookmarkOutline />}
-          <span>{showPinnedOnly ? 'Pinned Only' : 'All Journals'}</span>
-        </button>
       </div>
       
       <JournalList 

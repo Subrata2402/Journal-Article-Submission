@@ -1,7 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
-import { IoSearch, IoClose, IoOptions, IoChevronBack } from 'react-icons/io5';
+import { 
+  IoSearch, 
+  IoClose, 
+  IoOptions, 
+  IoChevronBack, 
+  IoBookmark, 
+  IoGridOutline,
+  IoCalendarOutline,
+  IoPricetagsOutline,
+  IoListOutline 
+} from 'react-icons/io5';
 import DateField from '../forms/DateField';
 import MultiSelect from '../forms/MultiSelect';
+import CustomCheckbox from '../forms/CustomCheckbox';
 import '../../assets/styles/journal/journalFilters.scss';
 import { toTitleCase } from '../../utils/formatters';
 
@@ -10,7 +21,9 @@ const JournalFilters = ({
   onSearchChange, 
   categories = [], 
   tags = [],
-  loading = false 
+  loading = false,
+  showPinnedOnly = false,
+  onTogglePinnedFilter = () => {} 
 }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,11 +47,13 @@ const JournalFilters = ({
       return newDateRange;
     });
   };
-
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedTags([]);
     setDateRange({ from: '', to: '' });
+    if (showPinnedOnly) {
+      onTogglePinnedFilter(); // Reset pinned filter too
+    }
     applyFilters([], [], { from: '', to: '' });
   };
 
@@ -75,13 +90,13 @@ const JournalFilters = ({
       document.body.style.overflow = '';
     };
   }, []);
-
   // Calculate active filters count
   const activeFiltersCount = 
     selectedCategories.length + 
     selectedTags.length + 
     (dateRange.from ? 1 : 0) + 
-    (dateRange.to ? 1 : 0);
+    (dateRange.to ? 1 : 0) +
+    (showPinnedOnly ? 1 : 0);
 
   return (
     <div className="journal-filters">
@@ -128,13 +143,34 @@ const JournalFilters = ({
       </div>
       
       {/* Sidebar Filter Panel */}
-      <div className={`filters-sidebar ${showFilters ? 'open' : ''}`} ref={filtersSidebarRef}>
-        <div className="filters-sidebar-header">
+      <div className={`filters-sidebar ${showFilters ? 'open' : ''}`} ref={filtersSidebarRef}>      <div className="filters-sidebar-header">
+          <IoGridOutline className="header-icon" />
           <h3>Filter Journals</h3>
         </div>
         
-        <div className="filters-sidebar-content">          <div className="filter-section">
-            <h4>Categories</h4>
+        <div className="filters-sidebar-content">
+          <div className="filter-section">            <div className="section-header">
+              <IoBookmark className="section-icon" />
+              <h4>Display Options</h4>
+            </div>
+            <div className="filter-options">
+              <div className="filter-option">
+                <CustomCheckbox 
+                  checked={showPinnedOnly}
+                  onChange={onTogglePinnedFilter}
+                  label="Show Pinned Journals Only"
+                  size="medium"
+                  color="var(--primary-color)"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="filter-section">
+            <div className="section-header">
+              <IoListOutline className="section-icon" />
+              <h4>Categories</h4>
+            </div>
             {loading ? (
               <p className="loading-text">Loading categories...</p>
             ) : (
@@ -157,9 +193,11 @@ const JournalFilters = ({
                 )}
               </div>
             )}
-          </div>
-            <div className="filter-section">
-            <h4>Tags</h4>
+          </div>            <div className="filter-section">
+            <div className="section-header">
+              <IoPricetagsOutline className="section-icon" />
+              <h4>Tags</h4>
+            </div>
             {loading ? (
               <p className="loading-text">Loading tags...</p>
             ) : (
@@ -183,9 +221,11 @@ const JournalFilters = ({
               </div>
             )}
           </div>
-          
-          <div className="filter-section date-filter-section">
-            <h4>Published Date</h4>
+            <div className="filter-section date-filter-section">
+            <div className="section-header">
+              <IoCalendarOutline className="section-icon" />
+              <h4>Published Date</h4>
+            </div>
             <div className="date-filters">
               <DateField
                 label="From"
@@ -206,13 +246,11 @@ const JournalFilters = ({
               />
             </div>
           </div>
-        </div>
-
-        <div className="filters-sidebar-footer">
+        </div>        <div className="filters-sidebar-footer">
           <button 
             className="reset-filters-button" 
             onClick={clearFilters}
-            disabled={!(selectedCategories.length || selectedTags.length || dateRange.from || dateRange.to)}
+            disabled={!(selectedCategories.length || selectedTags.length || dateRange.from || dateRange.to || showPinnedOnly)}
           >
             Reset Filters
           </button>

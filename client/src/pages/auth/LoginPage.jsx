@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { IoLogInOutline, IoWarningOutline, IoArrowBackOutline } from 'react-icons/io5';
 import FormField from '../../components/forms/FormField';
+import CustomCheckbox from '../../components/forms/CustomCheckbox';
 import { useAuth } from '../../contexts/AuthContext';
 import toastUtil from '../../utils/toastUtil';
 import { secureSessionStorage } from '../../utils/storageUtil';
 import '../../assets/styles/pages/auth.scss';
 
-const LoginPage = () => {
-  const [formData, setFormData] = useState({
+const LoginPage = () => {  const [formData, setFormData] = useState({
     email: '',
     password: '',
+    rememberMe: false,
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -26,8 +27,7 @@ const LoginPage = () => {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
-  
-  const handleChange = (e) => {
+    const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -41,6 +41,13 @@ const LoginPage = () => {
         [name]: '',
       }));
     }
+  };
+  
+  const handleRememberMeChange = (checked) => {
+    setFormData((prev) => ({
+      ...prev,
+      rememberMe: checked,
+    }));
   };
   
   const validateForm = () => {
@@ -158,11 +165,15 @@ const LoginPage = () => {
               required
               autoComplete="current-password"
             />
-            
-            <div className="auth-additional-options">
+              <div className="auth-additional-options">
               <div className="remember-me">
-                <input type="checkbox" id="remember" />
-                <label htmlFor="remember">Remember me</label>
+                <CustomCheckbox
+                  id="remember"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onChange={handleRememberMeChange}
+                  label="Remember me"
+                />
               </div>
               <Link to="/forgot-password" className="auth-link">Forgot password?</Link>
             </div>
