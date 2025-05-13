@@ -25,6 +25,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import articleService from '../../services/articleService';
 import { formatDate } from '../../utils/formatters';
 import '../../assets/styles/article/articleDetails.scss';
+import CustomSelect from '../../components/forms/CustomSelect';
 import { 
   ARTICLE_COVER_LETTER_PATH, 
   ARTICLE_MENUSCRIPT_PATH, 
@@ -128,6 +129,7 @@ const ArticleDetailsPage = () => {
     switch(status?.toLowerCase()) {
       case 'approved': return 'success';
       case 'pending': return 'warning';
+      case 'under review': return 'info';
       case 'rejected': return 'danger';
       default: return 'info';
     }
@@ -139,6 +141,8 @@ const ArticleDetailsPage = () => {
         return <IoCheckmarkCircleOutline className="status-icon approved" />;
       case 'pending': 
         return <IoTimerOutline className="status-icon pending" />;
+      case 'under review':
+        return <IoNewspaperOutline className="status-icon under-review" />;
       case 'rejected': 
         return <IoCloseCircleOutline className="status-icon rejected" />;
       default: 
@@ -415,19 +419,20 @@ const ArticleDetailsPage = () => {
               <div className="editor-controls">
                 <div className="editor-control-section">
                   <h2>Editor Actions</h2>
-                  
-                  <div className="status-controls">
-                    <div className="status-selection">
-                      <label htmlFor="article-status">Article Status:</label>
-                      <select 
-                        id="article-status" 
-                        value={articleStatus} 
+                    <div className="status-controls">
+                    <div className="status-selection">                      <CustomSelect
+                        label="Article Status:"
+                        name="articleStatus"
+                        value={articleStatus}
                         onChange={(e) => setArticleStatus(e.target.value)}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                      </select>
+                        options={[
+                          { value: 'pending', label: 'Pending' },
+                          { value: 'under review', label: 'Under Review' },
+                          { value: 'approved', label: 'Approved' },
+                          { value: 'rejected', label: 'Rejected' }
+                        ]}
+                        searchable={false}
+                      />
                     </div>
                     
                     <div className="comment-input">
