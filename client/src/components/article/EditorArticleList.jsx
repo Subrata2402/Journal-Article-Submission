@@ -58,9 +58,12 @@ const EditorArticleList = () => {
       setLoading(false);
     }
   };
-
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
   };
 
   const applySearch = () => {
@@ -104,8 +107,7 @@ const EditorArticleList = () => {
     <div className="editor-article-list">
       <div className="list-header">
         <h2>Articles for Review</h2>
-        <div className="search-container">
-          <div className="search-input-wrapper">
+        <div className="search-container">          <div className="search-input-wrapper">
             <IoSearchOutline className="search-icon" />
             <input
               type="text"
@@ -114,6 +116,16 @@ const EditorArticleList = () => {
               onChange={handleSearchChange}
               className="search-input"
             />
+            {searchTerm && (
+              <button 
+                type="button" 
+                className="search-clear-button" 
+                onClick={handleClearSearch} 
+                title="Clear search"
+              >
+                <IoCloseCircleOutline className="clear-icon" />
+              </button>
+            )}
           </div>
         </div>
       </div>

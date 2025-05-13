@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { IoDocumentTextOutline, IoPencilOutline, IoTrashOutline, IoSearchOutline, IoCalendarOutline } from 'react-icons/io5';
+import { IoDocumentTextOutline, IoPencilOutline, IoTrashOutline, IoSearchOutline, IoCalendarOutline, IoCloseCircleOutline } from 'react-icons/io5';
 import Spinner from '../common/Spinner';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { formatDate } from '../../utils/formatters';
@@ -65,9 +65,12 @@ const UserArticleList = () => {
       setLoading(false);
     }
   };
-
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
   };
 
   const applySearch = () => {
@@ -147,8 +150,7 @@ const UserArticleList = () => {
     <div className="user-article-list">
       <div className="list-header">
         <h2>My Submitted Articles</h2>
-        <div className="search-container">
-          <div className="search-input-wrapper">
+        <div className="search-container">          <div className="search-input-wrapper">
             <IoSearchOutline className="search-icon" />
             <input
               type="text"
@@ -157,6 +159,16 @@ const UserArticleList = () => {
               onChange={handleSearchChange}
               className="search-input"
             />
+            {searchTerm && (
+              <button 
+                type="button" 
+                className="search-clear-button" 
+                onClick={handleClearSearch} 
+                title="Clear search"
+              >
+                <IoCloseCircleOutline className="clear-icon" />
+              </button>
+            )}
           </div>
         </div>
       </div>
