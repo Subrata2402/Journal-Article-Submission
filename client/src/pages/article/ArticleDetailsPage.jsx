@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
+import {
   IoCalendarOutline,
-  IoPersonOutline, 
+  IoPersonOutline,
   IoArrowBackOutline,
   IoDocumentTextOutline,
   IoMailOutline,
@@ -18,18 +18,26 @@ import {
   IoTimerOutline,
   IoChevronDownOutline,
   IoChevronUpOutline,
-  IoRefreshOutline
+  IoRefreshOutline,
+  IoSettingsOutline,
+  IoListOutline,
+  IoInformationCircleOutline,
+  IoPeopleOutline,
+  IoFileTrayFullOutline,
+  IoCreateOutline,
+  IoChatboxOutline
 } from 'react-icons/io5';
 import Spinner from '../../components/common/Spinner';
 import { useAuth } from '../../contexts/AuthContext';
 import articleService from '../../services/articleService';
 import { formatDate } from '../../utils/formatters';
 import '../../assets/styles/article/articleDetails.scss';
+import '../../assets/styles/article/articleDetailsUpdate.scss';
 import CustomSelect from '../../components/forms/CustomSelect';
-import { 
-  ARTICLE_COVER_LETTER_PATH, 
-  ARTICLE_MENUSCRIPT_PATH, 
-  ARTICLE_SUPPLEMENTARY_FILE_PATH 
+import {
+  ARTICLE_COVER_LETTER_PATH,
+  ARTICLE_MENUSCRIPT_PATH,
+  ARTICLE_SUPPLEMENTARY_FILE_PATH
 } from '../../config/constants';
 import toastUtil from '../../utils/toastUtil';
 import TextArea from '../../components/forms/TextArea';
@@ -39,7 +47,7 @@ const ArticleDetailsPage = () => {
   const { articleId } = useParams();
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
-  
+
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -58,11 +66,11 @@ const ArticleDetailsPage = () => {
   const [availableReviewers, setAvailableReviewers] = useState([]);
   const [reviewerSearch, setReviewerSearch] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  
+
   // Article status management state
   const [editorComment, setEditorComment] = useState('');
   const [articleStatus, setArticleStatus] = useState('');
-  
+
   // Delete confirmation modal state
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [reviewerToDelete, setReviewerToDelete] = useState(null);
@@ -120,13 +128,13 @@ const ArticleDetailsPage = () => {
       toastUtil.error('Could not load available reviewers');
     }
   };
-  
+
   // Check if the maximum reviewer limit has been reached
   const isReviewerLimitReached = reviewers.length >= 3;
 
   // Status badge color
   const getStatusColor = (status) => {
-    switch(status?.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'approved': return 'success';
       case 'pending': return 'warning';
       case 'under review': return 'info';
@@ -136,16 +144,16 @@ const ArticleDetailsPage = () => {
   };
 
   const getStatusIcon = (status) => {
-    switch(status?.toLowerCase()) {
-      case 'approved': 
+    switch (status?.toLowerCase()) {
+      case 'approved':
         return <IoCheckmarkCircleOutline className="status-icon approved" />;
-      case 'pending': 
+      case 'pending':
         return <IoTimerOutline className="status-icon pending" />;
       case 'under review':
         return <IoNewspaperOutline className="status-icon under-review" />;
-      case 'rejected': 
+      case 'rejected':
         return <IoCloseCircleOutline className="status-icon rejected" />;
-      default: 
+      default:
         return <IoNewspaperOutline className="status-icon" />;
     }
   };
@@ -153,7 +161,7 @@ const ArticleDetailsPage = () => {
   // Handle file download
   const handleFileDownload = (filename, fileType) => {
     if (!filename) return;
-    
+
     // Construct file URL
     let fileUrl;
     if (fileType === 'menuscript') {
@@ -165,7 +173,7 @@ const ArticleDetailsPage = () => {
     } else {
       return;
     }
-    
+
     // Open file in new tab
     window.open(fileUrl, '_blank');
   };
@@ -175,20 +183,20 @@ const ArticleDetailsPage = () => {
   };
 
   const handleEditArticle = () => {
-    navigate(`/articles/${articleId}/edit`, { 
-      state: { referrer: `/articles/${articleId}` } 
+    navigate(`/articles/${articleId}/edit`, {
+      state: { referrer: `/articles/${articleId}` }
     });
   };
 
   // Check if user can edit this article
   const canEditArticle = () => {
     if (!article || !user) return false;
-    
+
     // For editors, they can't edit articles
     if (isEditor) {
       return false;
     }
-    
+
     // For regular users, they can edit their own articles if not approved
     return article.status !== 'approved' && article.userId?._id === user._id;
   };
@@ -205,7 +213,7 @@ const ArticleDetailsPage = () => {
   const handleReviewerChange = (e) => {
     const selectedReviewerId = e.target.value;
     const selectedReviewer = availableReviewers.find(r => r._id === selectedReviewerId);
-    
+
     if (selectedReviewer) {
       setNewReviewer({
         reviewerId: selectedReviewer._id,
@@ -218,7 +226,7 @@ const ArticleDetailsPage = () => {
 
   const addReviewer = async (e) => {
     e.preventDefault();
-    
+
     if (!newReviewer.reviewerId) {
       toastUtil.error('Please select a reviewer');
       return;
@@ -237,14 +245,14 @@ const ArticleDetailsPage = () => {
     }
 
     setSubmitLoading(true);
-    
+
     try {
       // Call the updated API endpoint for adding a reviewer
       const result = await articleService.addReviewer(
-        articleId, 
+        articleId,
         newReviewer.reviewerId
       );
-      
+
       if (result.success) {
         // Create a new reviewer object to add to the UI
         const mockReviewer = {
@@ -260,9 +268,9 @@ const ArticleDetailsPage = () => {
           createdAt: new Date().toISOString(),
           _id: `reviewer-${Date.now()}`
         };
-        
+
         const updatedReviewers = [...reviewers, mockReviewer];
-        
+
         // Update local state
         setReviewers(updatedReviewers);
         setShowReviewerForm(false);
@@ -272,7 +280,7 @@ const ArticleDetailsPage = () => {
           lastName: '',
           email: ''
         });
-        
+
         toastUtil.success('Reviewer added successfully');
       } else {
         toastUtil.error(result.message || 'Failed to add reviewer');
@@ -292,14 +300,14 @@ const ArticleDetailsPage = () => {
 
   const handleDeleteReviewer = async () => {
     if (!reviewerToDelete) return;
-    
+
     try {
       // Call the updated API endpoint for removing a reviewer
       const result = await articleService.removeReviewer(
-        articleId, 
+        articleId,
         reviewerToDelete.reviewerId._id
       );
-      
+
       if (result.success) {
         // Update local state
         const updatedReviewers = reviewers.filter(r => r._id !== reviewerToDelete._id);
@@ -325,14 +333,14 @@ const ArticleDetailsPage = () => {
   // Update article status and comments
   const updateArticleStatus = async () => {
     setSubmitLoading(true);
-    
+
     try {
       // Call the API to update article status and comment
       const result = await articleService.updateArticleStatus(articleId, {
         status: articleStatus,
         comment: editorComment
       });
-      
+
       if (result.success) {
         // Update local state with the new values
         const updatedArticle = {
@@ -340,7 +348,7 @@ const ArticleDetailsPage = () => {
           status: articleStatus,
           comment: editorComment
         };
-        
+
         setArticle(updatedArticle);
         toastUtil.success(result.message || 'Article status updated successfully');
       } else {
@@ -358,15 +366,15 @@ const ArticleDetailsPage = () => {
   if (authLoading) {
     return <Spinner fullPage />;
   }
-
   return (
     <div className="content-container">
       <div className="article-details-page">
+
         <div className="back-button-container">
           <button className="back-button" onClick={goBack}>
             <IoArrowBackOutline /> Back to Articles
           </button>
-          
+
           {canEditArticle() && (
             <button className="edit-button" onClick={handleEditArticle}>
               <IoPencilOutline /> Edit Article
@@ -385,388 +393,415 @@ const ArticleDetailsPage = () => {
               <IoRefreshOutline /> Try Again
             </button>
           </div>
-        ) : article ? (
-          <div className="article-details">
-            {/* Article Header */}
-            <div className="article-header">
-              <div className="article-title-section">
-                <h1>{article.title}</h1>
-                <span className={`status-badge ${getStatusColor(article.status)}`}>
-                  {getStatusIcon(article.status)} {article.status}
-                </span>
-              </div>
-
-              <div className="article-meta">
-                <div className="meta-item">
-                  <IoCalendarOutline className="meta-icon" />
-                  <span>Submitted on {formatDate(article.createdAt)}</span>
-                </div>
-                {article.updatedAt && article.updatedAt !== article.createdAt && (
-                  <div className="meta-item">
-                    <IoTimeOutline className="meta-icon" />
-                    <span>Updated on {formatDate(article.updatedAt)}</span>
-                  </div>
-                )}
-                <div className="meta-item">
-                  <IoNewspaperOutline className="meta-icon" />
-                  <span>Journal: {article.journalId?.title || 'Not specified'}</span>
-                </div>
-              </div>
+        ) : article ? (<div className="article-details">
+          {/* Article Header */}
+          <div className="form-section article-header">
+            <div className="article-title-section">
+              <h1>{article.title}</h1>
+              <span className={`status-badge ${getStatusColor(article.status)}`}>
+                {getStatusIcon(article.status)} {article.status}
+              </span>
             </div>
 
-            {/* Editor Controls - Visible only for editors */}
-            {isEditor && (
-              <div className="editor-controls">
-                <div className="editor-control-section">
-                  <h2>Editor Actions</h2>
-                    <div className="status-controls">
-                    <div className="status-selection">                      <CustomSelect
-                        label="Article Status:"
-                        name="articleStatus"
-                        value={articleStatus}
-                        onChange={(e) => setArticleStatus(e.target.value)}
-                        options={[
-                          { value: 'pending', label: 'Pending' },
-                          { value: 'under review', label: 'Under Review' },
-                          { value: 'approved', label: 'Approved' },
-                          { value: 'rejected', label: 'Rejected' }
-                        ]}
-                        searchable={false}
-                      />
-                    </div>
-                    
-                    <div className="comment-input">
-                      <TextArea 
-                        label="Editor Comment"
-                        name="editorComment"
-                        value={editorComment}
-                        onChange={(e) => setEditorComment(e.target.value)}
-                        placeholder="Add your comments here..."
-                        rows={3}
-                      />
-                    </div>
-                    
-                    <button 
-                      className="update-status-button primary-button"
-                      onClick={updateArticleStatus}
-                      disabled={submitLoading}
-                    >
-                      {submitLoading ? (
-                        <>
-                          <Spinner size="small" /> Updating...
-                        </>
-                      ) : (
-                        <>
-                          <IoSaveOutline /> Update Status & Comment
-                        </>
-                      )}
-                    </button>
-                  </div>
+            <div className="article-meta">
+              <div className="meta-item">
+                <IoCalendarOutline className="meta-icon" />
+                <span>Submitted on {formatDate(article.createdAt)}</span>
+              </div>
+              {article.updatedAt && article.updatedAt !== article.createdAt && (
+                <div className="meta-item">
+                  <IoTimeOutline className="meta-icon" />
+                  <span>Updated on {formatDate(article.updatedAt)}</span>
                 </div>
-                
-                {/* Reviewers Section */}
-                <div className="reviewers-section">
-                  <div className="section-header" onClick={toggleReviewersSection}>
-                    <h2>Reviewers</h2>
-                    <button className="toggle-button">
-                      {reviewersExpanded ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
-                    </button>
+              )}
+              <div className="meta-item">
+                <IoNewspaperOutline className="meta-icon" />
+                <span>Journal: {article.journalId?.title || 'Not specified'}</span>
+              </div>
+            </div>
+          </div>            {/* Editor Controls - Visible only for editors */}
+          {isEditor && (
+            <div className="editor-controls p-0">
+              <div className="form-section editor-control-section">
+                <h2 className="section-title">
+                  <IoSettingsOutline className="section-icon" />
+                  Editor Actions
+                </h2>
+                <div className="status-controls">
+                  <div className="status-selection">
+                    <CustomSelect
+                      label="Article Status:"
+                      name="articleStatus"
+                      value={articleStatus}
+                      onChange={(e) => setArticleStatus(e.target.value)}
+                      options={[
+                        { value: 'pending', label: 'Pending' },
+                        { value: 'under review', label: 'Under Review' },
+                        { value: 'approved', label: 'Approved' },
+                        { value: 'rejected', label: 'Rejected' }
+                      ]}
+                      searchable={false}
+                      icon={<IoCheckmarkCircleOutline />}
+                    />
                   </div>
-                  
-                  {reviewersExpanded && (
-                    <div className="reviewers-content">
-                      {/* Add Reviewer Button */}
-                      <button 
-                        className="add-reviewer-button secondary-button"
-                        onClick={toggleReviewerForm}
-                        disabled={isReviewerLimitReached}
-                      >
-                        <IoAddCircleOutline /> {showReviewerForm ? 'Cancel' : 'Add Reviewer'}
-                      </button>
-                      
-                      {/* Add Reviewer Form */}
-                      {showReviewerForm && (
-                        <div className="add-reviewer-form">
-                          <h3>Add New Reviewer</h3>
-                          <form onSubmit={addReviewer}>
-                            <div className="form-group">
-                              <label htmlFor="reviewer-search">Search and Select Reviewer:</label>
-                              <div className="searchable-dropdown">
-                                <div className="search-input-container">
-                                  <input
-                                    type="text"
-                                    id="reviewer-search"
-                                    placeholder="Search reviewers..."
-                                    value={reviewerSearch}
-                                    onChange={(e) => setReviewerSearch(e.target.value)}
-                                    onFocus={() => setDropdownOpen(true)}
-                                  />
-                                </div>
-                                
-                                {dropdownOpen && (
-                                  <div className="dropdown-options">
-                                    {availableReviewers
-                                      .filter(reviewer => {
-                                        const fullName = `${reviewer.firstName} ${reviewer.lastName}`.toLowerCase();
-                                        const email = reviewer.email?.toLowerCase() || '';
-                                        const searchTerm = reviewerSearch.toLowerCase();
-                                        
-                                        return fullName.includes(searchTerm) || email.includes(searchTerm);
-                                      })
-                                      .map(reviewer => (
-                                        <div 
-                                          key={reviewer._id} 
-                                          className={`dropdown-option ${newReviewer.reviewerId === reviewer._id ? 'selected' : ''}`}
-                                          onClick={() => {
-                                            setNewReviewer({
-                                              reviewerId: reviewer._id,
-                                              firstName: reviewer.firstName,
-                                              lastName: reviewer.lastName,
-                                              email: reviewer.email || ''
-                                            });
-                                            setReviewerSearch(`${reviewer.firstName} ${reviewer.lastName}`);
-                                            setDropdownOpen(false);
-                                          }}
-                                        >
-                                          <div className="reviewer-name">{reviewer.firstName} {reviewer.lastName}</div>
-                                          {reviewer.email && (
-                                            <div className="reviewer-email">{reviewer.email}</div>
-                                          )}
-                                        </div>
-                                      ))}
-                                    
-                                    {availableReviewers.filter(reviewer => {
+
+                  <div className="comment-input">
+                    <TextArea
+                      label="Editor Comment"
+                      name="editorComment"
+                      value={editorComment}
+                      onChange={(e) => setEditorComment(e.target.value)}
+                      placeholder="Add your comments here..."
+                      rows={3}
+                      icon={<IoChatboxOutline />}
+                    />
+                  </div>
+
+                  <button
+                    className="update-status-button primary-button"
+                    onClick={updateArticleStatus}
+                    disabled={submitLoading}
+                  >
+                    {submitLoading ? (
+                      <>
+                        <Spinner size="small" /> Updating...
+                      </>
+                    ) : (
+                      <>
+                        <IoSaveOutline /> Update Status & Comment
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+              {/* Reviewers Section */}
+              <div className="form-section reviewers-section">
+                <h2 className="section-title" onClick={toggleReviewersSection}>
+                  <IoPeopleOutline className="section-icon" />
+                  Reviewers
+                  <button className="toggle-button">
+                    {reviewersExpanded ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+                  </button>
+                </h2>
+                {reviewersExpanded && (
+                  <div className="reviewers-content">
+                    {/* Add Reviewer Button */}
+                    <button
+                      className="add-reviewer-button secondary-button"
+                      onClick={toggleReviewerForm}
+                      disabled={isReviewerLimitReached}
+                    >
+                      <IoAddCircleOutline /> {showReviewerForm ? 'Cancel' : 'Add Reviewer'}
+                    </button>
+
+                    {/* Add Reviewer Form */}
+                    {showReviewerForm && (
+                      <div className="form-section add-reviewer-form">
+                        <h3 className="subsection-title">
+                          <IoPersonOutline className="subsection-icon" />
+                          Add New Reviewer
+                        </h3>
+                        <form onSubmit={addReviewer}>
+                          <div className="form-group">
+                            <label htmlFor="reviewer-search">Search and Select Reviewer:</label>
+                            <div className="searchable-dropdown">
+                              <div className="search-input-container">
+                                <input
+                                  type="text"
+                                  id="reviewer-search"
+                                  placeholder="Search reviewers..."
+                                  value={reviewerSearch}
+                                  onChange={(e) => setReviewerSearch(e.target.value)}
+                                  onFocus={() => setDropdownOpen(true)}
+                                />
+                              </div>
+
+                              {dropdownOpen && (
+                                <div className="dropdown-options">
+                                  {availableReviewers
+                                    .filter(reviewer => {
                                       const fullName = `${reviewer.firstName} ${reviewer.lastName}`.toLowerCase();
                                       const email = reviewer.email?.toLowerCase() || '';
                                       const searchTerm = reviewerSearch.toLowerCase();
-                                      
+
                                       return fullName.includes(searchTerm) || email.includes(searchTerm);
-                                    }).length === 0 && (
+                                    })
+                                    .map(reviewer => (
+                                      <div
+                                        key={reviewer._id}
+                                        className={`dropdown-option ${newReviewer.reviewerId === reviewer._id ? 'selected' : ''}`}
+                                        onClick={() => {
+                                          setNewReviewer({
+                                            reviewerId: reviewer._id,
+                                            firstName: reviewer.firstName,
+                                            lastName: reviewer.lastName,
+                                            email: reviewer.email || ''
+                                          });
+                                          setReviewerSearch(`${reviewer.firstName} ${reviewer.lastName}`);
+                                          setDropdownOpen(false);
+                                        }}
+                                      >
+                                        <div className="reviewer-name">{reviewer.firstName} {reviewer.lastName}</div>
+                                        {reviewer.email && (
+                                          <div className="reviewer-email">{reviewer.email}</div>
+                                        )}
+                                      </div>
+                                    ))}
+
+                                  {availableReviewers.filter(reviewer => {
+                                    const fullName = `${reviewer.firstName} ${reviewer.lastName}`.toLowerCase();
+                                    const email = reviewer.email?.toLowerCase() || '';
+                                    const searchTerm = reviewerSearch.toLowerCase();
+
+                                    return fullName.includes(searchTerm) || email.includes(searchTerm);
+                                  }).length === 0 && (
                                       <div className="no-results">No reviewers found</div>
                                     )}
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {newReviewer.reviewerId && (
-                                <div className="selected-reviewer">
-                                  Selected: <strong>{newReviewer.firstName} {newReviewer.lastName}</strong>
                                 </div>
                               )}
                             </div>
-                            
-                            <div className="form-actions">
-                              <button 
-                                type="submit" 
-                                className="primary-button"
-                                disabled={submitLoading || !newReviewer.reviewerId}
-                              >
-                                {submitLoading ? (
-                                  <>
-                                    <Spinner size="small" /> Adding...
-                                  </>
-                                ) : (
-                                  <>
-                                    <IoAddCircleOutline /> Add Reviewer
-                                  </>
-                                )}
-                              </button>
-                              <button 
-                                type="button" 
-                                className="secondary-button"
-                                onClick={() => setShowReviewerForm(false)}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </form>
-                        </div>
-                      )}
-                      
-                      {/* Reviewers List */}
-                      {reviewers && reviewers.length > 0 ? (
-                        <div className="reviewers-list">
-                          <table className="reviewers-table">
-                            <thead>
-                              <tr>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Review Date</th>
-                                <th>Comment</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {reviewers.map((reviewer) => (
-                                <tr key={reviewer._id}>
-                                  <td>
+
+                            {newReviewer.reviewerId && (
+                              <div className="selected-reviewer">
+                                Selected: <strong>{newReviewer.firstName} {newReviewer.lastName}</strong>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="form-actions">
+                            <button
+                              type="submit"
+                              className="primary-button"
+                              disabled={submitLoading || !newReviewer.reviewerId}
+                            >
+                              {submitLoading ? (
+                                <>
+                                  <Spinner size="small" /> Adding...
+                                </>
+                              ) : (
+                                <>
+                                  <IoAddCircleOutline /> Add Reviewer
+                                </>
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              className="secondary-button"
+                              onClick={() => setShowReviewerForm(false)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+
+                    {/* Reviewers List */}
+                    {reviewers && reviewers.length > 0 ? (
+                      <div className="form-section reviewers-list">
+                        <h3 className="subsection-title">
+                          <IoListOutline className="subsection-icon" />
+                          Assigned Reviewers
+                        </h3>
+                        <table className="reviewers-table">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Status</th>
+                              <th>Review Date</th>
+                              <th>Comment</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {reviewers.map((reviewer) => (
+                              <tr key={reviewer._id}>
+                                <td>
+                                  <div className="reviewer-name-cell">
+                                    <IoPersonOutline className="reviewer-icon" />
                                     {reviewer.reviewerId?.firstName} {reviewer.reviewerId?.lastName}
-                                  </td>
-                                  <td>
-                                    <span className={`status-badge ${getStatusColor(reviewer.status)}`}>
-                                      {reviewer.status}
-                                    </span>
-                                  </td>
-                                  <td>
-                                    {reviewer.reviewDate ? formatDate(reviewer.reviewDate) : 'Not reviewed yet'}
-                                  </td>
-                                  <td className="reviewer-comment">
-                                    {reviewer.comment || 'No comment provided'}
-                                  </td>
-                                  <td>
-                                    <button 
-                                      className="remove-reviewer-button"
-                                      onClick={() => confirmDeleteReviewer(reviewer)}
-                                      title="Remove reviewer"
-                                    >
-                                      <IoTrashOutline />
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <div className="no-reviewers-message">
-                          <p>No reviewers assigned to this article yet.</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                                  </div>
+                                </td>
+                                <td>
+                                  <span className={`status-badge ${getStatusColor(reviewer.status)}`}>
+                                    {reviewer.status}
+                                  </span>
+                                </td>
+                                <td>
+                                  {reviewer.reviewDate ? formatDate(reviewer.reviewDate) : 'Not reviewed yet'}
+                                </td>
+                                <td className="reviewer-comment">
+                                  {reviewer.comment || 'No comment provided'}
+                                </td>
+                                <td>
+                                  <button
+                                    className="remove-reviewer-button"
+                                    onClick={() => confirmDeleteReviewer(reviewer)}
+                                    title="Remove reviewer"
+                                  >
+                                    <IoTrashOutline />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="form-section no-reviewers-message">
+                        <p>No reviewers assigned to this article yet.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Article Content - Standard content for all users */}            <div className="article-content">
+            {/* Article sections with updated styles */}
+            <div className="form-section article-section">
+              <h2 className="section-title">
+                <IoInformationCircleOutline className="section-icon" />
+                Abstract
+              </h2>
+              <p className="article-abstract">{article.abstract}</p>
+            </div>
+
+            {article.keywords && article.keywords.length > 0 && (
+              <div className="form-section article-section">
+                <h2 className="section-title">
+                  <IoListOutline className="section-icon" />
+                  Keywords
+                </h2>
+                <div className="article-keywords">
+                  {article.keywords.map((keyword, index) => (
+                    <span key={index} className="keyword-tag">{keyword}</span>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Article Content - Standard content for all users */}
-            <div className="article-content">
-              {/* Article sections remain unchanged */}
-              <div className="article-section">
-                <h2>Abstract</h2>
-                <p className="article-abstract">{article.abstract}</p>
-              </div>
-
-              {article.keywords && article.keywords.length > 0 && (
-                <div className="article-section">
-                  <h2>Keywords</h2>
-                  <div className="article-keywords">
-                    {article.keywords.map((keyword, index) => (
-                      <span key={index} className="keyword-tag">{keyword}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {article.authors && article.authors.length > 0 && (
-                <div className="article-section">
-                  <h2>Authors</h2>
-                  <div className="authors-list">
-                    {article.authors.map((author, index) => (
-                      <div key={index} className="author-card">
-                        <div className="author-name">
-                          <IoPersonOutline className="author-icon" />
-                          <strong>{author.firstName} {author.lastName}</strong>
-                          {author.firstAuthor && <span className="author-badge primary">First Author</span>}
-                          {author.correspondingAuthor && <span className="author-badge secondary">Corresponding Author</span>}
-                          {author.otherAuthor && <span className="author-badge tertiary">Other Author</span>}
+            {article.authors && article.authors.length > 0 && (
+              <div className="form-section article-section">
+                <h2 className="section-title">
+                  <IoPeopleOutline className="section-icon" />
+                  Authors
+                </h2>
+                <div className="authors-list">
+                  {article.authors.map((author, index) => (
+                    <div key={index} className="author-card">
+                      <div className="author-name">
+                        <IoPersonOutline className="author-icon" />
+                        <strong>{author.firstName} {author.lastName}</strong>
+                        {author.firstAuthor && <span className="author-badge primary">First Author</span>}
+                        {author.correspondingAuthor && <span className="author-badge secondary">Corresponding Author</span>}
+                        {author.otherAuthor && <span className="author-badge tertiary">Other Author</span>}
+                      </div>
+                      <div className="author-details">
+                        <div className="author-detail">
+                          <IoMailOutline className="detail-icon" />
+                          <span>{author.email}</span>
                         </div>
-                        <div className="author-details">
+                        {author.affiliation && (
                           <div className="author-detail">
-                            <IoMailOutline className="detail-icon" />
-                            <span>{author.email}</span>
+                            <IoSchoolOutline className="detail-icon" />
+                            <span>{author.affiliation}</span>
                           </div>
-                          {author.affiliation && (
-                            <div className="author-detail">
-                              <IoSchoolOutline className="detail-icon" />
-                              <span>{author.affiliation}</span>
-                            </div>
-                          )}
-                        </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="article-section">
-                <h2>Submitter Information</h2>
-                <div className="submitter-info">
-                  <div className="submitter-detail">
-                    <IoPersonOutline className="detail-icon" />
-                    <span>
-                      <strong>Name:</strong> {article.userId?.firstName} {article.userId?.middleName} {article.userId?.lastName}
-                    </span>
-                  </div>
-                  <div className="submitter-detail">
-                    <IoMailOutline className="detail-icon" />
-                    <span>
-                      <strong>Email:</strong> {article.userId?.email?.id}
-                    </span>
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              <div className="article-section files-section">
-                <h2>Article Files</h2>
-                <div className="article-files">
-                  {article.menuScript && (
-                    <div className="file-item">
-                      <IoDocumentTextOutline className="file-icon" />
-                      <div className="file-details">
-                        <span className="file-name">Manuscript</span>
-                        <button 
-                          className="download-button"
-                          onClick={() => handleFileDownload(article.menuScript, 'menuscript')}
-                        >
-                          Download
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {article.coverLetter && (
-                    <div className="file-item">
-                      <IoDocumentTextOutline className="file-icon" />
-                      <div className="file-details">
-                        <span className="file-name">Cover Letter</span>
-                        <button 
-                          className="download-button"
-                          onClick={() => handleFileDownload(article.coverLetter, 'coverLetter')}
-                        >
-                          Download
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {article.supplementaryFile && (
-                    <div className="file-item">
-                      <IoDocumentTextOutline className="file-icon" />
-                      <div className="file-details">
-                        <span className="file-name">Supplementary Material</span>
-                        <button 
-                          className="download-button"
-                          onClick={() => handleFileDownload(article.supplementaryFile, 'supplementary')}
-                        >
-                          Download
-                        </button>
-                      </div>
-                    </div>
-                  )}
+            )}              <div className="form-section article-section">
+              <h2 className="section-title">
+                <IoPersonOutline className="section-icon" />
+                Submitter Information
+              </h2>
+              <div className="submitter-info">
+                <div className="submitter-detail">
+                  <IoPersonOutline className="detail-icon" />
+                  <span>
+                    <strong>Name:</strong> {article.userId?.firstName} {article.userId?.middleName} {article.userId?.lastName}
+                  </span>
+                </div>
+                <div className="submitter-detail">
+                  <IoMailOutline className="detail-icon" />
+                  <span>
+                    <strong>Email:</strong> {article.userId?.email?.id}
+                  </span>
                 </div>
               </div>
-
-              {/* Show editor comment for both user and editor */}
-              {article.comment && (
-                <div className="article-section">
-                  <h2>Editor's Comment</h2>
-                  <div className="editor-comment">
-                    <p>{article.comment}</p>
-                  </div>
-                </div>
-              )}
             </div>
+
+            <div className="form-section article-section files-section">
+              <h2 className="section-title">
+                <IoFileTrayFullOutline className="section-icon" />
+                Article Files
+              </h2>
+              <div className="article-files">
+                {article.menuScript && (
+                  <div className="file-item">
+                    <IoDocumentTextOutline className="file-icon" />
+                    <div className="file-details">
+                      <span className="file-name">Manuscript</span>
+                      <button
+                        className="download-button"
+                        onClick={() => handleFileDownload(article.menuScript, 'menuscript')}
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {article.coverLetter && (
+                  <div className="file-item">
+                    <IoDocumentTextOutline className="file-icon" />
+                    <div className="file-details">
+                      <span className="file-name">Cover Letter</span>
+                      <button
+                        className="download-button"
+                        onClick={() => handleFileDownload(article.coverLetter, 'coverLetter')}
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {article.supplementaryFile && (
+                  <div className="file-item">
+                    <IoDocumentTextOutline className="file-icon" />
+                    <div className="file-details">
+                      <span className="file-name">Supplementary Material</span>
+                      <button
+                        className="download-button"
+                        onClick={() => handleFileDownload(article.supplementaryFile, 'supplementary')}
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Show editor comment for both user and editor */}
+            {article.comment && (
+              <div className="form-section article-section">
+                <h2 className="section-title">
+                  <IoChatboxOutline className="section-icon" />
+                  Editor's Comment
+                </h2>
+                <div className="editor-comment">
+                  <p>{article.comment}</p>
+                </div>
+              </div>
+            )}
           </div>
+        </div>
         ) : (
           <div className="not-found">
             <h2>Article Not Found</h2>
@@ -777,7 +812,7 @@ const ArticleDetailsPage = () => {
           </div>
         )}
       </div>
-      
+
       {/* Confirmation modal for removing reviewers */}
       <ConfirmationModal
         isOpen={deleteModalVisible}

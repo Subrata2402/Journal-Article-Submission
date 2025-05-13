@@ -146,6 +146,10 @@ page-header {
   margin: 0 auto;
 }
 
+.p-0 {
+  padding: 0 !important;
+}
+
 @media screen {
   @media (max-width: 768px) {
     main {

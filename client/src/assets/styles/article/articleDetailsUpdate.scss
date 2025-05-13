@@ -1,0 +1,170 @@
+/* Journal-style form sections */
+.form-section:not(.reviewers-list) {
+  background-color: var(--background-primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  // margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.25rem;
+    color: var(--heading-text);
+    position: relative;
+    
+    .section-icon {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+    }
+    
+    .toggle-button {
+      position: absolute;
+      right: 0;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+}
+
+/* Update section styles in article content */
+.article-content {
+  .article-section.form-section {
+    background-color: var(--background-primary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    h2.section-title {
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      color: var(--heading-text);
+      
+      &:after {
+        content: none;
+      }
+      
+      .section-icon {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+      }
+    }
+  }
+}
+
+/* Reviewers section header styling */
+.reviewers-section {
+  .section-header {
+    cursor: pointer;
+    h2.section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0;
+      width: 100%;
+    }
+  }
+}
+
+/* Reviewer section titles */
+.subsection-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--heading-text);
+  
+  .subsection-icon {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+  }
+}
+
+/* Reviewer table styles */
+.reviewers-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  
+  th {
+    background-color: var(--background-tertiary);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color-light);
+    color: var(--text-secondary);
+    
+    .reviewer-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-primary);
+      font-weight: 500;
+      
+      .reviewer-icon {
+        color: var(--primary-color);
+        font-size: 1.1rem;
+      }
+    }
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .reviewer-comment {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+}
