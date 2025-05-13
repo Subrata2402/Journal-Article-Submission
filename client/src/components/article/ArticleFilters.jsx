@@ -223,9 +223,9 @@ const ArticleFilters = ({
         </div>
 
         {/* Close button (mobile only) */}
-        <button className="close-filters-button" onClick={toggleFilters} aria-label="Close filters">
+        {/* <button className="close-filters-button" onClick={toggleFilters} aria-label="Close filters">
           <IoChevronBack />
-        </button>
+        </button> */}
       </div>
 
       {/* Overlay for mobile sidebar */}
