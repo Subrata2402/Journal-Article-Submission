@@ -24,6 +24,14 @@ class HttpService {
         return Promise.reject(error);
       }
     );
+    
+    // Response interceptor to handle errors consistently
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
   }
 
   // Set auth token for API requests

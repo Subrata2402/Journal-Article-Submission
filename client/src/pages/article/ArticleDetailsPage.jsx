@@ -117,6 +117,7 @@ const ArticleDetailsPage = () => {
 
   const fetchArticleDetails = async (id) => {
     setLoading(true);
+    setError(null);
     try {
       const result = await articleService.getArticleById(id);
       if (result.success) {

@@ -54,6 +54,7 @@ const UserArticleList = () => {
 
   const fetchUserArticles = async (page = 1, limit = 10) => {
     setLoading(true);
+    setError(null); // Clear error state when starting a new fetch
     try {
       const result = await articleService.getUserArticles(page, limit);
       if (result.success) {

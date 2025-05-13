@@ -26,6 +26,7 @@ const ProfilePage = () => {
   const fetchProfileDetails = async () => {
     try {
       setLoading(true);
+      setError(null); // Clear previous error state
       const response = await httpService.get(API_ENDPOINTS.AUTH.PROFILE_DETAILS);
 
       if (response.data.success) {

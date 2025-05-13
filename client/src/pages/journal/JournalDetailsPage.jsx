@@ -49,6 +49,7 @@ const JournalDetailsPage = () => {
 
   const fetchJournalDetails = async (id) => {
     setLoading(true);
+    setError(null); // Clear previous error state
     try {
       const result = await journalService.getJournalById(id);
       if (result.success) {

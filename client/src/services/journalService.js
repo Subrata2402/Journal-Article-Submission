@@ -12,7 +12,12 @@ const getJournalList = async (page = 1, limit = 10) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching journals:', error);
-    throw error;
+    // Throw a standardized error that includes the original error message
+    throw {
+      message: error.response?.data?.message || 'Failed to fetch journals',
+      status: error.response?.status || 500,
+      originalError: error
+    };
   }
 };
 

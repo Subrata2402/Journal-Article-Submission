@@ -45,9 +45,9 @@ const HomePage = () => {
       applyFiltersAndSearch();
     }
   }, [journals, searchTerm, activeFilters, showPinnedOnly, pinnedJournalIds]);
-
   const fetchJournals = async (page = 1, limit = 10) => {
     setLoading(true);
+    setError(null); // Clear error state when starting a new fetch
     try {
       const result = await journalService.getJournalList(page, limit);
       if (result.success) {
@@ -204,8 +204,7 @@ const HomePage = () => {
           onTogglePinnedFilter={togglePinnedFilter}
         />
       </div>
-      
-      <JournalList 
+        <JournalList 
         journals={filteredJournals}
         loading={loading}
         error={error}
@@ -215,6 +214,7 @@ const HomePage = () => {
         handlePageChange={handlePageChange}
         onPinStatusChange={handlePinStatusChange}
         showPinnedOnly={showPinnedOnly}
+        key={`journal-list-${Date.now()}`} // Add key to force re-render when needed
       />
     </>
   );
