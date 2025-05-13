@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   IoCalendarOutline,
@@ -22,10 +22,10 @@ import {
   IoSettingsOutline,
   IoListOutline,
   IoInformationCircleOutline,
-  IoPeopleOutline,
-  IoFileTrayFullOutline,
+  IoPeopleOutline,  IoFileTrayFullOutline,
   IoCreateOutline,
-  IoChatboxOutline
+  IoChatboxOutline,
+  IoCloseOutline
 } from 'react-icons/io5';
 import Spinner from '../../components/common/Spinner';
 import { useAuth } from '../../contexts/AuthContext';
@@ -66,6 +66,9 @@ const ArticleDetailsPage = () => {
   const [availableReviewers, setAvailableReviewers] = useState([]);
   const [reviewerSearch, setReviewerSearch] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  // Ref for detecting clicks outside of dropdown
+  const dropdownRef = useRef(null);
 
   // Article status management state
   const [editorComment, setEditorComment] = useState('');
@@ -86,6 +89,20 @@ const ArticleDetailsPage = () => {
       }
     }
   }, [articleId, isEditor]);
+
+  // Handle outside clicks for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownRef]);
 
   // Set initial values when article data is loaded
   useEffect(() => {
@@ -329,6 +346,19 @@ const ArticleDetailsPage = () => {
     setDeleteModalVisible(false);
     setReviewerToDelete(null);
   };
+    // Clear the reviewer search input and also clear selected reviewer
+  const clearReviewerSearch = () => {
+    setReviewerSearch('');
+    // Also clear the selected reviewer when clearing search
+    setNewReviewer({
+      reviewerId: '',
+      firstName: '',
+      lastName: '',
+      email: ''
+    });
+    // Focus back on the search input after clearing
+    document.getElementById('reviewer-search')?.focus();
+  };
 
   // Update article status and comments
   const updateArticleStatus = async () => {
@@ -447,7 +477,7 @@ const ArticleDetailsPage = () => {
 
                   <div className="comment-input">
                     <TextArea
-                      label="Editor Comment"
+                      label="Editor Comment:"
                       name="editorComment"
                       value={editorComment}
                       onChange={(e) => setEditorComment(e.target.value)}
@@ -503,8 +533,7 @@ const ArticleDetailsPage = () => {
                         </h3>
                         <form onSubmit={addReviewer}>
                           <div className="form-group">
-                            <label htmlFor="reviewer-search">Search and Select Reviewer:</label>
-                            <div className="searchable-dropdown">
+                            <label htmlFor="reviewer-search">Search and Select Reviewer:</label>                            <div className="searchable-dropdown" ref={dropdownRef}>
                               <div className="search-input-container">
                                 <input
                                   type="text"
@@ -514,6 +543,16 @@ const ArticleDetailsPage = () => {
                                   onChange={(e) => setReviewerSearch(e.target.value)}
                                   onFocus={() => setDropdownOpen(true)}
                                 />
+                                {reviewerSearch && (
+                                  <button
+                                    type="button"
+                                    className="clear-search-button"
+                                    onClick={clearReviewerSearch}
+                                    title="Clear search"
+                                  >
+                                    <IoCloseOutline />
+                                  </button>
+                                )}
                               </div>
 
                               {dropdownOpen && (

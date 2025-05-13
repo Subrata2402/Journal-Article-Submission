@@ -1,4 +1,3 @@
-import React from 'react';
 import '../../assets/styles/common/forms.scss';
 
 const TextArea = ({
@@ -14,6 +13,7 @@ const TextArea = ({
   rows = 4,
   maxLength,
   autoResize = false,
+  icon,
   ...props
 }) => {
   const fieldClasses = [
@@ -44,6 +44,7 @@ const TextArea = ({
     <div className={fieldClasses}>
       {label && (
         <label htmlFor={id} className="form-field__label">
+          {icon && <span className="form-field__icon">{icon}</span>}
           {label}
           {required && <span className="form-field__required">*</span>}
         </label>
