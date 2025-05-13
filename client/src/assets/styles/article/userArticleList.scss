@@ -4,7 +4,6 @@
   background-color: var(--background-secondary);
   border-radius: 8px;
   margin-bottom: 2rem;
-
   .list-header {
     display: flex;
     justify-content: space-between;
@@ -18,60 +17,29 @@
       margin: 0;
       font-size: 1.5rem;
       font-weight: 600;
-    }
+    }    // Search has been moved to ArticleFilters component
 
-    .search-container {
-      max-width: 300px;
-      width: 100%;
+    .search-clear-button {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
 
-      .search-input-wrapper {
-        position: relative;
+      &:hover {
+        color: var(--danger-color);
+      }
 
-        .search-icon {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--text-muted);
-        }        .search-input {
-          width: 100%;
-          padding: 0.6rem 1rem 0.6rem 2.2rem;
-          border-radius: 20px;
-          border: 1px solid var(--border-color);
-          background-color: var(--background-primary);
-          color: var(--text-primary);
-          font-size: 0.9rem;
-
-          &:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
-          }
-        }
-
-        .search-clear-button {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0;
-          color: var(--text-muted);
-          transition: color 0.2s ease;
-
-          &:hover {
-            color: var(--danger-color);
-          }
-
-          .clear-icon {
-            font-size: 1.2rem;
-          }
-        }
+      .clear-icon {
+        font-size: 1.2rem;
       }
     }
   }
@@ -196,11 +164,14 @@
       &.danger {
         background-color: rgba(245, 101, 101, 0.15);
         color: #e53e3e;
-      }
-
-      &.info {
+      }      &.info {
         background-color: rgba(90, 103, 216, 0.15);
         color: #4c51bf;
+      }
+
+      &.secondary {
+        background-color: rgba(160, 174, 192, 0.15);
+        color: #718096;
       }
     }
 
@@ -401,7 +372,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-
+    
     .status-icon {
       font-size: 1.2rem;
 
@@ -411,6 +382,12 @@
 
       &.pending {
         color: var(--warning-color);
+      }      &.info {
+        color: var(--primary-color);
+      }
+      
+      &.secondary {
+        color: #718096;
       }
 
       &.rejected {

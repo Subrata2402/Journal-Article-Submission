@@ -445,7 +445,7 @@
     margin-bottom: 0.5rem;
 
     label {
-      display: flex;
+      display: flex !important;
       font-weight: 500;
       color: var(--text-primary);
     }

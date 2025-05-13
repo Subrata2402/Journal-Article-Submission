@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { IoDocumentTextOutline, IoPencilOutline, IoTrashOutline, IoSearchOutline, IoCalendarOutline, IoCloseCircleOutline } from 'react-icons/io5';
+import { IoDocumentTextOutline, IoPencilOutline, IoTrashOutline, IoCalendarOutline } from 'react-icons/io5';
 import Spinner from '../common/Spinner';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { formatDate } from '../../utils/formatters';
 import articleService from '../../services/articleService';
 import toastUtil from '../../utils/toastUtil';
+import ArticleFilters from './ArticleFilters';
 
 const UserArticleList = () => {
   const navigate = useNavigate();
@@ -13,6 +14,10 @@ const UserArticleList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    status: '',
+    dateRange: { from: '', to: '' }
+  });
   const [filteredArticles, setFilteredArticles] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -25,13 +30,13 @@ const UserArticleList = () => {
     articleId: null,
     articleTitle: ''
   });
-  const [deleteLoading, setDeleteLoading] = useState(false);
-
-  // Status badge colors
+  const [deleteLoading, setDeleteLoading] = useState(false);  // Status badge colors
   const getStatusColor = (status) => {
     switch(status.toLowerCase()) {
       case 'approved': return 'success';
       case 'pending': return 'warning';
+      case 'under review': return 'info';
+      case 'submitted': return 'secondary';
       case 'rejected': return 'danger';
       default: return 'info';
     }
@@ -43,9 +48,9 @@ const UserArticleList = () => {
 
   useEffect(() => {
     if (articles.length > 0) {
-      applySearch();
+      applyFiltersAndSearch();
     }
-  }, [searchTerm, articles]);
+  }, [searchTerm, filters, articles]);
 
   const fetchUserArticles = async (page = 1, limit = 10) => {
     setLoading(true);
@@ -65,27 +70,62 @@ const UserArticleList = () => {
       setLoading(false);
     }
   };
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
   };
 
-  const handleClearSearch = () => {
-    setSearchTerm('');
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
   };
 
-  const applySearch = () => {
-    if (!searchTerm.trim()) {
-      setFilteredArticles(articles);
-      return;
+  const applyFiltersAndSearch = () => {
+    let results = [...articles];
+    
+    // Apply search
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
+      results = results.filter(article => 
+        article.title?.toLowerCase().includes(term) || 
+        article.abstract?.toLowerCase().includes(term)
+      );
     }
     
-    const term = searchTerm.toLowerCase().trim();
-    const filtered = articles.filter(article => 
-      article.title?.toLowerCase().includes(term) || 
-      article.abstract?.toLowerCase().includes(term)
-    );
+    // Apply status filter
+    if (filters.status) {
+      results = results.filter(article => article.status.toLowerCase() === filters.status.toLowerCase());
+    }
     
-    setFilteredArticles(filtered);
+    // Apply date range filters
+    if (filters.dateRange.from || filters.dateRange.to) {
+      results = results.filter(article => {
+        const createdDate = new Date(article.createdAt);
+        
+        if (filters.dateRange.from && filters.dateRange.to) {
+          const fromDate = new Date(filters.dateRange.from);
+          const toDate = new Date(filters.dateRange.to);
+          // Make toDate inclusive of the whole day
+          toDate.setHours(23, 59, 59, 999);
+          return createdDate >= fromDate && createdDate <= toDate;
+        }
+        
+        if (filters.dateRange.from) {
+          const fromDate = new Date(filters.dateRange.from);
+          return createdDate >= fromDate;
+        }
+        
+        if (filters.dateRange.to) {
+          const toDate = new Date(filters.dateRange.to);
+          // Make toDate inclusive of the whole day
+          toDate.setHours(23, 59, 59, 999);
+          return createdDate <= toDate;
+        }
+        
+        return true;
+      });
+    }
+    
+    setFilteredArticles(results);
   };
 
   const handlePageChange = (newPage) => {
@@ -150,27 +190,10 @@ const UserArticleList = () => {
     <div className="user-article-list">
       <div className="list-header">
         <h2>My Submitted Articles</h2>
-        <div className="search-container">          <div className="search-input-wrapper">
-            <IoSearchOutline className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="search-input"
-            />
-            {searchTerm && (
-              <button 
-                type="button" 
-                className="search-clear-button" 
-                onClick={handleClearSearch} 
-                title="Clear search"
-              >
-                <IoCloseCircleOutline className="clear-icon" />
-              </button>
-            )}
-          </div>
-        </div>
+        <ArticleFilters
+          onSearchChange={handleSearchChange}
+          onFilterChange={handleFilterChange}
+        />
       </div>
 
       {loading ? (
@@ -191,7 +214,7 @@ const UserArticleList = () => {
           </div>
           <h3>No Articles Found</h3>
           <p>
-            {searchTerm.trim() 
+            {searchTerm.trim() || filters.status || filters.dateRange.from || filters.dateRange.to
               ? "No articles match your search criteria."
               : "You haven't submitted any articles yet."}
           </p>

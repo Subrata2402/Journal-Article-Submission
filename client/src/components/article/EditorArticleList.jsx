@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IoDocumentTextOutline, IoSearchOutline, IoCalendarOutline, IoCheckmarkCircleOutline, IoCloseCircleOutline, IoTimerOutline, IoNewspaperOutline, IoChatbubbleOutline } from 'react-icons/io5';
+import { IoDocumentTextOutline, IoCalendarOutline, IoCheckmarkCircleOutline, IoCloseCircleOutline, IoTimerOutline, IoChatbubbleOutline } from 'react-icons/io5';
 import Spinner from '../common/Spinner';
 import { formatDate } from '../../utils/formatters';
 import articleService from '../../services/articleService';
 import toastUtil from '../../utils/toastUtil';
+import ArticleFilters from './ArticleFilters';
 
 const EditorArticleList = () => {
   const navigate = useNavigate();
@@ -12,19 +13,23 @@ const EditorArticleList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    status: '',
+    dateRange: { from: '', to: '' }
+  });
   const [filteredArticles, setFilteredArticles] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
     total: 0,
     totalPages: 0
-  });
-
-  // Status badge colors
+  });  // Status badge colors
   const getStatusColor = (status) => {
     switch(status?.toLowerCase()) {
       case 'approved': return 'success';
       case 'pending': return 'warning';
+      case 'under review': return 'info';
+      case 'submitted': return 'secondary';
       case 'rejected': return 'danger';
       default: return 'info';
     }
@@ -36,9 +41,9 @@ const EditorArticleList = () => {
 
   useEffect(() => {
     if (articles.length > 0) {
-      applySearch();
+      applyFiltersAndSearch();
     }
-  }, [searchTerm, articles]);
+  }, [searchTerm, filters, articles]);
 
   const fetchEditorArticles = async (page = 1, limit = 10) => {
     setLoading(true);
@@ -58,27 +63,62 @@ const EditorArticleList = () => {
       setLoading(false);
     }
   };
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
   };
 
-  const handleClearSearch = () => {
-    setSearchTerm('');
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
   };
 
-  const applySearch = () => {
-    if (!searchTerm.trim()) {
-      setFilteredArticles(articles);
-      return;
+  const applyFiltersAndSearch = () => {
+    let results = [...articles];
+    
+    // Apply search
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
+      results = results.filter(article => 
+        article.title?.toLowerCase().includes(term) || 
+        article.abstract?.toLowerCase().includes(term)
+      );
     }
     
-    const term = searchTerm.toLowerCase().trim();
-    const filtered = articles.filter(article => 
-      article.title?.toLowerCase().includes(term) || 
-      article.abstract?.toLowerCase().includes(term)
-    );
+    // Apply status filter
+    if (filters.status) {
+      results = results.filter(article => article.status.toLowerCase() === filters.status.toLowerCase());
+    }
     
-    setFilteredArticles(filtered);
+    // Apply date range filters
+    if (filters.dateRange.from || filters.dateRange.to) {
+      results = results.filter(article => {
+        const createdDate = new Date(article.createdAt);
+        
+        if (filters.dateRange.from && filters.dateRange.to) {
+          const fromDate = new Date(filters.dateRange.from);
+          const toDate = new Date(filters.dateRange.to);
+          // Make toDate inclusive of the whole day
+          toDate.setHours(23, 59, 59, 999);
+          return createdDate >= fromDate && createdDate <= toDate;
+        }
+        
+        if (filters.dateRange.from) {
+          const fromDate = new Date(filters.dateRange.from);
+          return createdDate >= fromDate;
+        }
+        
+        if (filters.dateRange.to) {
+          const toDate = new Date(filters.dateRange.to);
+          // Make toDate inclusive of the whole day
+          toDate.setHours(23, 59, 59, 999);
+          return createdDate <= toDate;
+        }
+        
+        return true;
+      });
+    }
+    
+    setFilteredArticles(results);
   };
 
   const handlePageChange = (newPage) => {
@@ -88,18 +128,20 @@ const EditorArticleList = () => {
 
   const handleViewArticle = (articleId) => {
     navigate(`/articles/${articleId}`);
-  };
-
-  const getStatusIcon = (status) => {
+  };  const getStatusIcon = (status) => {
     switch(status?.toLowerCase()) {
       case 'approved': 
         return <IoCheckmarkCircleOutline className="status-icon approved" />;
       case 'pending': 
         return <IoTimerOutline className="status-icon pending" />;
+      case 'under review': 
+        return <IoTimerOutline className="status-icon info" />;
+      case 'submitted': 
+        return <IoTimerOutline className="status-icon secondary" />;
       case 'rejected': 
         return <IoCloseCircleOutline className="status-icon rejected" />;
-      default: 
-        return <IoNewspaperOutline className="status-icon" />;
+      default:
+        return <IoTimerOutline className="status-icon pending" />;
     }
   };
 
@@ -107,27 +149,10 @@ const EditorArticleList = () => {
     <div className="editor-article-list">
       <div className="list-header">
         <h2>Articles for Review</h2>
-        <div className="search-container">          <div className="search-input-wrapper">
-            <IoSearchOutline className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="search-input"
-            />
-            {searchTerm && (
-              <button 
-                type="button" 
-                className="search-clear-button" 
-                onClick={handleClearSearch} 
-                title="Clear search"
-              >
-                <IoCloseCircleOutline className="clear-icon" />
-              </button>
-            )}
-          </div>
-        </div>
+        <ArticleFilters
+          onSearchChange={handleSearchChange}
+          onFilterChange={handleFilterChange}
+        />
       </div>
 
       {loading ? (
@@ -148,7 +173,7 @@ const EditorArticleList = () => {
           </div>
           <h3>No Articles Found</h3>
           <p>
-            {searchTerm.trim() 
+            {searchTerm.trim() || filters.status || filters.dateRange.from || filters.dateRange.to
               ? "No articles match your search criteria."
               : "There are no articles assigned to you for review."}
           </p>
