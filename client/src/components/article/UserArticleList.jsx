@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { IoDocumentTextOutline, IoPencilOutline, IoTrashOutline, IoSearchOutline, IoFilterOutline, IoCalendarOutline } from 'react-icons/io5';
+import { IoDocumentTextOutline, IoPencilOutline, IoTrashOutline, IoSearchOutline, IoCalendarOutline } from 'react-icons/io5';
 import Spinner from '../common/Spinner';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { formatDate } from '../../utils/formatters';
