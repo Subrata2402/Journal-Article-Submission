@@ -416,6 +416,8 @@
   overflow: hidden;
   z-index: 100;
   /* Increased z-index */
+  transform-origin: bottom right;
+  animation: dropdownFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   [data-theme="light"] & {
     border: 1px solid #e2e8f0;
@@ -438,6 +440,13 @@
     transition: all 0.2s ease;
     font-size: 14px;
     color: var(--text-primary);
+    opacity: 0;
+    animation: itemFadeIn 0.3s forwards;
+    
+    &:nth-child(1) { animation-delay: 0.05s; }
+    &:nth-child(2) { animation-delay: 0.1s; }
+    &:nth-child(3) { animation-delay: 0.15s; }
+    &:nth-child(4) { animation-delay: 0.2s; }
 
     &:hover {
       background-color: var(--primary-color-light);
@@ -652,6 +661,29 @@
 
   [data-theme="dark"] & {
     color: #a0aec0;
+  }
+}
+
+/* Dropdown animations */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes itemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

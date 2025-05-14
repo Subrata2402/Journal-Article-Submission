@@ -21,7 +21,7 @@ export default defineConfig({
               return 'vendor-router';
             }
             
-            if (id.includes('@mui/') || id.includes('@emotion/') || id.includes('react-icons/')) {
+            if (id.includes('react-icons/')) {
               return 'vendor-ui';
             }
             
