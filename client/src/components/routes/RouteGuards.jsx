@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { getRedirectionToken } from '../../utils/redirectionUtils';
 
 // Protected route component that redirects to login if not authenticated
 export const ProtectedRoute = ({ children }) => {
@@ -12,7 +13,7 @@ export const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     // Save the current path to redirect after login
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
+    return <Navigate to={`/login${getRedirectionToken(location)}`} state={{ redirectTo: location.pathname }} />;
   }
 
   return children;
@@ -29,7 +30,7 @@ export const UserRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     // Save the current path to redirect after login
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
+    return <Navigate to={`/login${getRedirectionToken(location)}`} state={{ redirectTo: location.pathname }} />;
   }
 
   // If user is an editor, redirect to home page
@@ -51,7 +52,7 @@ export const EditorRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     // Save the current path to redirect after login
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
+    return <Navigate to="/login" state={{ redirectTo: location.pathname }} />;
   }
 
   // If user is not an editor, redirect to home page
@@ -73,7 +74,7 @@ export const ReviewerRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     // Save the current path to redirect after login
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
+    return <Navigate to="/login" state={{ redirectTo: location.pathname }} />;
   }
 
   // If user is not a reviewer, redirect to home page
@@ -95,7 +96,7 @@ export const AdminRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     // Save the current path to redirect after login
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
+    return <Navigate to="/login" state={{ redirectTo: location.pathname }} />;
   }
 
   // If user is not an admin, redirect to home page
@@ -116,7 +117,7 @@ export const AdminOrEditorRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
+    return <Navigate to="/login" state={{ redirectTo: location.pathname }} />;
   }
 
   // Allow access only if user is an admin or editor

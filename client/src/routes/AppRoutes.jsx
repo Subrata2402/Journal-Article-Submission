@@ -1,6 +1,6 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import React, { Suspense, lazy } from 'react';
-import { ProtectedRoute, UserRoute, EditorRoute, ReviewerRoute, AdminRoute, AdminOrEditorRoute } from '../components/routes/RouteGuards';
+import { ProtectedRoute, UserRoute, EditorRoute, ReviewerRoute, AdminRoute } from '../components/routes/RouteGuards';
 import Spinner from '../components/common/Spinner';
 import MainLayout from '../components/layout/MainLayout';
 
@@ -105,15 +105,15 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Edit Journal route - only for admins and editors */}
+        {/* Edit Journal route - only for admins */}
         <Route
           path="/edit-journal/:journalId"
           element={
-            <AdminOrEditorRoute>
+            <AdminRoute>
               <Suspense fallback={<LoadingSpinner />}>
                 <EditJournalPage />
               </Suspense>
-            </AdminOrEditorRoute>
+            </AdminRoute>
           }
         />
 

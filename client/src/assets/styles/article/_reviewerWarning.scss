@@ -1,0 +1,76 @@
+/* Reviewer warning styles */
+.reviewer-warning {
+  background-color: rgba(var(--warning-color-rgb), 0.1);
+  border-left: 3px solid var(--warning-color);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: fadeIn 0.3s ease;
+  
+  .warning-icon {
+    color: var(--warning-color);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+  
+  span {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+  }
+}
+
+/* Reviewer count indicator */
+.reviewer-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-left: 0.5rem;
+  font-weight: normal;
+  
+  &.warning {
+    color: var(--warning-color);
+    font-weight: 500;
+  }
+  
+  &.success {
+    color: var(--success-color);
+  }
+}
+
+/* Reviewer slots removed as per requirement */
+
+/* Highlight the add reviewer button when minimum reviewers not met */
+.add-reviewer-button.primary-button {
+  background-color: var(--primary-color);
+  color: white;
+  position: relative;
+  
+  &:hover {
+    background-color: var(--primary-color-dark);
+  }
+  
+  &:after {
+    content: '· Required';
+    font-size: 0.75rem;
+    margin-left: 5px;
+    font-weight: normal;
+  }
+}
+
+/* Status update warning modal styles */
+.status-update-warning {
+  p {
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    strong {
+      color: var(--warning-color);
+    }
+  }
+}

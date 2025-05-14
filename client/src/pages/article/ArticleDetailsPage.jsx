@@ -22,10 +22,11 @@ import {
   IoSettingsOutline,
   IoListOutline,
   IoInformationCircleOutline,
-  IoPeopleOutline,  IoFileTrayFullOutline,
-  IoCreateOutline,
+  IoPeopleOutline,
+  IoFileTrayFullOutline,
   IoChatboxOutline,
-  IoCloseOutline
+  IoCloseOutline,
+  IoWarningOutline
 } from 'react-icons/io5';
 import Spinner from '../../components/common/Spinner';
 import { useAuth } from '../../contexts/AuthContext';
@@ -42,6 +43,7 @@ import {
 import toastUtil from '../../utils/toastUtil';
 import TextArea from '../../components/forms/TextArea';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
+import Alert from '../../components/common/Alert';
 
 const ArticleDetailsPage = () => {
   const { articleId } = useParams();
@@ -66,7 +68,7 @@ const ArticleDetailsPage = () => {
   const [availableReviewers, setAvailableReviewers] = useState([]);
   const [reviewerSearch, setReviewerSearch] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  
+
   // Ref for detecting clicks outside of dropdown
   const dropdownRef = useRef(null);
 
@@ -78,8 +80,18 @@ const ArticleDetailsPage = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [reviewerToDelete, setReviewerToDelete] = useState(null);
 
+  // Status update confirmation modal state
+  const [statusUpdateModal, setStatusUpdateModal] = useState({
+    show: false,
+    status: '',
+    comment: ''
+  });
+
   // Check if user is an editor
   const isEditor = user && user.role === "editor";
+
+  // Check if minimum reviewer requirement is met
+  const hasMinimumReviewers = reviewers.length >= 3;
 
   useEffect(() => {
     if (articleId) {
@@ -146,9 +158,6 @@ const ArticleDetailsPage = () => {
       toastUtil.error('Could not load available reviewers');
     }
   };
-
-  // Check if the maximum reviewer limit has been reached
-  const isReviewerLimitReached = reviewers.length >= 3;
 
   // Status badge color
   const getStatusColor = (status) => {
@@ -228,20 +237,6 @@ const ArticleDetailsPage = () => {
     setReviewersExpanded(!reviewersExpanded);
   };
 
-  const handleReviewerChange = (e) => {
-    const selectedReviewerId = e.target.value;
-    const selectedReviewer = availableReviewers.find(r => r._id === selectedReviewerId);
-
-    if (selectedReviewer) {
-      setNewReviewer({
-        reviewerId: selectedReviewer._id,
-        firstName: selectedReviewer.firstName,
-        lastName: selectedReviewer.lastName,
-        email: selectedReviewer.email || ''
-      });
-    }
-  };
-
   const addReviewer = async (e) => {
     e.preventDefault();
 
@@ -253,12 +248,6 @@ const ArticleDetailsPage = () => {
     // Check if reviewer is already assigned
     if (reviewers.some(r => r.reviewerId?._id === newReviewer.reviewerId)) {
       toastUtil.error('This reviewer is already assigned');
-      return;
-    }
-
-    // Check if the maximum reviewer limit has been reached
-    if (isReviewerLimitReached) {
-      toastUtil.error('Maximum of 3 reviewers can be assigned');
       return;
     }
 
@@ -298,6 +287,13 @@ const ArticleDetailsPage = () => {
           lastName: '',
           email: ''
         });
+        setArticle({
+          ...article,
+          reviewers: updatedReviewers
+        });
+
+        // Clear reviewer search
+        setReviewerSearch('');
 
         toastUtil.success('Reviewer added successfully');
       } else {
@@ -330,6 +326,11 @@ const ArticleDetailsPage = () => {
         // Update local state
         const updatedReviewers = reviewers.filter(r => r._id !== reviewerToDelete._id);
         setReviewers(updatedReviewers);
+        setArticle({
+          ...article,
+          reviewers: updatedReviewers
+        });
+
         toastUtil.success('Reviewer removed successfully');
       } else {
         toastUtil.error(result.message || 'Failed to remove reviewer');
@@ -347,7 +348,7 @@ const ArticleDetailsPage = () => {
     setDeleteModalVisible(false);
     setReviewerToDelete(null);
   };
-    // Clear the reviewer search input and also clear selected reviewer
+  // Clear the reviewer search input and also clear selected reviewer
   const clearReviewerSearch = () => {
     setReviewerSearch('');
     // Also clear the selected reviewer when clearing search
@@ -360,24 +361,38 @@ const ArticleDetailsPage = () => {
     // Focus back on the search input after clearing
     document.getElementById('reviewer-search')?.focus();
   };
-
   // Update article status and comments
   const updateArticleStatus = async () => {
+    // If reviewers are less than 3, show confirmation modal first
+    if (reviewers.length < 3) {
+      setStatusUpdateModal({
+        show: true,
+        status: articleStatus,
+        comment: editorComment
+      });
+      return;
+    }
+
+    // If we have enough reviewers, proceed directly
+    await executeStatusUpdate(articleStatus, editorComment);
+  };
+
+  // Execute the actual status update after confirmation if needed
+  const executeStatusUpdate = async (status, comment) => {
     setSubmitLoading(true);
 
     try {
       // Call the API to update article status and comment
       const result = await articleService.updateArticleStatus(articleId, {
-        status: articleStatus,
-        comment: editorComment
+        status: status,
+        comment: comment
       });
-
       if (result.success) {
         // Update local state with the new values
         const updatedArticle = {
           ...article,
-          status: articleStatus,
-          comment: editorComment
+          status: status,
+          comment: comment
         };
 
         setArticle(updatedArticle);
@@ -390,7 +405,27 @@ const ArticleDetailsPage = () => {
       toastUtil.error('Failed to update article status');
     } finally {
       setSubmitLoading(false);
+
+      // Close the modal if it was open
+      setStatusUpdateModal({
+        show: false,
+        status: '',
+        comment: ''
+      });
     }
+  };
+
+  const cancelStatusUpdate = () => {
+    setStatusUpdateModal({
+      show: false,
+      status: '',
+      comment: ''
+    });
+  };
+
+  const confirmStatusUpdate = async () => {
+    const { status, comment } = statusUpdateModal;
+    await executeStatusUpdate(status, comment);
   };
 
   // If authentication is loading, show spinner
@@ -453,6 +488,7 @@ const ArticleDetailsPage = () => {
           </div>            {/* Editor Controls - Visible only for editors */}
           {isEditor && (
             <div className="editor-controls p-0">
+
               <div className="form-section editor-control-section">
                 <h2 className="section-title">
                   <IoSettingsOutline className="section-icon" />
@@ -463,8 +499,11 @@ const ArticleDetailsPage = () => {
                     <CustomSelect
                       label="Article Status:"
                       name="articleStatus"
-                      value={articleStatus}
-                      onChange={(e) => setArticleStatus(e.target.value)}
+                      value={articleStatus} onChange={(e) => {
+                        const newStatus = e.target.value;
+                        // Set the status regardless
+                        setArticleStatus(newStatus);
+                      }}
                       options={[
                         { value: 'pending', label: 'Pending' },
                         { value: 'under review', label: 'Under Review' },
@@ -510,17 +549,30 @@ const ArticleDetailsPage = () => {
                 <h2 className="section-title" onClick={toggleReviewersSection}>
                   <IoPeopleOutline className="section-icon" />
                   Reviewers
+                  {/* <span className={`reviewer-count ${reviewers.length < 3 ? 'warning' : 'success'}`}>
+                    ({reviewers.length}/3 minimum required)
+                  </span> */}
                   <button className="toggle-button">
                     {reviewersExpanded ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
                   </button>
                 </h2>
                 {reviewersExpanded && (
                   <div className="reviewers-content">
+                    {reviewers.length < 3 && (
+                      <Alert
+                        type="warning"
+                        message={
+                          <>
+                            <strong>Reviewer Requirement:</strong> You must add at least 3 reviewers to this article.
+                            Currently {reviewers.length} assigned of 3 required.
+                          </>
+                        }
+                      />
+                    )}
                     {/* Add Reviewer Button */}
                     <button
-                      className="add-reviewer-button secondary-button"
+                      className={`add-reviewer-button ${reviewers.length < 3 ? 'primary-button' : 'secondary-button'}`}
                       onClick={toggleReviewerForm}
-                      disabled={isReviewerLimitReached}
                     >
                       <IoAddCircleOutline /> {showReviewerForm ? 'Cancel' : 'Add Reviewer'}
                     </button>
@@ -534,7 +586,8 @@ const ArticleDetailsPage = () => {
                         </h3>
                         <form onSubmit={addReviewer}>
                           <div className="form-group">
-                            <label htmlFor="reviewer-search">Search and Select Reviewer:</label>                            <div className="searchable-dropdown" ref={dropdownRef}>
+                            <label htmlFor="reviewer-search">Search and Select Reviewer:</label>
+                            <div className="searchable-dropdown" ref={dropdownRef}>
                               <div className="search-input-container">
                                 <input
                                   type="text"
@@ -690,6 +743,9 @@ const ArticleDetailsPage = () => {
                     ) : (
                       <div className="form-section no-reviewers-message">
                         <p>No reviewers assigned to this article yet.</p>
+                        <Alert type="warning" icon={<IoWarningOutline />}>
+                          A minimum of 1 reviewer is required for the article to be reviewed.
+                        </Alert>
                       </div>
                     )}
                   </div>
@@ -863,6 +919,24 @@ const ArticleDetailsPage = () => {
         confirmText="Remove"
         cancelText="Cancel"
         type="danger"
+      />
+
+      {/* Confirmation modal for status updates with insufficient reviewers */}
+      <ConfirmationModal
+        isOpen={statusUpdateModal.show}
+        onClose={cancelStatusUpdate}
+        onConfirm={confirmStatusUpdate}
+        title="Reviewer Requirement Warning"
+        message={
+          <div className="status-update-warning">
+            <p><strong>Warning:</strong> This article has fewer than the required minimum of 3 reviewers ({reviewers.length} currently assigned).</p>
+            <p>It is recommended to assign at least 3 reviewers before updating the article status.</p>
+            <p>Do you still want to proceed with updating the article status?</p>
+          </div>
+        }
+        confirmText="Update Anyway"
+        cancelText="Cancel"
+        type="warning"
       />
     </div>
   );
