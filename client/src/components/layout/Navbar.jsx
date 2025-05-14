@@ -3,6 +3,7 @@ import { FiSun, FiMoon, FiSettings, FiMenu, FiX } from 'react-icons/fi';
 import { IoLogInOutline, IoPersonOutline, IoLogOutOutline, IoHomeOutline, IoDocumentTextOutline, IoListOutline, IoInformationCircleOutline, IoMailOutline, IoNewspaperOutline, IoClipboardOutline, IoCheckmarkDoneOutline } from 'react-icons/io5';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link, NavLink } from 'react-router-dom';
+import LazyImage from '../common/LazyImage';
 import '../../assets/styles/layout/navbar.scss';
 
 const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, themeMenuRef }) => {
@@ -238,10 +239,16 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
   );
   
   return (
-    <nav className="navbar">
-      <div className="navbar__left">
+    <nav className="navbar">      <div className="navbar__left">
         <Link to="/" className="logo">
-          <img src="/logo.png" alt="Article Submission System" className="logo-image" />
+          <LazyImage 
+            src="/logo.png" 
+            alt="Article Submission System" 
+            className="logo-image" 
+            height="40px" 
+            width="40px" 
+            showPlaceholder={false}
+          />
           <span className="logo-title">Article Submission System</span>
         </Link>
         

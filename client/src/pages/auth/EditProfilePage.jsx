@@ -19,6 +19,7 @@ import { PROFILE_PICTURES_PATH, DEFAULT_PROFILE_IMAGE } from '../../config/const
 import FormField from '../../components/forms/FormField';
 import DateField from '../../components/forms/DateField';
 import Spinner from '../../components/common/Spinner';
+import LazyImage from '../../components/common/LazyImage';
 import toastUtil from '../../utils/toastUtil';
 import '../../assets/styles/pages/profile.scss';
 
@@ -31,6 +32,7 @@ const EditProfilePage = () => {
     phoneNumber: '',
     dateOfBirth: '',
     institution: '',
+    profilePicture: null, // Added to store profile picture file
     email: '', // Added email field
   });
   const [emailVerified, setEmailVerified] = useState(false); // Added to store email verification status
@@ -65,16 +67,12 @@ const EditProfilePage = () => {
           phoneNumber: profile.phoneNumber ? String(profile.phoneNumber) : '',
           dateOfBirth: profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : '',
           institution: profile.institution || '',
+          profilePicture: profile.profilePicture || null, // Store profile picture filename
           email: profile.email?.id || '', // Store email from profile
         });
 
         // Set email verification status
         setEmailVerified(profile.email?.verified || false);
-
-        // Set profile picture preview if available
-        if (profile.profilePicture) {
-          setPreviewUrl(`${PROFILE_PICTURES_PATH}/${profile.profilePicture}`);
-        }
       } else {
         toastUtil.error('Failed to load profile details');
         navigate('/profile');
@@ -232,10 +230,16 @@ const EditProfilePage = () => {
       setSubmitting(false);
     }
   };
-
-  // Handle image loading error
-  const handleImageError = (e) => {
-    e.target.src = DEFAULT_PROFILE_IMAGE;
+  // Function to build the profile picture URL
+  const getProfilePictureUrl = (filename) => {
+    if (!filename) return DEFAULT_PROFILE_IMAGE;
+    
+    // If the default image is not a URL but a local file, ensure we use the correct path
+    if (filename === DEFAULT_PROFILE_IMAGE) {
+      return filename;
+    }
+    
+    return `${PROFILE_PICTURES_PATH}/${filename}`;
   };
 
   if (loading) {
@@ -266,16 +270,28 @@ const EditProfilePage = () => {
           <div className="profile-card">
             <form onSubmit={handleSubmit}>
               {/* Profile Picture Section */}
-              <div className="profile-picture-section">
-                <div 
+              <div className="profile-picture-section">                <div 
                   className="profile-picture-upload"
                   onClick={handleProfilePictureClick}
                 >
-                  <img 
-                    src={previewUrl || DEFAULT_PROFILE_IMAGE}
-                    alt="Profile Preview" 
-                    onError={handleImageError}
-                  />
+                  <div className="image-wrapper">
+                    {previewUrl ? (
+                      <img 
+                        src={previewUrl}
+                        alt="Profile Preview"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <LazyImage
+                        src={getProfilePictureUrl(formData?.profilePicture)}
+                        alt="Profile Preview"
+                        height="100%"
+                        width="100%"
+                        objectFit="cover"
+                        crossOrigin="anonymous"
+                      />
+                    )}
+                  </div>
                   <div className="upload-overlay">
                     <IoCloudUploadOutline className="upload-icon" />
                     <span>Change Photo</span>

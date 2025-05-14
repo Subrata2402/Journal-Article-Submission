@@ -1,57 +1,106 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
 import { ProtectedRoute, UserRoute, EditorRoute, ReviewerRoute, AdminRoute, AdminOrEditorRoute } from '../components/routes/RouteGuards';
-
-// Page imports
-import HomePage from '../pages/HomePage';
-import LoginPage from '../pages/auth/LoginPage';
-import RegisterPage from '../pages/auth/RegisterPage';
-import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
-import ProfilePage from '../pages/auth/ProfilePage';
-import EditProfilePage from '../pages/auth/EditProfilePage';
-import ArticlesPage from '../pages/article/ArticlesPage';
-import ArticleDetailsPage from '../pages/article/ArticleDetailsPage';
-import AddArticlePage from '../pages/article/AddArticlePage';
-import EditArticlePage from '../pages/article/EditArticlePage';
-import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
-import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
-import ReviewerPage from '../pages/reviewer/ReviewerPage';
-import ReviewPage from '../pages/reviewer/ReviewPage';
-import ReviewArticlePage from '../pages/reviewer/ReviewArticlePage';
-import AboutPage from '../pages/AboutPage';
-import ContactPage from '../pages/ContactPage';
-import JournalDetailsPage from '../pages/journal/JournalDetailsPage';
-import AddJournalPage from '../pages/journal/AddJournalPage';
-import EditJournalPage from '../pages/journal/EditJournalPage';
-import AddEditorPage from '../pages/journal/AddEditorPage';
-import NotFoundPage from '../pages/NotFoundPage';
+import Spinner from '../components/common/Spinner';
 import MainLayout from '../components/layout/MainLayout';
 
+// Lazy loaded components
+const HomePage = lazy(() => import('../pages/HomePage'));
+const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
+const VerifyEmailPage = lazy(() => import('../pages/auth/VerifyEmailPage'));
+const ProfilePage = lazy(() => import('../pages/auth/ProfilePage'));
+const EditProfilePage = lazy(() => import('../pages/auth/EditProfilePage'));
+const ArticlesPage = lazy(() => import('../pages/article/ArticlesPage'));
+const ArticleDetailsPage = lazy(() => import('../pages/article/ArticleDetailsPage'));
+const AddArticlePage = lazy(() => import('../pages/article/AddArticlePage'));
+const EditArticlePage = lazy(() => import('../pages/article/EditArticlePage'));
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'));
+const ReviewerPage = lazy(() => import('../pages/reviewer/ReviewerPage'));
+const ReviewPage = lazy(() => import('../pages/reviewer/ReviewPage'));
+const ReviewArticlePage = lazy(() => import('../pages/reviewer/ReviewArticlePage'));
+const AboutPage = lazy(() => import('../pages/AboutPage'));
+const ContactPage = lazy(() => import('../pages/ContactPage'));
+const JournalDetailsPage = lazy(() => import('../pages/journal/JournalDetailsPage'));
+const AddJournalPage = lazy(() => import('../pages/journal/AddJournalPage'));
+const EditJournalPage = lazy(() => import('../pages/journal/EditJournalPage'));
+const AddEditorPage = lazy(() => import('../pages/journal/AddEditorPage'));
+const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
+
+// Loading component for suspense fallback
+const LoadingSpinner = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    <Spinner />
+  </div>
+);
+
 const AppRoutes = () => {
+  const location = useLocation();
+
   return (
     <Routes>
       {/* Auth routes without the main layout */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/verify-email" element={<VerifyEmailPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/login" element={
+        <Suspense fallback={<LoadingSpinner />}>
+          <LoginPage />
+        </Suspense>
+      } />
+      <Route path="/register" element={
+        <Suspense fallback={<LoadingSpinner />}>
+          <RegisterPage />
+        </Suspense>
+      } />
+      <Route path="/verify-email" element={
+        <Suspense fallback={<LoadingSpinner />}>
+          <VerifyEmailPage />
+        </Suspense>
+      } />
+      <Route path="/forgot-password" element={
+        <Suspense fallback={<LoadingSpinner />}>
+          <ForgotPasswordPage />
+        </Suspense>
+      } />
+      <Route path="/reset-password" element={
+        <Suspense fallback={<LoadingSpinner />}>
+          <ResetPasswordPage />
+        </Suspense>
+      } />
 
       {/* Routes with MainLayout */}
       <Route element={<MainLayout />}>
         {/* Public routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HomePage />
+          </Suspense>
+        } />
+        <Route path="/about" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <AboutPage />
+          </Suspense>
+        } />
+        <Route path="/contact" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <ContactPage />
+          </Suspense>
+        } />
         
         {/* 404 page with MainLayout */}
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path="*" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <NotFoundPage />
+          </Suspense>
+        } />
 
         {/* Protected Journal Details route - requires authentication */}
         <Route
           path="/view-journal/:journalId"
           element={
             <ProtectedRoute>
-              <JournalDetailsPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <JournalDetailsPage />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -61,7 +110,9 @@ const AppRoutes = () => {
           path="/edit-journal/:journalId"
           element={
             <AdminOrEditorRoute>
-              <EditJournalPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <EditJournalPage />
+              </Suspense>
             </AdminOrEditorRoute>
           }
         />
@@ -71,7 +122,9 @@ const AppRoutes = () => {
           path="/profile"
           element={
             <ProtectedRoute>
-              <ProfilePage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ProfilePage />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -79,7 +132,9 @@ const AppRoutes = () => {
           path="/edit-profile"
           element={
             <ProtectedRoute>
-              <EditProfilePage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <EditProfilePage />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -89,7 +144,9 @@ const AppRoutes = () => {
           path="/add-article"
           element={
             <UserRoute>
-              <AddArticlePage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <AddArticlePage />
+              </Suspense>
             </UserRoute>
           }
         />
@@ -97,7 +154,9 @@ const AppRoutes = () => {
           path="/articles/:articleId/edit"
           element={
             <UserRoute>
-              <EditArticlePage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <EditArticlePage />
+              </Suspense>
             </UserRoute>
           }
         />
@@ -107,7 +166,9 @@ const AppRoutes = () => {
           path="/articles"
           element={
             <ProtectedRoute>
-              <ArticlesPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ArticlesPage />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -115,7 +176,9 @@ const AppRoutes = () => {
           path="/articles/:articleId"
           element={
             <ProtectedRoute>
-              <ArticleDetailsPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ArticleDetailsPage />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -125,7 +188,9 @@ const AppRoutes = () => {
           path="/reviewer"
           element={
             <EditorRoute>
-              <ReviewerPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ReviewerPage />
+              </Suspense>
             </EditorRoute>
           }
         />
@@ -135,7 +200,9 @@ const AppRoutes = () => {
           path="/review"
           element={
             <ReviewerRoute>
-              <ReviewPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ReviewPage />
+              </Suspense>
             </ReviewerRoute>
           }
         />
@@ -143,7 +210,9 @@ const AppRoutes = () => {
           path="/review/:articleId"
           element={
             <ReviewerRoute>
-              <ReviewArticlePage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ReviewArticlePage />
+              </Suspense>
             </ReviewerRoute>
           }
         />
@@ -153,7 +222,9 @@ const AppRoutes = () => {
           path="/add-journal"
           element={
             <AdminRoute>
-              <AddJournalPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <AddJournalPage />
+              </Suspense>
             </AdminRoute>
           }
         />
@@ -161,7 +232,9 @@ const AppRoutes = () => {
           path="/add-editor"
           element={
             <AdminRoute>
-              <AddEditorPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <AddEditorPage />
+              </Suspense>
             </AdminRoute>
           }
         />

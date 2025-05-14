@@ -23,7 +23,8 @@ const userSchema = new mongoose.Schema({
     },
     profilePicture: {
         type: String,
-        default: "https://via.placeholder.com/150"
+        default: "default_profile_picture.png",
+        required: false
     },
     dateOfBirth: {
         type: Date,

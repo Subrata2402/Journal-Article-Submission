@@ -1,6 +1,8 @@
+// filepath: d:\Programming\React-Projects\journal_project\client\src\components\journal\JournalList.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../common/Spinner';
+// import LazyLoad from '../common/LazyLoad';
 import { IoBookmarkOutline, IoBookmark, IoCalendarOutline, IoPricetagOutline, IoNewspaperOutline, IoPencilOutline, IoTrashOutline, IoEllipsisVertical, IoEyeOutline } from 'react-icons/io5';
 import '../../assets/styles/journal/journalList.scss';
 import journalService from '../../services/journalService';
@@ -171,6 +173,7 @@ const JournalList = ({
         <>
           <div className="journal-grid">
             {journals.map(journal => (
+              // Removed LazyLoad component
               <div className={`journal-card ${isPinnedJournal(journal._id) ? 'pinned' : ''}`} key={journal._id}>
                 <div className={`journal-card-header ${getCategoryClass(journal.category)}`}>
                   <div className="journal-logo">

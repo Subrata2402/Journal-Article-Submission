@@ -340,6 +340,7 @@
     height: 38px; /* Set a consistent height for all auth buttons */
     display: flex;
     align-items: center;
+    gap: var(--spacing-sm);
   }
 }
 

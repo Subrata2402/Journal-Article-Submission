@@ -7,6 +7,7 @@ import httpService from '../../services/httpService';
 import { API_ENDPOINTS } from '../../config/api';
 import { PROFILE_PICTURES_PATH, DEFAULT_PROFILE_IMAGE } from '../../config/constants';
 import Spinner from '../../components/common/Spinner';
+import LazyImage from '../../components/common/LazyImage';
 import toastUtil from '../../utils/toastUtil';
 import '../../assets/styles/pages/profile.scss';
 import { FaCircleCheck } from 'react-icons/fa6';
@@ -50,17 +51,16 @@ const ProfilePage = () => {
       setLoading(false);
     }
   };
-
   // Function to build the profile picture URL
   const getProfilePictureUrl = (filename) => {
     if (!filename) return DEFAULT_PROFILE_IMAGE;
+    
+    // If the default image is not a URL but a local file, ensure we use the correct path
+    if (filename === DEFAULT_PROFILE_IMAGE) {
+      return filename;
+    }
+    
     return `${PROFILE_PICTURES_PATH}/${filename}`;
-  };
-
-  // Handle image loading error
-  const handleImageError = (e) => {
-    console.log("Profile image failed to load, using default image");
-    e.target.src = DEFAULT_PROFILE_IMAGE;
   };
 
   const formatDate = (dateString, short = false, includeTime = false) => {
@@ -107,10 +107,11 @@ const ProfilePage = () => {
               <div className="profile-card profile-card-main">
                 <div className="profile-cover-image"></div>
                 <div className="profile-avatar">
-                  <img
-                    // src={getProfilePictureUrl(profileData?.profilePicture)}
-                    src="profile-logo.png"
+                  <LazyImage
+                    src={getProfilePictureUrl(profileData?.profilePicture)}
                     alt={`${profileData?.firstName}'s profile`}
+                    objectFit="cover"
+                    crossOrigin="anonymous"
                   />
                   {profileData?.email?.verified && (
                     <span className="verified-badge" title="Email Verified"><FaCircleCheck color='var(--success-color)' size={22} /></span>
