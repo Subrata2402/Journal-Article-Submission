@@ -75,7 +75,7 @@
     h2 {
       font-size: var(--font-size-xl);
       margin-bottom: var(--spacing-md);
-      color: var (--text-primary);
+      color: var(--text-primary);
     }
     
     p {
@@ -267,7 +267,7 @@
               width: 3rem;
               height: 3rem;
               background-color: var(--primary-color-light);
-              color: var (--primary-color);
+              color: var(--primary-color);
               border-radius: var(--border-radius-md);
               font-size: var(--font-size-xl);
               flex-shrink: 0;
@@ -315,7 +315,7 @@
             h3 {
               font-size: var(--font-size-sm);
               color: var(--text-secondary);
-              margin: 0 0 var (--spacing-sm);
+              margin: 0 0 var(--spacing-sm);
             }
             
             p {
@@ -329,7 +329,7 @@
         
         .guidelines-list {
           background-color: var(--background-primary);
-          border-radius: var (--border-radius-md);
+          border-radius: var(--border-radius-md);
           padding: var(--spacing-lg);
           box-shadow: var(--shadow-sm);
           
@@ -339,7 +339,7 @@
             
             li {
               color: var(--text-secondary);
-              margin-bottom: var (--spacing-sm);
+              margin-bottom: var(--spacing-sm);
               line-height: 1.6;
               
               &:last-child {
@@ -413,7 +413,7 @@
               width: 3rem;
               height: 3rem;
               background-color: var(--primary-color-light);
-              color: var (--primary-color);
+              color: var(--primary-color);
               border-radius: var(--border-radius-md);
               font-size: var(--font-size-xl);
               flex-shrink: 0;

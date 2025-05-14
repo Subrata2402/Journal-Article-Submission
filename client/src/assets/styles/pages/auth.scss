@@ -370,7 +370,7 @@
     transition: color var(--transition-fast);
 
     &:hover {
-      color: var (--primary-color-dark);
+      color: var(--primary-color-dark);
       text-decoration: underline;
     }
 

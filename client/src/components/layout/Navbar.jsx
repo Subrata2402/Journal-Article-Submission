@@ -267,9 +267,8 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
       <div className="navbar__center desktop-only">
         <NavLinks />
       </div>
-      
-      <div className="navbar__right desktop-only">
-        <div className="theme-dropdown" ref={themeMenuRef}>
+        <div className="navbar__right desktop-only">
+        <div className={`theme-dropdown ${showThemeMenu ? 'active' : ''}`} ref={themeMenuRef}>
           <button className="theme-toggle-btn" onClick={(e) => {
             e.stopPropagation(); // Prevent event from bubbling up
             toggleThemeMenu();
@@ -285,20 +284,19 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
             )}
             <span className="theme-text">{theme.charAt(0).toUpperCase() + theme.slice(1)} Theme</span>
           </button>
-          {showThemeMenu && (
-            <div className="theme-dropdown-content show">
-              <button 
-                onClick={() => handleThemeSelection('light')}
-                className={theme === 'light' ? 'active' : ''}
-                title='Light Theme'
-              >
-                <FiSun /> Light
-              </button>
-              <button 
-                onClick={() => handleThemeSelection('dark')}
-                className={theme === 'dark' ? 'active' : ''}
-                title='Dark Theme'
-              >
+          <div className={`theme-dropdown-content ${showThemeMenu ? 'show' : ''}`}>
+            <button 
+              onClick={() => handleThemeSelection('light')}
+              className={theme === 'light' ? 'active' : ''}
+              title='Light Theme'
+            >
+              <FiSun /> Light
+            </button>
+            <button 
+              onClick={() => handleThemeSelection('dark')}
+              className={theme === 'dark' ? 'active' : ''}
+              title='Dark Theme'
+            >
                 <FiMoon /> Dark
               </button>
               <button 
@@ -309,7 +307,6 @@ const Navbar = ({ theme, handleThemeChange, showThemeMenu, toggleThemeMenu, them
                 <FiSettings /> System
               </button>
             </div>
-          )}
         </div>
         
         <AuthButtons />
