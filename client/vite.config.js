@@ -12,12 +12,12 @@ export default defineConfig({
         manualChunks: (id) => {
           // Group modules into chunks based on their path
           if (id.includes('node_modules')) {
-            // Group major third-party libraries
-            if (id.includes('react/') || id.includes('react-dom/')) {
+            // Ensure React and React DOM are in a single chunk
+            if (id.includes('react') || id.includes('react-dom')) {
               return 'vendor-react';
             }
             
-            if (id.includes('react-router-dom/')) {
+            if (id.includes('react-router-dom')) {
               return 'vendor-router';
             }
             

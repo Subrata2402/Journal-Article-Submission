@@ -4,8 +4,8 @@ import { API_ENDPOINTS } from '../config/api';
 import toastUtil from '../utils/toastUtil';
 import { secureLocalStorage } from '../utils/storageUtil';
 
-// Create the context
-const AuthContext = createContext(null);
+// Create the context - Add null check for React
+const AuthContext = React && React.createContext ? React.createContext(null) : createContext(null);
 
 // Custom hook to use the auth context
 export const useAuth = () => {
