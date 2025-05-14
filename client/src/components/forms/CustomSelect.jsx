@@ -41,6 +41,7 @@ const CustomSelect = ({
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [dropdownPosition, setDropdownPosition] = useState('bottom'); // 'bottom' or 'top'
   const selectRef = useRef(null);
   const searchInputRef = useRef(null);
   
@@ -97,6 +98,23 @@ const CustomSelect = ({
       }
     }
   }, [highlightedIndex, isOpen]);
+
+  // Determine dropdown position based on available space when opening
+  useEffect(() => {
+    if (isOpen && selectRef.current) {
+      const selectRect = selectRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const spaceBelow = windowHeight - selectRect.bottom;
+      const minSpaceNeeded = 200; // min space needed for dropdown (matching max-height)
+
+      // If there's not enough space below, show dropdown above
+      if (spaceBelow < minSpaceNeeded && selectRect.top > minSpaceNeeded) {
+        setDropdownPosition('top');
+      } else {
+        setDropdownPosition('bottom');
+      }
+    }
+  }, [isOpen]);
   
   const handleOptionClick = (option, e) => {
     // Stop the event from bubbling up to parent elements
@@ -244,7 +262,7 @@ const CustomSelect = ({
             </div>
             
             {isOpen && (
-              <div className="custom-select-dropdown-container">
+              <div className={`custom-select-dropdown-container ${dropdownPosition}`}>
                 {/* Search box */}
                 {searchable && options.length >= searchThreshold && (
                   <div className="custom-select-search">
