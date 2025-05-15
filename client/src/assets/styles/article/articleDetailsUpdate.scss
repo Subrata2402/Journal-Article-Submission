@@ -1,5 +1,5 @@
-@import '../_variables';
-@import './_reviewerWarning';
+@use '../_variables' as *;
+@use './_reviewerWarning' as *;
 
 /* Journal-style form sections */
 .form-section {
