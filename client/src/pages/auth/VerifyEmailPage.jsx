@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { IoCheckmarkCircleOutline, IoArrowBackOutline, IoWarningOutline } from 'react-icons/io5';
 import FormField from '../../components/forms/FormField';
 import httpService from '../../services/httpService';
@@ -17,12 +17,13 @@ const VerifyEmailPage = () => {
   const [resendTimer, setResendTimer] = useState(0); // Timer for resend button
   
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     const storedData = secureSessionStorage.getItem('verificationData', true);
     if (!storedData) {
       toastUtil.error('Verification data is missing');
-      navigate('/login');
+      navigate('/login', { state: { from: location.state?.from } });
       return;
     }
     
@@ -34,7 +35,7 @@ const VerifyEmailPage = () => {
     } catch (error) {
       console.error('Failed to parse verification data', error);
       toastUtil.error('Invalid verification data');
-      navigate('/login');
+      navigate('/login', { state: { from: location.state?.from } });
     }
   }, [navigate]);
   
@@ -94,7 +95,7 @@ const VerifyEmailPage = () => {
         secureSessionStorage.removeItem('verificationData');
         // Redirect to login after 3 seconds
         setTimeout(() => {
-          navigate('/login');
+          navigate('/login', { state: { from: location.state?.from } });
         }, 3000);
       } else {
         toastUtil.error(response.data.message || 'Verification failed');
@@ -240,8 +241,8 @@ const VerifyEmailPage = () => {
                     : 'Resend verification code'
                 }
               </button>
-              
-              <Link to="/login" className="back-to-login">
+
+              <Link to="/login" state={{ from: location.state?.from }} className="back-to-login">
                 <IoArrowBackOutline /> Back to login
               </Link>
             </div>

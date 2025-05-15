@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { 
-  IoPersonAddOutline, 
-  IoPersonOutline, 
-  IoMailOutline, 
-  IoCallOutline, 
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import {
+  IoPersonAddOutline,
+  IoPersonOutline,
+  IoMailOutline,
+  IoCallOutline,
   IoCalendarOutline,
   IoLockClosedOutline,
   IoSchoolOutline,
@@ -36,17 +36,18 @@ const RegisterPage = () => {
   const [errors, setErrors] = useState({});
   const [registerError, setRegisterError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { register } = useAuth();
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear errors when user types
     if (errors[name]) {
       setErrors((prev) => ({
@@ -55,77 +56,77 @@ const RegisterPage = () => {
       }));
     }
   };
-  
+
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.firstName) {
       newErrors.firstName = 'First name is required';
     }
-    
+
     if (!formData.lastName) {
       newErrors.lastName = 'Last name is required';
     }
-    
+
     if (!formData.userName) {
       newErrors.userName = 'Username is required';
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.phoneNumber) {
       newErrors.phoneNumber = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phoneNumber.replace(/[^0-9]/g, ''))) {
       newErrors.phoneNumber = 'Phone number should be 10 digits';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     }
-    
+
     if (!formData.confPassword) {
       newErrors.confPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confPassword) {
       newErrors.confPassword = 'Passwords do not match';
     }
-    
+
     if (!formData.institution) {
       newErrors.institution = 'Institution is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsLoading(true);
     setRegisterError('');
-    
+
     try {
       const result = await register(formData);
-      
+
       if (result.success) {
         toastUtil.success(result.message || 'Registration successful! Please verify your email.');
-        
+
         // Store verification data in secure sessionStorage for the verification page
         if (result.verificationData) {
           secureSessionStorage.setItem('verificationData', result.verificationData);
           // Redirect to email verification page
-          navigate('/verify-email');
+          navigate('/verify-email', { state: { from: location.state?.from } });
         } else {
-          navigate('/login');
+          navigate('/login', { state: { from: location.state?.from } });
         }
       } else {
         setRegisterError(result.error || 'Registration failed. Please try again.');
@@ -137,27 +138,27 @@ const RegisterPage = () => {
       setIsLoading(false);
     }
   };
-  
+
   return (
     <div className="auth-page">
       <div className="form-container register-form">
         <Link to="/" className="back-to-home">
           <IoArrowBackOutline /> Back to Home
         </Link>
-        
+
         <div className="form-heading">
           <h1>Create an Account</h1>
           <p>Sign up to start submitting articles to journals</p>
         </div>
-        
+
         {registerError && (
-          <Alert 
+          <Alert
             type="error"
             message={registerError}
             onClose={() => setRegisterError('')}
           />
         )}
-        
+
         <form onSubmit={handleSubmit}>
           {/* Name row */}
           <div className="form-row">
@@ -173,7 +174,7 @@ const RegisterPage = () => {
               autoComplete="given-name"
               icon={<IoPersonOutline />}
             />
-            
+
             <FormField
               label="Last Name"
               type="text"
@@ -187,7 +188,7 @@ const RegisterPage = () => {
               icon={<IoPersonOutline />}
             />
           </div>
-          
+
           {/* Username and middle name row */}
           <div className="form-row">
             <FormField
@@ -202,7 +203,7 @@ const RegisterPage = () => {
               autoComplete="username"
               icon={<IoAtOutline />}
             />
-            
+
             <FormField
               label="Middle Name (Optional)"
               type="text"
@@ -215,7 +216,7 @@ const RegisterPage = () => {
               icon={<IoPersonCircleOutline />}
             />
           </div>
-          
+
           {/* Email and phone row */}
           <div className="form-row">
             <FormField
@@ -230,7 +231,7 @@ const RegisterPage = () => {
               autoComplete="email"
               icon={<IoMailOutline />}
             />
-            
+
             <FormField
               label="Phone Number"
               type="tel"
@@ -244,7 +245,7 @@ const RegisterPage = () => {
               icon={<IoCallOutline />}
             />
           </div>
-          
+
           {/* Institution and DOB row */}
           <div className="form-row">
             <FormField
@@ -259,7 +260,7 @@ const RegisterPage = () => {
               autoComplete="organization"
               icon={<IoSchoolOutline />}
             />
-            
+
             <DateField
               label="Date of Birth (Optional)"
               name="dateOfBirth"
@@ -272,7 +273,7 @@ const RegisterPage = () => {
               icon={<IoCalendarOutline />}
             />
           </div>
-          
+
           {/* Password row */}
           <div className="form-row">
             <FormField
@@ -287,7 +288,7 @@ const RegisterPage = () => {
               autoComplete="new-password"
               icon={<IoLockClosedOutline />}
             />
-            
+
             <FormField
               label="Confirm Password"
               type="password"
@@ -301,10 +302,10 @@ const RegisterPage = () => {
               icon={<IoLockClosedOutline />}
             />
           </div>
-          
+
           <div className="form-actions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="login-button"
               disabled={isLoading}
             >
@@ -322,10 +323,10 @@ const RegisterPage = () => {
             </button>
           </div>
         </form>
-        
+
         <div className="auth-footer">
           <p>
-            Already have an account? <Link to="/login" className="auth-link">Log in</Link>
+            Already have an account? <Link to="/login" state={{ from: location.state?.from }} className="auth-link">Log in</Link>
           </p>
         </div>
       </div>

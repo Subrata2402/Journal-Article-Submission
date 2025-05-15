@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FiEdit, FiUser, FiMail, FiPhone, FiCalendar, FiMapPin, FiSettings } from 'react-icons/fi';
 import { IoArrowBackOutline } from 'react-icons/io5';
 import { useAuth } from '../../contexts/AuthContext';
@@ -19,6 +19,7 @@ const ProfilePage = () => {
 
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     fetchProfileDetails();
@@ -41,7 +42,7 @@ const ProfilePage = () => {
 
       if (error.response?.status === 401) {
         logout();
-        navigate('/login');
+        navigate('/login', { state: { from: location.state?.from } });
         toastUtil.error('Your session has expired. Please login again.');
       } else {
         setError('An error occurred while fetching profile details');

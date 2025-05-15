@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   IoPersonOutline,
   IoMailOutline,
@@ -45,6 +45,7 @@ const EditProfilePage = () => {
 
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Fetch user profile data on component mount
   useEffect(() => {
@@ -82,7 +83,7 @@ const EditProfilePage = () => {
       
       if (error.response?.status === 401) {
         logout();
-        navigate('/login');
+        navigate('/login', { state: { form: location.state?.from } });
         toastUtil.error('Your session has expired. Please login again.');
       } else {
         toastUtil.error('An error occurred while fetching profile details');

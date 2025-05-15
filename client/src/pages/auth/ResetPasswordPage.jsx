@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { 
   IoLockClosedOutline, 
   IoArrowBackOutline, 
@@ -27,13 +27,14 @@ const ResetPasswordPage = () => {
   const [resendTimer, setResendTimer] = useState(0);
   
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     // Retrieve data from secure session storage that was stored in ForgotPasswordPage
     const storedData = secureSessionStorage.getItem('passwordResetData', true);
     if (!storedData) {
       toastUtil.error('Reset data is missing');
-      navigate('/forgot-password');
+      navigate('/forgot-password', { state: { from: location.state?.from } });
       return;
     }
     
@@ -46,7 +47,7 @@ const ResetPasswordPage = () => {
     } catch (error) {
       console.error('Failed to parse reset data', error);
       toastUtil.error('Invalid reset data');
-      navigate('/forgot-password');
+      navigate('/forgot-password', { state: { from: location.state?.from } });
     }
   }, [navigate]);
   
@@ -146,7 +147,7 @@ const ResetPasswordPage = () => {
         
         // Redirect to login after 3 seconds
         setTimeout(() => {
-          navigate('/login');
+          navigate('/login', { state: { from: location.state?.from } });
         }, 3000);
       } else {
         toastUtil.error(response.data.message || 'Password reset failed');
@@ -318,7 +319,7 @@ const ResetPasswordPage = () => {
         )}
         
         <div className="auth-footer">
-          <Link to="/login" className="back-to-login">
+          <Link to="/login" state={{ from: location.state?.from }} className="back-to-login">
             <IoArrowBackOutline /> Back to Login
           </Link>
         </div>

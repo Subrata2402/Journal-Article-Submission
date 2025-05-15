@@ -36,7 +36,6 @@ const LoadingSpinner = () => (
 );
 
 const AppRoutes = () => {
-  const location = useLocation();
 
   return (
     <Routes>

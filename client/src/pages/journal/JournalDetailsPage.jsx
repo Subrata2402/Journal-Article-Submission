@@ -159,7 +159,7 @@ const JournalDetailsPage = () => {
                   {isPinned() ? <IoBookmark /> : <IoBookmarkOutline />}
                   <span>{isPinned() ? 'Pinned' : 'Pin Journal'}</span>
                 </button>
-                {(isEditor || isAdmin) && (
+                {isAdmin && (
                   <button 
                     className="edit-journal-button"
                     onClick={() => navigate(`/edit-journal/${journalId}`, { state: { from: `/view-journal/${journalId}` } })}

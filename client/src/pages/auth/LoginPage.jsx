@@ -7,7 +7,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import toastUtil from '../../utils/toastUtil';
 import { secureSessionStorage } from '../../utils/storageUtil';
 import '../../assets/styles/pages/auth.scss';
-import { getRedirectionUrl } from '../../utils/redirectionUtils';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -23,8 +22,6 @@ const LoginPage = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const redirectionToken = searchParams.get('redirection_token');
 
   // If already authenticated, redirect to home
   useEffect(() => {
@@ -86,7 +83,7 @@ const LoginPage = () => {
       const result = await login(formData);
 
       if (result.success) {
-        navigate(getRedirectionUrl(redirectionToken));
+        navigate(location.state?.from || '/', { replace: true });
       } else if (result.error === 'Email not verified' && result.verificationData) {
         // Instead of redirecting, show verification option
         setNeedsVerification(true);
@@ -105,7 +102,11 @@ const LoginPage = () => {
     if (verificationData) {
       // Store verification data in secure session storage for use on the verification page
       secureSessionStorage.setItem('verificationData', verificationData);
-      navigate('/verify-email' + location.search);
+      navigate('/verify-email', {
+        state: {
+          from: location.state?.from,
+        },
+      });
     }
   };
 
@@ -183,7 +184,7 @@ const LoginPage = () => {
                   label="Remember me"
                 />
               </div>
-              <Link to={`/forgot-password${location.search}`} className="auth-link">Forgot password?</Link>
+              <Link to="/forgot-password" state={{ from: location.state?.from }} className="auth-link">Forgot password?</Link>
             </div>
 
             <div className="form-actions">
@@ -210,7 +211,7 @@ const LoginPage = () => {
 
         <div className="auth-footer">
           <p>
-            Don't have an account? <Link to={`/register${location.search}`} className="auth-link">Register now</Link>
+            Don't have an account? <Link to="/register" state={{ from: location.state?.from }} className="auth-link">Register now</Link>
           </p>
         </div>
       </div>
