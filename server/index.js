@@ -3,10 +3,10 @@ const app = express();
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const logger = require('./utils/logger');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const routes = require('./routes');
+const swaggerDocs = require('./swagger');
 require('dotenv').config();
 require('./config/database');
 
@@ -25,21 +25,24 @@ app.use(helmet({
   referrerPolicy: { policy: 'same-origin' }
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000, // Limit each IP to 100 requests per window
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: 'Too many requests from this IP, please try again after 15 minutes'
-});
+// Import rate limiters
+const { globalLimiter } = require('./middleware/rateLimiter');
 
-app.use(limiter);
+// Apply global rate limiting as a fallback
+app.use(globalLimiter);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Standard response format middleware
+const { responseMiddleware } = require('./utils/response');
+app.use(responseMiddleware);
+
+// Request logging middleware
+const requestLogger = require('./middleware/requestLogger');
+app.use(requestLogger);
 
 // CORS configuration
 app.use(cors({
@@ -63,6 +66,9 @@ app.get('/', (_, res) => {
 // Error handling
 app.use(notFound);
 app.use(errorHandler);
+
+// Initialize Swagger docs
+swaggerDocs(app);
 
 // Start server
 const PORT = process.env.PORT || 3000;

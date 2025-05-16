@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
 
-// Import route modules
-const authRoutes = require('./auth_routes');
-const articleRoutes = require('./article_routes');
-const journalRoutes = require('./journal_routes');
-const reviewerRoutes = require('./reviewer_routes');
+// Import versioned and utility route modules
+const v1Routes = require('./v1');
+const healthRoutes = require('./health_routes');
 
-// Use route modules
-router.use('/auth', authRoutes);
-router.use('/article', articleRoutes);
-router.use('/journal', journalRoutes);
-router.use('/reviewer', reviewerRoutes);
+// Health check endpoint (no versioning needed)
+router.use('/health', healthRoutes);
+
+// Default to latest version (v1)
+router.use('/v1', v1Routes);
+
+// For backward compatibility (no version specified in path)
+router.use('/', v1Routes);
 
 module.exports = router;

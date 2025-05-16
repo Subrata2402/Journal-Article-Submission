@@ -5,6 +5,9 @@ const { authenticate, verifyEditor, verifyReviewer } = require('../middleware/au
 const { upload } = require('../middleware/multer');
 const validate = require('../middleware/validator');
 const articleSchema = require('../validators/articleValidator');
+const { cacheMiddleware, invalidateCacheByPattern } = require('../middleware/cache');
+const { fileUploadLimiter } = require('../middleware/rateLimiter');
+const { queryMiddleware } = require('../middleware/queryHelper');
 
 const articleUploadFields = [
     { name: "menuScript", maxCount: 1 },
@@ -18,8 +21,16 @@ const articleUploadFields = [
 // Post routes
 router.post('/add-article',
     authenticate,
+    fileUploadLimiter,
     upload.fields(articleUploadFields),
     validate(articleSchema.addArticle),
+    (req, res, next) => {
+        // Invalidate article list caches when a new article is added
+        invalidateCacheByPattern(/\/article-list/); // Invalidate article list cache
+        invalidateCacheByPattern(/\/review-article-list/); // Invalidate review article list cache
+        invalidateCacheByPattern(/\/user-article-list/); // Invalidate user article list cache
+        next();
+    },
     articleController.addArticle
 );
 router.post('/add-review', authenticate, verifyReviewer, validate(articleSchema.addReview), articleController.addReview);
@@ -37,11 +48,44 @@ router.put('/update-article/:articleId',
 // Delete routes
 router.delete('/delete-article/:articleId', authenticate, articleController.deleteArticle);
 
-// Get routes
-router.get('/article-details/:articleId', authenticate, articleController.articleDetails);
-router.get('/user-article-list', authenticate, articleController.userArticleList);
-router.get('/article-list', authenticate, articleController.articleList);
-router.get('/review-article-list', authenticate, verifyReviewer, articleController.reviewArticleList);
+// Get routes with caching for read-only endpoints
+router.get('/article-details/:articleId', 
+    authenticate, 
+    cacheMiddleware({ ttl: 300 }),
+    articleController.articleDetails
+);
+
+// Routes with advanced query capabilities
+router.get('/user-article-list', 
+    authenticate, 
+    queryMiddleware({ defaultLimit: 10, maxLimit: 50 }),
+    cacheMiddleware({ 
+        ttl: 300,
+        keyGenerator: req => `${req.originalUrl}-${JSON.stringify(req.advancedQuery)}-${req.user._id}`
+    }),
+    articleController.userArticleList
+);
+
+router.get('/article-list', 
+    authenticate, 
+    queryMiddleware({ defaultLimit: 15, maxLimit: 100, defaultSort: 'updatedAt:desc' }),
+    cacheMiddleware({ 
+        ttl: 300,
+        keyGenerator: req => `${req.originalUrl}-${JSON.stringify(req.advancedQuery)}`
+    }),
+    articleController.articleList
+);
+
+router.get('/review-article-list', 
+    authenticate, 
+    verifyReviewer,
+    queryMiddleware({ defaultLimit: 10, maxLimit: 50 }),
+    cacheMiddleware({ 
+        ttl: 300,
+        keyGenerator: req => `${req.originalUrl}-${JSON.stringify(req.advancedQuery)}-${req.user._id}`
+    }),
+    articleController.reviewArticleList
+);
 router.get('/download-zip/:filename', articleController.downloadZip);
 
 // Patch routes

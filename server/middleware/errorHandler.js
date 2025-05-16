@@ -4,10 +4,12 @@ const logger = require('../utils/logger');
  * Custom error class for API errors with status codes
  */
 class ApiError extends Error {
-  constructor(message, statusCode) {
+  constructor(message, statusCode, errors = null, errorCode = null) {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
+    this.errors = errors;
+    this.errorCode = errorCode;
     Error.captureStackTrace(this, this.constructor);
   }
 }
