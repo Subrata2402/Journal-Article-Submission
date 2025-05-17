@@ -37,7 +37,7 @@
 .form-field__action-button button[title]:hover::after {
   content: attr(title);
   position: absolute;
-  top: -35px;  /* Position above the button */
+  top: -29px;  /* Position above the button */
   left: 50%;
   transform: translateX(-50%);
   background-color: var(--text-color);
