@@ -14,7 +14,8 @@ const TagInput = ({
   required = false,
   maxTags = null,
   className = '',
-  helpText = "Press Enter, comma, or tab to add a tag"
+  helpText = "Press Enter, comma, or tab to add a tag",
+  icon
 }) => {
   const tagInputRef = useRef(null);
   
@@ -62,11 +63,11 @@ const TagInput = ({
   };
   
   const isMaxTagsReached = maxTags !== null && tags.length >= maxTags;
-
   return (
     <div className={`tags-input-container ${className}`}>
       {label && (
         <label className="tags-input-label">
+          {icon && <span className="form-field__icon">{icon}</span>}
           {label} {required && <span className="form-field__required">*</span>}
         </label>
       )}

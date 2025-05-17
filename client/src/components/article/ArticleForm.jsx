@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  IoDocumentTextOutline, 
+import {
+  IoDocumentTextOutline,
   IoNewspaperOutline,
   IoPersonOutline,
   IoSchoolOutline,
@@ -9,7 +9,11 @@ import {
   IoCheckmarkCircleOutline,
   IoAddCircleOutline,
   IoCloseCircleOutline,
-  IoArrowBackOutline
+  IoArrowBackOutline,
+  IoTextOutline,
+  IoBookOutline,
+  IoPricetagOutline,
+  IoCloudUploadOutline
 } from 'react-icons/io5';
 import FormField from '../forms/FormField';
 import TextArea from '../forms/TextArea';
@@ -35,7 +39,7 @@ const ArticleForm = ({
   loadingText = 'Submitting...'
 }) => {
   const navigate = useNavigate();
-  
+
   const [loading, setLoading] = useState(false);
   const [journals, setJournals] = useState([]);
   const [loadingJournals, setLoadingJournals] = useState(true);
@@ -60,8 +64,8 @@ const ArticleForm = ({
   });
   const [authors, setAuthors] = useState(
     initialData?.authors && initialData.authors.length > 0
-    ? initialData.authors
-    : [{
+      ? initialData.authors
+      : [{
         firstName: '',
         lastName: '',
         email: '',
@@ -71,10 +75,10 @@ const ArticleForm = ({
         otherAuthor: false
       }]
   );
-  
+
   useEffect(() => {
     fetchJournals();
-    
+
     // If initialData changes (like in edit mode when data loads),
     // update our form state
     if (initialData) {
@@ -87,14 +91,14 @@ const ArticleForm = ({
       setAuthors(initialData.authors && initialData.authors.length > 0
         ? initialData.authors
         : [{
-            firstName: '',
-            lastName: '',
-            email: '',
-            affiliation: '',
-            correspondingAuthor: false,
-            firstAuthor: true,
-            otherAuthor: false
-          }]
+          firstName: '',
+          lastName: '',
+          email: '',
+          affiliation: '',
+          correspondingAuthor: false,
+          firstAuthor: true,
+          otherAuthor: false
+        }]
       );
       if (mode === 'edit') {
         setExistingFiles({
@@ -104,12 +108,12 @@ const ArticleForm = ({
         });
       }
     }
-    
+
     // Get journalId from URL parameters if available in add mode
     if (mode === 'add') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlJournalId = urlParams.get('journalId');
-      
+
       if (urlJournalId) {
         setFormData(prev => ({
           ...prev,
@@ -118,7 +122,7 @@ const ArticleForm = ({
       }
     }
   }, [mode, initialData]);
-  
+
   const fetchJournals = async () => {
     try {
       const response = await httpService.get(API_ENDPOINTS.JOURNALS.LIST);
@@ -133,14 +137,14 @@ const ArticleForm = ({
       setLoadingJournals(false);
     }
   };
-  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    
+
     // Clear errors when typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -149,15 +153,17 @@ const ArticleForm = ({
       }));
     }
   };
-  
   const handleFileChange = (e) => {
     const { name, files: uploadedFiles } = e.target;
     if (uploadedFiles.length > 0) {
+      const file = uploadedFiles[0];
+      
+      // File validation happens in the DragDropFileUpload component now
       setFiles(prev => ({
         ...prev,
-        [name]: uploadedFiles[0]
+        [name]: file
       }));
-      
+
       // Clear file errors
       if (errors[name]) {
         setErrors(prev => ({
@@ -168,54 +174,6 @@ const ArticleForm = ({
     }
   };
 
-  // Keywords handling
-  const handleKeywordInputChange = (e) => {
-    setKeywordInput(e.target.value);
-    // Clear keyword error when typing
-    if (errors.keywords) {
-      setErrors(prev => ({
-        ...prev,
-        keywords: ''
-      }));
-    }
-  };
-
-  const handleKeywordKeyDown = (e) => {
-    // Add keyword when Enter or comma is pressed
-    if ((e.key === 'Enter' || e.key === ',') && keywordInput.trim()) {
-      e.preventDefault();
-      addKeyword();
-    }
-  };
-
-  const addKeyword = () => {
-    const newKeyword = keywordInput.trim();
-    if (newKeyword && !keywords.includes(newKeyword)) {
-      // Check if adding would exceed 6 keywords
-      if (keywords.length < 6) {
-        setKeywords(prev => [...prev, newKeyword]);
-        setKeywordInput('');
-      } else {
-        // Show error if trying to add more than 6 keywords
-        setErrors(prev => ({
-          ...prev,
-          keywords: 'Maximum 6 keywords allowed'
-        }));
-      }
-    }
-  };
-
-  const removeKeyword = (index) => {
-    setKeywords(prev => prev.filter((_, i) => i !== index));
-    // Clear error when removing keywords
-    if (errors.keywords) {
-      setErrors(prev => ({
-        ...prev,
-        keywords: ''
-      }));
-    }
-  };
-  
   const handleAuthorChange = (index, field, value) => {
     const updatedAuthors = [...authors];
     updatedAuthors[index] = {
@@ -223,7 +181,7 @@ const ArticleForm = ({
       [field]: value
     };
     setAuthors(updatedAuthors);
-    
+
     // Clear author errors if any
     if (errors[`authors.${index}.${field}`]) {
       setErrors(prev => {
@@ -233,14 +191,14 @@ const ArticleForm = ({
       });
     }
   };
-  
+
   const handleCheckboxChange = (index, field) => {
     const updatedAuthors = [...authors];
     updatedAuthors[index] = {
       ...updatedAuthors[index],
       [field]: !updatedAuthors[index][field]
     };
-    
+
     // If this is firstAuthor and we're setting it to true, set all others to false
     if (field === 'firstAuthor' && updatedAuthors[index][field]) {
       updatedAuthors.forEach((author, i) => {
@@ -252,7 +210,7 @@ const ArticleForm = ({
         }
       });
     }
-    
+
     // If this is correspondingAuthor and we're setting it to true, set all others to false
     if (field === 'correspondingAuthor' && updatedAuthors[index][field]) {
       updatedAuthors.forEach((author, i) => {
@@ -264,10 +222,10 @@ const ArticleForm = ({
         }
       });
     }
-    
+
     setAuthors(updatedAuthors);
   };
-  
+
   const addAuthor = () => {
     setAuthors(prev => [
       ...prev,
@@ -282,11 +240,11 @@ const ArticleForm = ({
       }
     ]);
   };
-  
+
   const removeAuthor = (index) => {
     if (authors.length > 1) {
       const updatedAuthors = authors.filter((_, i) => i !== index);
-      
+
       // Check if we're removing a first author, and if so, set the first author to the first in the list
       if (authors[index].firstAuthor && updatedAuthors.length > 0) {
         updatedAuthors[0] = {
@@ -294,7 +252,7 @@ const ArticleForm = ({
           firstAuthor: true
         };
       }
-      
+
       // Check if we're removing a corresponding author
       if (authors[index].correspondingAuthor && updatedAuthors.length > 0) {
         updatedAuthors[0] = {
@@ -302,38 +260,40 @@ const ArticleForm = ({
           correspondingAuthor: true
         };
       }
-      
+
       setAuthors(updatedAuthors);
     }
   };
-  
+
   const validateForm = () => {
     const newErrors = {};
-    
+
     // Validate title
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
+    } else if (formData.title.trim().length < 10) {
+      newErrors.title = 'Title should be at least 10 characters';
     }
-    
+
     // Validate abstract
     if (!formData.abstract.trim()) {
       newErrors.abstract = 'Abstract is required';
     } else if (formData.abstract.trim().length < 100) {
       newErrors.abstract = 'Abstract should be at least 100 characters';
     }
-    
+
     // Validate keywords - now required and limited to maximum 6 keywords
     if (keywords.length === 0) {
       newErrors.keywords = 'Keywords are required';
     } else if (keywords.length > 6) {
       newErrors.keywords = 'Maximum 6 keywords allowed';
     }
-    
+
     // Validate journal selection
     if (!formData.journalId) {
       newErrors.journalId = 'Please select a journal';
     }
-    
+
     // Validate files
     // When editing, files are not required if they are already uploaded
     if (!files.menuScript && (mode === 'add' || !existingFiles.menuScript)) {
@@ -341,7 +301,7 @@ const ArticleForm = ({
       // Focus on the add manuscript button if there's an error
       document.querySelector('button[aria-label="Browse for Manuscript"]')?.focus();
     }
-    
+
     if (!files.coverLetter && (mode === 'add' || !existingFiles.coverLetter)) {
       newErrors.coverLetter = 'Cover letter is required';
       // Only focus if manuscript is valid but cover letter isn't
@@ -357,71 +317,79 @@ const ArticleForm = ({
         document.querySelector('button[aria-label="Browse for Supplementary Files"]')?.focus();
       }
     }
-    
+
     // Validate authors
     authors.forEach((author, index) => {
+      // First name should not be empty and should contain only letters
       if (!author.firstName?.trim()) {
         newErrors[`authors.${index}.firstName`] = 'First name is required';
+      } else if (!/^[a-zA-Z]+$/.test(author.firstName.trim())) {
+        newErrors[`authors.${index}.firstName`] = 'First name should contain only letters';
       }
       
+      // Last name should not be empty and should contain only letters
       if (!author.lastName?.trim()) {
         newErrors[`authors.${index}.lastName`] = 'Last name is required';
+      } else if (!/^[a-zA-Z]+$/.test(author.lastName.trim())) {
+        newErrors[`authors.${index}.lastName`] = 'Last name should contain only letters';
       }
-      
+
       if (!author.email?.trim()) {
         newErrors[`authors.${index}.email`] = 'Email is required';
       } else if (!/\S+@\S+\.\S+/.test(author.email)) {
         newErrors[`authors.${index}.email`] = 'Email is invalid';
       }
-      
+
       if (!author.affiliation?.trim()) {
         newErrors[`authors.${index}.affiliation`] = 'Affiliation is required';
+      } else if (!/^[a-zA-Z\s]+$/.test(author.affiliation.trim())) {
+        newErrors[`authors.${index}.affiliation`] = 'Affiliation should contain only letters and spaces';
       }
     });
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toastUtil.error('Please correct the errors in the form');
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
       // Create FormData object
       const data = new FormData();
       data.append('title', formData.title);
       data.append('abstract', formData.abstract);
-      
+
       // Add keywords as JSON string
       if (keywords.length > 0) {
         data.append('keywords', JSON.stringify(keywords));
       }
-      
+
       data.append('journalId', formData.journalId);
-      
+
       // Add files
       if (files.menuScript) {
         data.append('menuScript', files.menuScript, files.menuScript.name);
       }
-      
+
       if (files.coverLetter) {
         data.append('coverLetter', files.coverLetter, files.coverLetter.name);
       }
-      
+
       if (files.supplementaryFile) {
         data.append('supplementaryFile', files.supplementaryFile, files.supplementaryFile.name);
       }
-      
+
       // Add authors as JSON string
       data.append('authors', JSON.stringify(authors));
-      
+
       // Call the submit handler provided by the parent
       await submitHandler(data);
     } catch (error) {
@@ -431,7 +399,7 @@ const ArticleForm = ({
       setLoading(false);
     }
   };
-  
+
   const handleGoBack = () => {
     navigate(backLink);
   };
@@ -449,7 +417,7 @@ const ArticleForm = ({
         <h1>{pageTitle}</h1>
         <p>{pageDescription}</p>
       </header>
-      
+
       <div className="content-container">
         <div className="add-article-form-container">
           <form onSubmit={handleSubmit} className="add-article-form">
@@ -458,41 +426,7 @@ const ArticleForm = ({
                 <IoNewspaperOutline className="section-icon" />
                 Article Information
               </h2>
-              
-              <FormField
-                label="Article Title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="Enter the complete title of your article"
-                error={errors.title}
-                required
-              />
-              
-              <TextArea
-                label="Abstract"
-                name="abstract"
-                value={formData.abstract}
-                onChange={handleInputChange}
-                placeholder="Provide a concise summary of your article"
-                rows={6}
-                error={errors.abstract}
-                required
-              />
-              
-              <TagInput
-                label="Keywords"
-                tags={keywords}
-                setTags={setKeywords}
-                tagInputValue={keywordInput}
-                setTagInputValue={setKeywordInput}
-                placeholder="Type and press Enter to add keywords..."
-                error={errors.keywords}
-                required
-                maxTags={6}
-                helpText="Add up to 6 keywords. Press Enter or comma after each keyword."
-              />
-              
+
               {loadingJournals ? (
                 <div className="form-field">
                   <label className="form-field__label">
@@ -521,16 +455,47 @@ const ArticleForm = ({
                   required
                   icon={<IoNewspaperOutline />}
                 />
-              )}
-            </div>
-            
-            <div className="form-section">
+              )}              <FormField
+                label="Article Title"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Enter the complete title of your article"
+                error={errors.title}
+                required
+                icon={<IoTextOutline />}
+              />
+
+              <TextArea
+                label="Abstract"
+                name="abstract"
+                value={formData.abstract}
+                onChange={handleInputChange}
+                placeholder="Provide a concise summary of your article"
+                rows={6}
+                error={errors.abstract}
+                required
+                icon={<IoBookOutline />}
+              />
+
+              <TagInput
+                label="Keywords"
+                tags={keywords}
+                setTags={setKeywords}
+                tagInputValue={keywordInput}
+                setTagInputValue={setKeywordInput}
+                placeholder="Type and press Enter to add keywords..."
+                error={errors.keywords}
+                required
+                maxTags={6}
+                helpText="Add up to 6 keywords. Press Enter or tab after each keyword."
+                icon={<IoPricetagOutline />}
+              />
+            </div>            <div className="form-section">
               <h2 className="section-title">
-                <IoDocumentTextOutline className="section-icon" />
+                <IoCloudUploadOutline className="section-icon" />
                 Upload Files
-              </h2>
-              
-              <div className="file-uploads-row">
+              </h2><div className="file-uploads-row">
                 <DragDropFileUpload
                   title="Manuscript"
                   name="menuScript"
@@ -540,8 +505,9 @@ const ArticleForm = ({
                   error={errors.menuScript}
                   required={mode === 'add' || !existingFiles.menuScript}
                   existingFile={mode === 'edit' ? existingFiles.menuScript : null}
+                  maxFileSize={10}
                 />
-                
+
                 <DragDropFileUpload
                   title="Cover Letter"
                   name="coverLetter"
@@ -551,8 +517,9 @@ const ArticleForm = ({
                   error={errors.coverLetter}
                   required={mode === 'add' || !existingFiles.coverLetter}
                   existingFile={mode === 'edit' ? existingFiles.coverLetter : null}
+                  maxFileSize={10}
                 />
-                
+
                 <DragDropFileUpload
                   title="Supplementary Files"
                   name="supplementaryFile"
@@ -562,31 +529,32 @@ const ArticleForm = ({
                   error={errors.supplementaryFile}
                   required={false}
                   existingFile={mode === 'edit' ? existingFiles.supplementaryFile : null}
+                  maxFileSize={10}
                 />
               </div>
             </div>
-            
+
             <div className="form-section authors-section">
               <div className="section-title-with-action">
                 <h2 className="section-title">
                   <IoPersonOutline className="section-icon" />
                   Authors
                 </h2>
-                
-                <button 
-                  type="button" 
-                  className="add-author-button" 
+
+                <button
+                  type="button"
+                  className="add-author-button"
                   onClick={addAuthor}
                 >
                   <IoAddCircleOutline /> Add Author
                 </button>
               </div>
-              
+
               {authors.map((author, index) => (
                 <div key={index} className="author-card">
                   <div className="author-card-header">
                     <h3>Author {index + 1}</h3>
-                    
+
                     {index > 0 && (
                       <button
                         type="button"
@@ -596,9 +564,7 @@ const ArticleForm = ({
                         <IoCloseCircleOutline /> Remove
                       </button>
                     )}
-                  </div>
-                  
-                  <div className="author-form-row">
+                  </div>                  <div className="author-form-row">
                     <FormField
                       label="First Name"
                       name={`firstName-${index}`}
@@ -607,8 +573,9 @@ const ArticleForm = ({
                       placeholder="First Name"
                       error={errors[`authors.${index}.firstName`]}
                       required
+                      icon={<IoPersonOutline />}
                     />
-                    
+
                     <FormField
                       label="Last Name"
                       name={`lastName-${index}`}
@@ -617,9 +584,10 @@ const ArticleForm = ({
                       placeholder="Last Name"
                       error={errors[`authors.${index}.lastName`]}
                       required
+                      icon={<IoPersonOutline />}
                     />
                   </div>
-                  
+
                   <div className="author-form-row">
                     <FormField
                       label="Email"
@@ -632,7 +600,7 @@ const ArticleForm = ({
                       required
                       icon={<IoMailOutline />}
                     />
-                    
+
                     <FormField
                       label="Affiliation"
                       name={`affiliation-${index}`}
@@ -644,7 +612,7 @@ const ArticleForm = ({
                       icon={<IoSchoolOutline />}
                     />
                   </div>
-                    <div className="author-checkboxes">
+                  <div className="author-checkboxes">
                     <div className="checkbox-item">
                       <CustomCheckbox
                         id={`firstAuthor-${index}`}
@@ -653,7 +621,7 @@ const ArticleForm = ({
                         label="First Author"
                       />
                     </div>
-                    
+
                     <div className="checkbox-item">
                       <CustomCheckbox
                         id={`correspondingAuthor-${index}`}
@@ -662,7 +630,7 @@ const ArticleForm = ({
                         label="Corresponding Author"
                       />
                     </div>
-                    
+
                     <div className="checkbox-item">
                       <CustomCheckbox
                         id={`otherAuthor-${index}`}
@@ -675,20 +643,20 @@ const ArticleForm = ({
                 </div>
               ))}
             </div>
-            
+
             <div className="form-actions">
-              <button 
-                type="button" 
-                className="secondary-button" 
+              <button
+                type="button"
+                className="secondary-button"
                 onClick={handleGoBack}
                 disabled={loading}
               >
                 Cancel
               </button>
-              
-              <button 
-                type="submit" 
-                className="primary-button" 
+
+              <button
+                type="submit"
+                className="primary-button"
                 disabled={loading}
               >
                 {loading ? (

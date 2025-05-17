@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { IoCloudUploadOutline, IoDocumentOutline } from 'react-icons/io5';
+import { IoCloudUploadOutline, IoDocumentOutline, IoAlertCircleOutline } from 'react-icons/io5';
 import '../../assets/styles/common/dragDropFileUpload.scss';
 
 const DragDropFileUpload = ({ 
@@ -10,9 +10,11 @@ const DragDropFileUpload = ({
   onChange, 
   error,
   required = false,
-  existingFile = null
+  existingFile = null,
+  maxFileSize = 10 // Max file size in MB
 }) => {
   const [dragActive, setDragActive] = useState(false);
+  const [sizeError, setSizeError] = useState(null);
   const inputRef = useRef(null);
 
   // Handle drag events
@@ -26,6 +28,16 @@ const DragDropFileUpload = ({
       setDragActive(false);
     }
   };
+  // Check file size
+  const validateFileSize = (file) => {
+    const fileSize = file.size / 1024 / 1024; // Convert to MB
+    if (fileSize > maxFileSize) {
+      setSizeError(`File size exceeds ${maxFileSize}MB limit`);
+      return false;
+    }
+    setSizeError(null);
+    return true;
+  };
 
   // Handle drop event
   const handleDrop = (e) => {
@@ -34,21 +46,32 @@ const DragDropFileUpload = ({
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      // Create synthetic event to pass to onChange handler
-      const event = {
-        target: {
-          name: name,
-          files: e.dataTransfer.files
-        }
-      };
-      onChange(event);
+      const file = e.dataTransfer.files[0];
+      
+      if (validateFileSize(file)) {
+        // Create synthetic event to pass to onChange handler
+        const event = {
+          target: {
+            name: name,
+            files: e.dataTransfer.files
+          }
+        };
+        onChange(event);
+      }
     }
   };
 
   // Handle manual file selection
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      onChange(e);
+      const file = e.target.files[0];
+      
+      if (validateFileSize(file)) {
+        onChange(e);
+      } else {
+        // Clear the input if file is too large
+        e.target.value = '';
+      }
     }
   };
 
@@ -110,8 +133,7 @@ const DragDropFileUpload = ({
           aria-label={`Browse for ${title}`}
         >
           Browse File
-        </button>
-        {fileName && (
+        </button>        {fileName && (
           <div className="selected-file">
             <IoDocumentOutline />
             <span title={fileName}>{fileName}</span>
@@ -124,6 +146,12 @@ const DragDropFileUpload = ({
           </div>
         )}
         {error && <div className="upload-error" role="alert">{error}</div>}
+        {sizeError && <div className="upload-error" role="alert">
+          <IoAlertCircleOutline /> {sizeError}
+        </div>}
+        <div className="upload-size-limit">
+          Maximum file size: {maxFileSize}MB
+        </div>
       </div>
     </div>
   );

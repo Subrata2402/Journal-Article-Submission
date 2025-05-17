@@ -1072,11 +1072,21 @@
   width: 100%;
   
   .tags-input-label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 500;
     margin-bottom: var(--spacing-xs);
     color: var(--text-color);
     font-size: var(--font-size-sm);
+    
+    .form-field__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
   }
   
   .tags-input-wrapper {
