@@ -10,7 +10,8 @@ import {
   IoSchoolOutline,
   IoAtOutline,
   IoPersonCircleOutline,
-  IoArrowBackOutline
+  IoArrowBackOutline,
+  IoRefreshOutline
 } from 'react-icons/io5';
 import FormField from '../../components/forms/FormField';
 import DateField from '../../components/forms/DateField';
@@ -40,6 +41,37 @@ const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Function to generate a username based on first name
+  const generateUsername = () => {
+    if (!formData.firstName) {
+      setErrors(prev => ({
+        ...prev,
+        userName: 'Please enter your first name first'
+      }));
+      return;
+    }
+    
+    // Clear any existing username error
+    if (errors.userName) {
+      setErrors(prev => ({
+        ...prev,
+        userName: ''
+      }));
+    }
+    
+    // Generate a random 3-digit number
+    const randomNum = Math.floor(Math.random() * 900) + 100; // 100-999
+    
+    // Create username: firstname + 3 random digits
+    const generatedUsername = `${formData.firstName.toLowerCase()}${randomNum}`;
+    
+    // Update the form data with the new username
+    setFormData(prev => ({
+      ...prev,
+      userName: generatedUsername
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -223,8 +255,7 @@ const RegisterPage = () => {
               autoComplete="family-name"
               icon={<IoPersonOutline />}
             />
-            
-            <FormField
+              <FormField
               label="Username"
               type="text"
               name="userName"
@@ -234,7 +265,16 @@ const RegisterPage = () => {
               error={errors.userName}
               required
               autoComplete="username"
-              icon={<IoAtOutline />}
+              icon={<IoAtOutline />}              actionButton={
+                <button 
+                  type="button" 
+                  onClick={generateUsername} 
+                  aria-label="Auto-generate username"
+                  title="Generate username from your first name"
+                >
+                  <IoRefreshOutline />
+                </button>
+              }
             />
           </div>
 

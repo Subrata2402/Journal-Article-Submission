@@ -16,6 +16,7 @@ const FormField = ({
   autoComplete,
   maxLength,
   icon, // Added icon prop
+  actionButton, // Added action button prop
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,8 +47,7 @@ const FormField = ({
           </span>
         </label>
       )}
-      
-      <div className="form-field__input-wrapper">
+        <div className="form-field__input-wrapper">
         <input
           id={id}
           type={inputType}
@@ -69,10 +69,17 @@ const FormField = ({
             className="form-field__password-toggle"
             onClick={togglePasswordVisibility}
             tabIndex="-1"
+            title={showPassword ? "Hide password" : "Show password"}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <FiEyeOff /> : <FiEye />}
           </button>
+        )}
+        
+        {actionButton && (
+          <div className="form-field__action-button">
+            {actionButton}
+          </div>
         )}
       </div>
       

@@ -5,6 +5,7 @@
   --body-text: #333333;
   --navbar-bg: #ffffff;
   --navbar-text: #333333;
+  --text-color: #333333;
   
   // Scrollbar
   --scrollbar-width: 8px;
@@ -97,6 +98,7 @@
   --navbar-bg: #1e1e1e;
   --navbar-text: #ffffff;
   --button-bg: #333333;
+  --text-color: #e0e0e0;
   
   // Scrollbar
   --scrollbar-track: rgba(255, 255, 255, 0.05);
@@ -148,6 +150,7 @@
   @media (prefers-color-scheme: dark) {
     --body-bg: #121212;
     --body-text: #e0e0e0;
+    --text-color: #e0e0e0;
     --navbar-bg: #1e1e1e;
     --navbar-text: #ffffff;
     --button-bg: #333333;
@@ -195,6 +198,7 @@
   @media (prefers-color-scheme: light) {
     --body-bg: #f8f9fa;
     --body-text: #333333;
+    --text-color: #333333;
     --navbar-bg: #ffffff;
     --navbar-text: #333333;
     --button-bg: #e9ecef;
