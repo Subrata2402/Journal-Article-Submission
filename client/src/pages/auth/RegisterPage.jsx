@@ -60,16 +60,30 @@ const RegisterPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
+    // First name should not be empty and should contain only letters
     if (!formData.firstName) {
       newErrors.firstName = 'First name is required';
+    } else if (!/^[A-Za-z]+$/.test(formData.firstName)) {
+      newErrors.firstName = 'First name must contain only letters';
     }
 
+    // Middle name can be empty or contain only letters
+    if (formData.middleName && !/^[A-Za-z]*$/.test(formData.middleName)) {
+      newErrors.middleName = 'Middle name must contain only letters';
+    }
+    
+    // Last name should not be empty and should contain only letters
     if (!formData.lastName) {
       newErrors.lastName = 'Last name is required';
+    } else if (!/^[A-Za-z]+$/.test(formData.lastName)) {
+      newErrors.lastName = 'Last name must contain only letters';
     }
 
+    // User name should not be empty and should contain only alphanumeric characters and underscores
     if (!formData.userName) {
       newErrors.userName = 'Username is required';
+    } else if (!/^[A-Za-z0-9_]+$/.test(formData.userName)) {
+      newErrors.userName = 'Username must contain only letters, numbers, and underscores';
     }
 
     if (!formData.email) {
@@ -108,6 +122,9 @@ const RegisterPage = () => {
     e.preventDefault();
 
     if (!validateForm()) {
+      // if there are validation errors, do not proceed with registration and auto scroll to the first error
+      const firstErrorField = Object.keys(errors)[0];
+      document.getElementsByName(firstErrorField)[0].scrollIntoView({ behavior: 'smooth' });
       return;
     }
 
@@ -129,10 +146,13 @@ const RegisterPage = () => {
           navigate('/login', { state: { from: location.state?.from } });
         }
       } else {
+        // If registration failed, set the error message and scroll to the top
+        document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
         setRegisterError(result.error || 'Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Registration error:', error);
+      document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
       setRegisterError('An unexpected error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
@@ -174,7 +194,23 @@ const RegisterPage = () => {
               autoComplete="given-name"
               icon={<IoPersonOutline />}
             />
+            
+            <FormField
+              label="Middle Name (Optional)"
+              type="text"
+              name="middleName"
+              value={formData.middleName}
+              onChange={handleChange}
+              placeholder="Enter middle name"
+              error={errors.middleName}
+              autoComplete="additional-name"
+              icon={<IoPersonCircleOutline />}
+            />
+            
+          </div>
 
+          {/* Last name and username row */}
+          <div className="form-row">
             <FormField
               label="Last Name"
               type="text"
@@ -187,10 +223,7 @@ const RegisterPage = () => {
               autoComplete="family-name"
               icon={<IoPersonOutline />}
             />
-          </div>
-
-          {/* Username and middle name row */}
-          <div className="form-row">
+            
             <FormField
               label="Username"
               type="text"
@@ -202,18 +235,6 @@ const RegisterPage = () => {
               required
               autoComplete="username"
               icon={<IoAtOutline />}
-            />
-
-            <FormField
-              label="Middle Name (Optional)"
-              type="text"
-              name="middleName"
-              value={formData.middleName}
-              onChange={handleChange}
-              placeholder="Enter middle name"
-              error={errors.middleName}
-              autoComplete="additional-name"
-              icon={<IoPersonCircleOutline />}
             />
           </div>
 

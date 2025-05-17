@@ -12,7 +12,7 @@ const { generateVerificationToken } = require('../utils/helper');
 const register = async (req, res, next) => {
     try {
         // Check for existing email
-        let userEmail = await User.findOne({ email: req.body.email });
+        let userEmail = await User.findOne({ email: req.body.email.id });
         if (userEmail) {
             throw new ApiError('User with this email already exists', 400);
         }
