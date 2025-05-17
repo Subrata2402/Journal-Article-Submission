@@ -2,13 +2,14 @@
   "name": "journal-submission-api",
   "version": "1.0.0",
   "description": "Advanced API for academic journal article submissions",
-  "main": "server.js",
-  "scripts": {
+  "main": "server.js",  "scripts": {
     "start": "node index.js",
     "server": "nodemon server.js",
     "dev": "NODE_ENV=development nodemon server.js",
     "prod": "NODE_ENV=production node server.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watchAll"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -22,12 +23,14 @@
     "jszip": "^3.10.1",
     "mongoose": "^8.1.1",
     "multer": "^1.4.5-lts.1",
+    "node-cron": "^4.0.5",
     "nodemailer": "^6.9.10",
     "winston": "^3.11.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
+    "jest": "^29.7.0",
     "nodemon": "^3.0.3"
   },
   "engines": {

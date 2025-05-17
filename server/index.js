@@ -7,6 +7,8 @@ const rateLimit = require('express-rate-limit');
 const logger = require('./utils/logger');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const routes = require('./routes');
+const { checkAndSendReviewReminders } = require('./controllers/reminder_controller');
+const cron = require('node-cron');
 require('dotenv').config();
 require('./config/database');
 
@@ -68,6 +70,18 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    
+    // Schedule daily check for review reminders at 1:00 AM
+    cron.schedule('0 1 * * *', async () => {
+        try {
+            logger.info('Running scheduled check for delayed reviews...');
+            const remindersSent = await checkAndSendReviewReminders();
+            logger.info(`Scheduled review reminder check completed. Sent ${remindersSent || 0} reminder emails.`);
+        } catch (error) {
+            logger.error(`Error in scheduled review reminder check: ${error.message}`);
+        }
+    });
+    logger.info('Review reminder scheduler initialized');
 });
 
 // Handle unhandled promise rejections

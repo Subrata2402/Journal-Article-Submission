@@ -28,6 +28,7 @@ The Academic Journal Submission System is a comprehensive platform for academic 
   - Assign reviewers to articles
   - Manage the review workflow
   - Track review metrics and timeline
+  - Automated reviewer reminders for pending reviews
 
 - **Email Notifications**
   - Automated email notifications for key events
