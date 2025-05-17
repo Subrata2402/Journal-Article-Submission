@@ -448,11 +448,12 @@
       }
       
       @media (max-width: 576px) {
-        flex-direction: column-reverse;
+        // flex-direction: column-reverse;
+        justify-content: center;
         
-        button {
-          width: 100%;
-        }
+        // button {
+        //   width: 100%;
+        // }
       }
     }
   }
