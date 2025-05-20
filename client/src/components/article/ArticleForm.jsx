@@ -271,27 +271,34 @@ const ArticleForm = ({
     // Validate title
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
+      document.querySelector('input[name="title"]')?.focus();
     } else if (formData.title.trim().length < 10) {
       newErrors.title = 'Title should be at least 10 characters';
+      document.querySelector('input[name="title"]')?.focus();
     }
 
     // Validate abstract
     if (!formData.abstract.trim()) {
       newErrors.abstract = 'Abstract is required';
+      document.querySelector('textarea[name="abstract"]')?.focus();
     } else if (formData.abstract.trim().length < 100) {
       newErrors.abstract = 'Abstract should be at least 100 characters';
+      document.querySelector('textarea[name="abstract"]')?.focus();
     }
 
     // Validate keywords - now required and limited to maximum 6 keywords
     if (keywords.length === 0) {
       newErrors.keywords = 'Keywords are required';
+      document.querySelector('input[name="keywords"]')?.focus();
     } else if (keywords.length > 6) {
       newErrors.keywords = 'Maximum 6 keywords allowed';
+      document.querySelector('input[name="keywords"]')?.focus();
     }
 
     // Validate journal selection
     if (!formData.journalId) {
       newErrors.journalId = 'Please select a journal';
+      document.querySelector('select[name="journalId"]')?.focus();
     }
 
     // Validate files
@@ -323,27 +330,35 @@ const ArticleForm = ({
       // First name should not be empty and should contain only letters
       if (!author.firstName?.trim()) {
         newErrors[`authors.${index}.firstName`] = 'First name is required';
+        document.querySelector(`input[name="firstName-${index}"]`)?.focus();
       } else if (!/^[a-zA-Z]+$/.test(author.firstName.trim())) {
         newErrors[`authors.${index}.firstName`] = 'First name should contain only letters';
+        document.querySelector(`input[name="firstName-${index}"]`)?.focus();
       }
       
       // Last name should not be empty and should contain only letters
       if (!author.lastName?.trim()) {
         newErrors[`authors.${index}.lastName`] = 'Last name is required';
+        document.querySelector(`input[name="lastName-${index}"]`)?.focus();
       } else if (!/^[a-zA-Z]+$/.test(author.lastName.trim())) {
         newErrors[`authors.${index}.lastName`] = 'Last name should contain only letters';
+        document.querySelector(`input[name="lastName-${index}"]`)?.focus();
       }
 
       if (!author.email?.trim()) {
         newErrors[`authors.${index}.email`] = 'Email is required';
+        document.querySelector(`input[name="email-${index}"]`)?.focus();
       } else if (!/\S+@\S+\.\S+/.test(author.email)) {
         newErrors[`authors.${index}.email`] = 'Email is invalid';
+        document.querySelector(`input[name="email-${index}"]`)?.focus();
       }
 
       if (!author.affiliation?.trim()) {
         newErrors[`authors.${index}.affiliation`] = 'Affiliation is required';
+        document.querySelector(`input[name="affiliation-${index}"]`)?.focus();
       } else if (!/^[a-zA-Z\s]+$/.test(author.affiliation.trim())) {
         newErrors[`authors.${index}.affiliation`] = 'Affiliation should contain only letters and spaces';
+        document.querySelector(`input[name="affiliation-${index}"]`)?.focus();
       }
     });
 
@@ -462,7 +477,7 @@ const ArticleForm = ({
                 onChange={handleInputChange}
                 placeholder="Enter the complete title of your article"
                 error={errors.title}
-                required
+                // required
                 icon={<IoTextOutline />}
               />
 
@@ -474,7 +489,7 @@ const ArticleForm = ({
                 placeholder="Provide a concise summary of your article"
                 rows={6}
                 error={errors.abstract}
-                required
+                // required
                 icon={<IoBookOutline />}
               />
 
@@ -486,7 +501,7 @@ const ArticleForm = ({
                 setTagInputValue={setKeywordInput}
                 placeholder="Type and press Enter to add keywords..."
                 error={errors.keywords}
-                required
+                // required
                 maxTags={6}
                 helpText="Add up to 6 keywords. Press Enter or tab after each keyword."
                 icon={<IoPricetagOutline />}
@@ -572,7 +587,7 @@ const ArticleForm = ({
                       onChange={(e) => handleAuthorChange(index, 'firstName', e.target.value)}
                       placeholder="First Name"
                       error={errors[`authors.${index}.firstName`]}
-                      required
+                      // required
                       icon={<IoPersonOutline />}
                     />
 
@@ -583,7 +598,7 @@ const ArticleForm = ({
                       onChange={(e) => handleAuthorChange(index, 'lastName', e.target.value)}
                       placeholder="Last Name"
                       error={errors[`authors.${index}.lastName`]}
-                      required
+                      // required
                       icon={<IoPersonOutline />}
                     />
                   </div>
@@ -597,7 +612,7 @@ const ArticleForm = ({
                       onChange={(e) => handleAuthorChange(index, 'email', e.target.value)}
                       placeholder="Email Address"
                       error={errors[`authors.${index}.email`]}
-                      required
+                      // required
                       icon={<IoMailOutline />}
                     />
 
@@ -608,7 +623,7 @@ const ArticleForm = ({
                       onChange={(e) => handleAuthorChange(index, 'affiliation', e.target.value)}
                       placeholder="University or Institution"
                       error={errors[`authors.${index}.affiliation`]}
-                      required
+                      // required
                       icon={<IoSchoolOutline />}
                     />
                   </div>

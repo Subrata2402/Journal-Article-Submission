@@ -85,30 +85,38 @@ const AddEditorPage = () => {
     
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
+      document.querySelector('input[name="firstName"]')?.focus();
     }
     
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Last name is required';
+      document.querySelector('input[name="lastName"]')?.focus();
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
+      document.querySelector('input[name="email"]')?.focus();
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
+      document.querySelector('input[name="email"]')?.focus();
     }
     
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = 'Phone number is required';
+      document.querySelector('input[name="phoneNumber"]')?.focus();
     } else if (!/^\d{10}$/.test(formData.phoneNumber.replace(/[^0-9]/g, ''))) {
       newErrors.phoneNumber = 'Phone number should be 10 digits';
+      document.querySelector('input[name="phoneNumber"]')?.focus();
     }
     
     if (!formData.institution.trim()) {
       newErrors.institution = 'Institution is required';
+      document.querySelector('input[name="institution"]')?.focus();
     }
-    
+
     if (!formData.journalId) {
       newErrors.journalId = 'Please select a journal';
+      document.querySelector('select[name="journalId"]')?.focus();
     }
     
     setErrors(newErrors);
@@ -180,7 +188,7 @@ const AddEditorPage = () => {
                 onChange={handleChange}
                 placeholder="Enter first name"
                 error={errors.firstName}
-                required
+                // required
               />
               
               <FormField
@@ -201,7 +209,7 @@ const AddEditorPage = () => {
                 onChange={handleChange}
                 placeholder="Enter last name"
                 error={errors.lastName}
-                required
+                // required
               />
               
               <FormField
@@ -212,7 +220,7 @@ const AddEditorPage = () => {
                 onChange={handleChange}
                 placeholder="Enter email address"
                 error={errors.email}
-                required
+                // required
               />
             </div>
 
@@ -224,7 +232,7 @@ const AddEditorPage = () => {
                 onChange={handleChange}
                 placeholder="Enter phone number"
                 error={errors.phoneNumber}
-                required
+                // required
               />
               
               <FormField
@@ -234,7 +242,7 @@ const AddEditorPage = () => {
                 onChange={handleChange}
                 placeholder="Enter institution or organization"
                 error={errors.institution}
-                required
+                // required
               />
             </div>
 
@@ -263,7 +271,7 @@ const AddEditorPage = () => {
                     label: journal.title
                   }))}
                   placeholder="Select a journal"
-                  required
+                  // required
                   error={errors.journalId}
                   icon={<IoNewspaperOutline />}
                 />

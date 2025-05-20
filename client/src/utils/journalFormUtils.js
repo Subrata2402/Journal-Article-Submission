@@ -44,18 +44,22 @@ export const validateJournalForm = (formData) => {
   // Required fields validation
   if (!formData.title.trim()) {
     errors.title = 'Journal title is required';
+    document.querySelector('input[name="title"]')?.focus();
   }
 
   if (!formData.description.trim()) {
     errors.description = 'Description is required';
+    document.querySelector('textarea[name="description"]')?.focus();
   }
 
   if (!formData.category.trim()) {
     errors.category = 'Category is required';
+    document.querySelector('input[name="category"]')?.focus();
   }
 
   if (!formData.publicationFrequency) {
     errors.publicationFrequency = 'Publication frequency is required';
+    document.querySelector('select[name="publicationFrequency"]')?.focus();
   }
 
   return errors;

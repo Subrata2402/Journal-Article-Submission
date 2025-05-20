@@ -72,7 +72,7 @@ export default defineConfig({
   },
   // Enable brotli and gzip compression
   server: {
-    open: true,
+    open: false,
     cors: true
   },
   // Add image optimization
