@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth_controller');
+const mailController = require('../controllers/mail_controller');
 const { authenticate } = require('../middleware/authentication');
 const authSchema = require('../validators/authValidator');
 const validate = require('../middleware/validator');
@@ -16,6 +17,7 @@ router.post('/send-otp', validate(authSchema.sendOtp), authController.sendOtp);
 router.post('/forgot-password', validate(authSchema.forgotPassword), authController.forgotPassword);
 router.post('/reset-password', validate(authSchema.resetPassword), authController.resetPassword);
 router.post('/user/update-profile', authenticate, upload.single('profile-picture'), authController.updateProfile);
+router.post('/mail-service/send-mail', mailController.handleSendMail);
 
 // Get routes
 router.get('/user/profile-details', authenticate, authController.profileDetails);
